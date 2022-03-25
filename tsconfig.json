@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"module": "es2020",
+		"target": "es2020",
+		"outDir": "dist",
+		"declaration": true
+	},
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

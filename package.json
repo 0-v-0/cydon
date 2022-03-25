@@ -1,0 +1,25 @@
+{
+	"name": "cydon",
+	"description": "Lightweight Frontend Framework",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon"
+	},
+	"keywords": [
+		"esbuild"
+	],
+	"packageManager": "pnpm@6.32.4",
+	"author": {
+		"name": "0-v-0",
+		"email": "kduice@qq.com"
+	},
+	"license": "MIT",
+	"version": "0.0.1",
+	"devDependencies": {
+		"mefes": "^0.0.2"
+	},
+	"optionalDependencies": {
+		"morphdom": "^2.6.1"
+	},
+	"main": "dist/cydon.js"
+}
