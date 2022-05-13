@@ -8,7 +8,7 @@
 	"keywords": [
 		"esbuild"
 	],
-	"packageManager": "pnpm@6.32.4",
+	"packageManager": "pnpm@7.1.0",
 	"author": {
 		"name": "0-v-0",
 		"email": "kduice@qq.com"
