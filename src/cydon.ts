@@ -3,8 +3,8 @@
  * https://github.com/0-v-0/cydon
  */
 
-const RE = /\$([_a-zA-Z][_a-zA-Z0-9\.]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
-	PatternSize = 3,
+const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
+	PatternSize = 4,
 	ToString = (value: string | Node | Function) => {
 		switch (typeof value) {
 			case "object":
@@ -15,16 +15,17 @@ const RE = /\$([_a-zA-Z][_a-zA-Z0-9\.]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
 		return value;
 	};
 
-function* extractParts(a: (string | undefined)[]) {
-	if (a.length % PatternSize != 1) {
-		console.error("Error matching target pattern", a);
-		return;
-	}
+function* extractParts(a: string[]): Generator<string | TargetValue, void, unknown> {
+	if (a.length % PatternSize != 1)
+		throw new Error("Error matching target pattern");
 	const j = a.length - 1;
-	for (let i = 0; i < j;) {
+	for (let i = 0; i < j; i += PatternSize) {
 		if (a[i])
 			yield a[i];
-		yield a.slice(i + 1, i += PatternSize);
+		if (a[i + 1])
+			yield [a[i + 1], Function("return " + a[i + 1].slice(1, -1))];
+		else
+			yield [a[i + 2], a[i + 3] ? a[i + 2] + "@" + a[i + 3] : ""];
 	}
 	if (a[j])
 		yield a[j];
@@ -43,15 +44,19 @@ type Methods = {
 };
 
 type TargetData = {
-	[x: string]: Set<Node>;
+	node: Node;
+	deps: Set<string>;
+	vals: TargetValue | (string | TargetValue)[]
 };
+
+type TargetValue = [string, (string | Function)?];
 
 export class Cydon {
 	private _filters: Funcs;
+	_data: Data;
 	data: Data;
-	queue = new Set<Node>();
-	vals = new Map<Node, string[]>();
-	targets: TargetData = {};
+	queue = new Set<TargetData>();
+	targets = new Map<Node, TargetData>();
 	methods: Methods;
 	filters: Funcs;
 
@@ -63,6 +68,7 @@ export class Cydon {
 				return true;
 			}
 		});
+		this._data = data;
 		this.data = new Proxy(data, {
 			get(obj, prop: string) {
 				return prop in obj ? obj[prop] : "$" + prop;
@@ -77,23 +83,36 @@ export class Cydon {
 	}
 	// 绑定元素
 	bind(element: Element) {
+		const depsWalker = ({ node }: TargetData) => new Proxy(this._data, {
+			get: (obj, prop: string) => {
+				this.targets.get(node)?.deps.add(prop);
+				return prop in obj ? obj[prop] : "$" + prop;
+			}
+		});
 		// Find pattern in child TextNodes
 		for (let n of element.childNodes)
 			if (n.nodeType == 3) {
-				let vals = (n as Text).data.split(RE);
+				const vals = (n as Text).data.split(RE);
 				if (vals.length < PatternSize) continue;
-				for (const part of extractParts(vals))
-					if (typeof part == "string")
-						element.insertBefore(new Text(part), n);
+				for (const p of extractParts(vals)) {
+					const node = new Text();
+					if (typeof p == "string")
+						node.data = p;
 					else {
-						const key = part[0];
-						let node = new Text(key);
-						element.insertBefore(node, n);
-						this.vals.set(node, part);
-						this.add(key, node);
-						if (part[1])
-							this.add(part.join("@"), node);
+						const [key, val] = p,
+							deps = new Set<string>(),
+							data: TargetData = { node, deps, vals: p };
+						if (typeof val == "string") {
+							node.data = key;
+							deps.add(key);
+							if (val)
+								deps.add(val);
+						} else
+							p[1] = val.bind(depsWalker(data));
+						this.add(data);
 					}
+					element.insertBefore(node, n);
+				}
 				element.removeChild(n);
 			}
 		const attrs = element.attributes;
@@ -108,18 +127,29 @@ export class Cydon {
 						this.data[prop] = newValue;
 				});
 			else if (name[0] == "@") {
-				element.addEventListener(name.slice(1), this.methods[value].bind(this.data));
+				element.addEventListener(name.slice(1),
+					(this.methods[value] || Function("e", value)).bind(this.data));
 				element.removeAttribute(name);
 				--i;
 			} else {
-				let vals = value.split(RE);
-				this.vals.set(attrs[i], vals);
+				let vals: any[] = value.split(RE);
 				if (vals.length < PatternSize) continue;
-				for (let p of extractParts(vals))
+				vals = [...extractParts(vals)];
+				const deps = new Set<string>(),
+					data: TargetData = { node: attrs[i], deps, vals };
+				for (let j = 0; j < vals.length; ++j) {
+					const p = vals[j];
 					if (typeof p == "object") {
-						this.add(p[0], attrs[i]);
-						if (p[1]) this.add(p.join("@"), attrs[i]);
+						const [key, val] = p;
+						if (typeof val == "string") {
+							deps.add(key);
+							if (val)
+								deps.add(val);
+						} else
+							p[1] = val.bind(depsWalker(data));
 					}
+				}
+				this.add(data);
 			}
 		}
 		// Find pattern in child elements
@@ -128,58 +158,54 @@ export class Cydon {
 		this.updateQueued();
 	}
 
-	add(key: string, node: Node) {
-		this.targets[key] = (this.targets[key] || new Set<Node>()).add(node);
-		this.queue.add(node);
+	add(data: TargetData) {
+		this.targets.set(data.node, data);
+		this.queue.add(data);
 	}
 
 	// 解绑
 	unbind(element: Element, searchChildren = true) {
-		for (const prop in this.targets) {
-			const nodes = this.targets[prop];
-			nodes.delete(element);
-			for (const node of nodes) {
-				if (node instanceof Attr) {
-					if (node.ownerElement == element)
-						nodes.delete(node);
-				} else
-					if (searchChildren && element.contains(node))
-						nodes.delete(node);
-			}
-			if (nodes.size == 0)
-				delete this.targets[prop];
+		const targets = this.targets;
+		for (let [node] of targets) {
+			if (node instanceof Attr) {
+				if (node.ownerElement == element)
+					targets.delete(node);
+			} else
+				if (searchChildren && element.contains(node))
+					targets.delete(node);
 		}
 		for (const c of element.children)
 			this.unbind(c, false);
 	}
 
-	update(node: Node) {
-		const vals = this.vals.get(node);
-		if (node instanceof Attr) {
-			let str = "";
-			for (let p of extractParts(vals))
-				str += typeof p == "object" ? ToString(this.getValue(p)) : p;
-			node.value = str;
-		} else {
-			const newValue = this.getValue(vals) as Node;
-			import("morphdom").then(module => module.default(node,
-				newValue instanceof HTMLElement ? newValue.cloneNode(true) : ToString(newValue),
-				{
+	update(data: TargetData) {
+		const { node } = data;
+		if (data)
+			if (node instanceof Attr) {
+				let str = "";
+				for (let p of data.vals)
+					str += typeof p == "object" ? ToString(this.getValue(p)) : p;
+				node.value = str;
+			} else {
+				let newValue = this.getValue(data.vals as TargetValue) as Node;
+				newValue = newValue instanceof HTMLElement ? newValue.cloneNode(true) : new Text(ToString(newValue));
+				import("morphdom").then(module => module.default(node, newValue, {
 					onBeforeElUpdated: (fromEl, toEl) => !fromEl.isEqualNode(toEl)
-				})).catch(() =>
-					(node as ChildNode).replaceWith(newValue instanceof HTMLElement ?
-						newValue.cloneNode(true) : ToString(newValue))
-				);
-		}
+				})).catch(() => {
+					this.targets.delete(node);
+					(node as ChildNode).replaceWith(newValue);
+					data.node = newValue;
+					this.targets.set(newValue, data);
+				});
+			}
 	}
 
 	updateValue(prop: string) {
-		if (this.targets[prop]) {
-			if (this.queue.size == 0)
-				requestAnimationFrame(() => this.updateQueued());
-			for (const node of this.targets[prop])
-				this.queue.add(node);
-		}
+		if (this.queue.size == 0)
+			requestAnimationFrame(() => this.updateQueued());
+		for (const [, data] of this.targets)
+			if (data.deps.has(prop))
+				this.queue.add(data);
 	}
 
 	updateQueued() {
@@ -188,7 +214,9 @@ export class Cydon {
 		this.queue.clear();
 	}
 
-	getValue([prop, filter]: string[]) {
+	getValue([prop, filter]: TargetValue) {
+		if (typeof filter != "string")
+			return filter;
 		const val = this.data[prop];
 		return filter in this._filters ? this._filters[filter](val) : val;
 	}
