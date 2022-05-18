@@ -3,7 +3,7 @@
  * https://github.com/0-v-0/cydon
  */
 
-const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
+const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(@[_a-zA-Z][_a-zA-Z0-9]*)?/,
 	PatternSize = 4,
 	ToString = (value: string | Node | Function) => {
 		switch (typeof value) {
@@ -25,7 +25,7 @@ function* extractParts(a: string[]): Generator<string | TargetValue, void, unkno
 		if (a[i + 1])
 			yield [a[i + 1], Function("return " + a[i + 1].slice(1, -1))];
 		else
-			yield [a[i + 2], a[i + 3] ? a[i + 2] + "@" + a[i + 3] : ""];
+			yield [a[i + 2], a[i + 3] || ""];
 	}
 	if (a[j])
 		yield a[j];
@@ -64,7 +64,7 @@ export class Cydon {
 		this.filters = new Proxy(this._filters = {}, {
 			set: (obj, prop: string, handler: Function) => {
 				obj[prop] = handler;
-				this.updateValue(prop);
+				this.updateValue("@" + prop);
 				return true;
 			}
 		});
@@ -218,6 +218,7 @@ export class Cydon {
 		if (typeof filter != "string")
 			return filter;
 		const val = this.data[prop];
+		filter = filter.substring(1);
 		return filter in this._filters ? this._filters[filter](val) : val;
 	}
 }
