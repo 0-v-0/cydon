@@ -40,7 +40,7 @@ type Funcs = {
 };
 
 type Methods = {
-	[x: string]: (e: Event) => any;
+	[x: string]: (this: Data, e: Event) => any;
 };
 
 type TargetData = {
