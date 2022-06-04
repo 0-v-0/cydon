@@ -1,8 +1,8 @@
 'use strict';
 
-const { compileTS, runTask } = require('mefes');
+import { compileTS, runTask } from 'mefes';
 
 runTask({
 	compile: () => compileTS({ entryPoints: ['src/cydon.ts'], outdir: 'dist' }),
-	compileExt: () => compileTS({ entryPoints: ['src/cydon.ts'], external: ["morphdom"], outdir: 'dist' })
+	release: () => compileTS({ entryPoints: ['src/cydon.ts'], outdir: 'dist', minify: true })
 }, "compile");

@@ -4,31 +4,28 @@
  */
 
 const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(@[_a-zA-Z][_a-zA-Z0-9]*)?/,
-	PatternSize = 4,
 	ToString = (value: string | Node | Function) => {
-		switch (typeof value) {
-			case "object":
-				return value ? value.textContent : "";
-			case "function":
-				return ToString(value());
-		}
-		return value;
+		if (typeof value == "object")
+			return value?.textContent || "";
+
+		return typeof value == "function" ? ToString(value()) : value;
 	};
 
-function* extractParts(a: string[]): Generator<string | TargetValue, void, unknown> {
-	if (a.length % PatternSize != 1)
-		throw new Error("Error matching target pattern");
-	const j = a.length - 1;
-	for (let i = 0; i < j; i += PatternSize) {
-		if (a[i])
-			yield a[i];
-		if (a[i + 1])
-			yield [a[i + 1], Function("return " + a[i + 1].slice(1, -1))];
-		else
-			yield [a[i + 2], a[i + 3] || ""];
+function extractParts(s: string): (string | TargetValue)[] {
+	const re = RegExp(RE, "g"), parts: (string | TargetValue)[] = [];
+	let a: string[], lastIndex = 0;
+	for (; a = re.exec(s); lastIndex = re.lastIndex) {
+		const [match, expr, prop, filter = ""] = a,
+			start = re.lastIndex - match.length;
+		if (start)
+			parts.push(s.substring(lastIndex, start));
+		parts.push(expr ?
+			[expr, Function("return " + expr.slice(1, -1))] :
+			[prop, filter]);
 	}
-	if (a[j])
-		yield a[j];
+	if (lastIndex)
+		parts.push(s.substring(lastIndex));
+	return parts;
 }
 
 type Data = {
@@ -83,78 +80,80 @@ export class Cydon {
 	}
 	// 绑定元素
 	bind(element: Element) {
-		const depsWalker = ({ node }: TargetData) => new Proxy(this._data, {
+		const depsWalker = (node: Node) => new Proxy(this._data, {
 			get: (obj, prop: string) => {
 				this.targets.get(node)?.deps.add(prop);
 				return prop in obj ? obj[prop] : "$" + prop;
 			}
-		});
-		// Find pattern in child TextNodes
-		for (let n of element.childNodes)
+		}), addPart = (part: TargetValue, deps: Set<string>, node: Node) => {
+			const [key, val] = part;
+			if (typeof val == "string") {
+				deps.add(key);
+				if (val)
+					deps.add(val);
+			} else
+				part[1] = val.bind(depsWalker(node));
+		};
+
+		const walker = document.createTreeWalker(
+			element,
+			5 /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT */);
+		for (let n: Node = element; n; n = walker.nextNode()) {
 			if (n.nodeType == 3) {
-				const vals = (n as Text).data.split(RE);
-				if (vals.length < PatternSize) continue;
-				for (const p of extractParts(vals)) {
-					const node = new Text();
-					if (typeof p == "string")
-						node.data = p;
-					else {
-						const [key, val] = p,
-							deps = new Set<string>(),
-							data: TargetData = { node, deps, vals: p };
-						if (typeof val == "string") {
-							node.data = key;
-							deps.add(key);
-							if (val)
-								deps.add(val);
-						} else
-							p[1] = val.bind(depsWalker(data));
+				let node: Text;
+				const parts = extractParts((n as Text).data);
+				for (let i = 0; i < parts.length;) {
+					const vals = parts[i++];
+					if (typeof vals == "string") {
+						if (node) {
+							node = node.splitText(0);
+							node.data = vals;
+							if (i < parts.length) {
+								node = node.splitText(vals.length);
+								walker.nextNode();
+							}
+						}
+						else
+							node = (n as Text).splitText(vals.length);
+						walker.nextNode();
+					} else {
+						const deps = new Set<string>(),
+							data: TargetData = { node, deps, vals };
+						addPart(vals, deps, node);
 						this.add(data);
 					}
-					element.insertBefore(node, n);
 				}
-				element.removeChild(n);
-			}
-		const attrs = element.attributes;
-		// Find pattern in child Attributes
-		for (let i = 0; i < attrs.length; ++i) {
-			const { name, value } = attrs[i];
-			if (name == "data-model" || name == "data-model.lazy")
-				element.addEventListener(name == "data-model" ? "input" : "change", e => {
-					let newValue = (e.target as HTMLInputElement).value,
-						prop = value;
-					if (this.data[prop] != newValue)
-						this.data[prop] = newValue;
-				});
-			else if (name[0] == "@") {
-				element.addEventListener(name.slice(1),
-					(this.methods[value] || Function("e", value)).bind(this.data));
-				element.removeAttribute(name);
-				--i;
 			} else {
-				let vals: any[] = value.split(RE);
-				if (vals.length < PatternSize) continue;
-				vals = [...extractParts(vals)];
-				const deps = new Set<string>(),
-					data: TargetData = { node: attrs[i], deps, vals };
-				for (let j = 0; j < vals.length; ++j) {
-					const p = vals[j];
-					if (typeof p == "object") {
-						const [key, val] = p;
-						if (typeof val == "string") {
-							deps.add(key);
-							if (val)
-								deps.add(val);
-						} else
-							p[1] = val.bind(depsWalker(data));
+				// Find pattern in attributes
+				const attrs = (n as Element).attributes;
+				for (let i = 0; i < attrs.length; ++i) {
+					const { name, value } = attrs[i];
+					if (name == "c-model" || name == "c-model.lazy")
+						n.addEventListener(name == "c-model" ? "input" : "change", e => {
+							const newVal = (e.target as HTMLInputElement).value;
+							if (this.data[value] != newVal)
+								this.data[value] = newVal;
+						});
+					else if (name[0] == "@") {
+						n.addEventListener(name.slice(1),
+							(this.methods[value] || Function("e", value)).bind(this.data));
+						(n as Element).removeAttribute(name);
+						--i;
+					} else {
+						const vals = extractParts(value);
+						if (vals.length) {
+							const deps = new Set<string>(),
+								data: TargetData = { node: attrs[i], deps, vals };
+							for (const p of vals) {
+								if (typeof p == "object")
+									addPart(p, deps, attrs[i]);
+							}
+							this.add(data);
+						}
 					}
 				}
-				this.add(data);
 			}
 		}
-		// Find pattern in child elements
-		for (let c of element.children)
-			this.bind(c);
 		this.updateQueued();
 	}
 
@@ -166,7 +165,7 @@ export class Cydon {
 	// 解绑
 	unbind(element: Element, searchChildren = true) {
 		const targets = this.targets;
-		for (let [node] of targets) {
+		for (const [node] of targets) {
 			if (node instanceof Attr) {
 				if (node.ownerElement == element)
 					targets.delete(node);
@@ -180,24 +179,19 @@ export class Cydon {
 
 	update(data: TargetData) {
 		const { node } = data;
-		if (data)
-			if (node instanceof Attr) {
-				let str = "";
-				for (let p of data.vals)
-					str += typeof p == "object" ? ToString(this.getValue(p)) : p;
-				node.value = str;
-			} else {
-				let newValue = this.getValue(data.vals as TargetValue) as Node;
-				newValue = newValue instanceof HTMLElement ? newValue.cloneNode(true) : new Text(ToString(newValue));
-				import("morphdom").then(module => module.default(node, newValue, {
-					onBeforeElUpdated: (fromEl, toEl) => !fromEl.isEqualNode(toEl)
-				})).catch(() => {
-					this.targets.delete(node);
-					(node as ChildNode).replaceWith(newValue);
-					data.node = newValue;
-					this.targets.set(newValue, data);
-				});
-			}
+		if (node instanceof Attr) {
+			let val = "";
+			for (let p of data.vals)
+				val += typeof p == "object" ? ToString(this.getValue(p)) : p;
+			node.value = val;
+		} else {
+			let newVal = this.getValue(data.vals as TargetValue);
+			newVal = newVal instanceof Node ? newVal.cloneNode(true) : new Text(ToString(newVal));
+			this.targets.delete(node);
+			(node as ChildNode).replaceWith(newVal);
+			data.node = newVal;
+			this.targets.set(newVal, data);
+		}
 	}
 
 	updateValue(prop: string) {

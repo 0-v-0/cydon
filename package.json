@@ -8,7 +8,7 @@
 	"keywords": [
 		"esbuild"
 	],
-	"packageManager": "pnpm@7.1.0",
+	"packageManager": "pnpm@7.1.7",
 	"author": {
 		"name": "0-v-0",
 		"email": "kduice@qq.com"
@@ -16,10 +16,8 @@
 	"license": "MIT",
 	"version": "0.0.1",
 	"devDependencies": {
-		"mefes": "^0.0.2"
+		"mefes": "link:..\\mefes"
 	},
-	"optionalDependencies": {
-		"morphdom": "^2.6.1"
-	},
+	"type": "module",
 	"main": "src/cydon.js"
 }
