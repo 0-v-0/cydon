@@ -1,23 +1,13 @@
 {
-	"name": "cydon",
-	"description": "Lightweight Frontend Framework",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/0-v-0/cydon"
-	},
-	"keywords": [
-		"esbuild"
-	],
-	"packageManager": "pnpm@7.1.7",
-	"author": {
-		"name": "0-v-0",
-		"email": "kduice@qq.com"
-	},
-	"license": "MIT",
+	"name": "@cydon/monorepo",
+	"private": true,
+	"packageManager": "pnpm@7.1.9",
 	"version": "0.0.1",
 	"devDependencies": {
-		"mefes": "link:..\\mefes"
+		"cydon": "workspace:*",
+		"emmetlite": "workspace:*",
+		"@cydon/ui": "workspace:*",
+		"vite": "^2.9.10"
 	},
-	"type": "module",
-	"main": "src/cydon.js"
+	"type": "module"
 }

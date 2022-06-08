@@ -1,0 +1,43 @@
+{
+	"name": "@cydon/ui",
+	"description": "UI library",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/ui"
+	},
+	"keywords": [
+		"cydon"
+	],
+	"bugs": {
+		"url": "https://github.com/0-v-0/cydon/issues"
+	},
+	"packageManager": "pnpm@7.1.9",
+	"browserslist": [
+		"last 10 version",
+		"Chrome >= 84",
+		"not ie > 0",
+		"not opera > 0",
+		"not dead"
+	],
+	"version": "0.0.1",
+	"devDependencies": {
+		"@unocss/transformer-directives": "^0.38.1",
+		"autoprefixer": "^10.4.7",
+		"postcss": "^8.4.14",
+		"unocss": "^0.38.1",
+		"vite": "^2.9.10",
+		"vite-plugin-inspect": "^0.5.0",
+		"vite-plugin-progress": "^0.0.2"
+	},
+	"dependencies": {
+		"cydon": "workspace:*",
+		"emmetlite": "workspace:*",
+		"vite-plugin-emt": "workspace:*"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build"
+	},
+	"type": "module"
+}

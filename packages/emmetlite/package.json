@@ -1,0 +1,15 @@
+{
+	"name": "emmetlite",
+	"version": "0.0.1",
+	"description": "Liteweight emmet for JavaScript",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/emmetLite"
+	},
+	"keywords": [
+		"emmet"
+	],
+	"main": "index.js",
+	"type": "module",
+	"types": "index"
+}

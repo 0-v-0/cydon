@@ -1,6 +1,9 @@
 # Cydon
 Lightweight Frontend Framework
 
+# Requirements
+Node 17.5+
+
 # Usage
 ```html
 <div class="card">$msg</div>
