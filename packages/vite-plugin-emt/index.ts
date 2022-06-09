@@ -1,11 +1,11 @@
-import Emmet from 'emmetlite'
+import emmet, { StyleProcFunc, TagProcFunc } from 'emmetlite'
 import { resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
 import events from 'events'
 import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
-import { posix } from 'path'
-import { Plugin, ViteDevServer, WatchOptions } from 'vite'
+import { basename, posix } from 'path'
+import { Plugin, ViteDevServer } from 'vite'
 
 type Data = {
 	[x: string]: any
@@ -18,11 +18,16 @@ type TitleCache = {
 	}
 }
 
+type TemplateCache = {
+	[x: string]: string
+}
+
 export interface Option extends Omit<Plugin, 'name'> {
 	log?: boolean
 	alwaysReload?: boolean
-	root?: string,
-	watch?: WatchOptions
+	root?: string
+	tagProc?: TagProcFunc
+	styleProc?: StyleProcFunc
 }
 
 export const appdata: Data = {}
@@ -95,29 +100,46 @@ WebAssembly.instantiateStreaming(fetch(new URL('./simpletpl.wasm', import.meta.u
 const getShortName = (file: string, root: string) =>
 	file.startsWith(root + '/') ? posix.relative(root, file) : file
 
+const tplCache: TemplateCache = {}
+
 export default (config: Option = {}): Plugin => {
-	const resolve = (p: string) => {
-		let i = p.indexOf('?');
-		p = res(process.cwd(), config.root!, i < 0 ? p : p.substring(0, i))
+	let { log, root, tagProc, styleProc } = config
+	const resolve = (p: string, throwOnErr = true) => {
+		let i = p.indexOf('?')
+		p = res(process.cwd(), root!, i < 0 ? p : p.substring(0, i))
 		let fullPath = p
 		if (!existsSync(fullPath)) {
 			fullPath += '.emt'
 			if (!existsSync(fullPath))
 				fullPath = p + '.html'
-			if (!existsSync(fullPath))
-				throw new Error('Failed to resolve ' + p)
+			if (!existsSync(fullPath)) {
+				if (throwOnErr)
+					throw new Error('Failed to resolve ' + p)
+				return ''
+			}
 		}
 		return fullPath
-	}
-	globalThis.include = (url: string) => {
+	}, include = globalThis.include = (url: string) => {
 		let content = readFileSync(resolve(url), 'utf8')
-		return url?.endsWith('.emt') ? Emmet(content, '\t') : content
+		return url?.endsWith('.emt') ? emmet(content, '\t', tagProc, styleProc) : content
 	}
+	if (!tagProc)
+		tagProc = (prop) => {
+			const tag = prop.next(prop)
+			if (tag.includes('-')) {
+				if (!(tag in tplCache)) {
+					const path = resolve(tag, false)
+					tplCache[tag] = path ? include(path) : ''
+				}
+				prop.content = (tplCache[tag] || '') + prop.content
+			}
+			return tag
+		}
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
 		configureServer(server: ViteDevServer) {
-			config.root = res(config.root || server.config.root)
+			root = res(root || server.config.root)
 			const titles: TitleCache = {}
 			server.middlewares.use(async (req, res, next) => {
 				// if not emt, next it.
@@ -125,7 +147,8 @@ export default (config: Option = {}): Plugin => {
 				if (!url?.endsWith('.emt'))
 					return next()
 
-				let content = Emmet(await fs.readFile(resolve('page.emt'), 'utf8'), '\t')
+				let content = emmet(await fs.readFile(resolve('page.emt'), 'utf8'),
+					'\t', tagProc, styleProc)
 				const data: Data = { request_path: url },
 					time = (await fs.stat(resolve(url))).mtime.getTime()
 				if (url in titles && time == titles[url].time)
@@ -159,14 +182,21 @@ export default (config: Option = {}): Plugin => {
 		},
 		handleHotUpdate({ file, server }) {
 			if (file.endsWith('.emt')) {
+				const name = basename(file, '.emt')
+				if (name.includes('-')) {
+					delete tplCache[name]
+					tplCache[name] = include(file)
+				}
 				server.ws.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
-				if (config.log ?? true) {
+				if (log ?? true) {
 					server.config.logger.info(
 						colors.green(`page reload `) + colors.dim(getShortName(file, server.config.root)),
 						{ clear: true, timestamp: true }
 					)
 				}
+				return []
 			}
+			return
 		},
 		...config
 	}

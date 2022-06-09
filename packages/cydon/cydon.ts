@@ -3,8 +3,8 @@
  * https://github.com/0-v-0/cydon
  */
 
-const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(@[_a-zA-Z][_a-zA-Z0-9]*)?/,
-	ToString = (value: string | Node | Function) => {
+const RE = /\$\{([\S\s]+?)\}|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(@[_a-zA-Z][_a-zA-Z0-9]*)?/,
+	ToString = (value: string | Node | Function): string => {
 		if (typeof value == 'object')
 			return value?.textContent || ''
 
@@ -13,14 +13,14 @@ const RE = /\$(\{[\S\s]*?\})|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(@[_a-zA-Z][_a-zA-Z0-9]
 
 function extractParts(s: string): (string | TargetValue)[] {
 	const re = RegExp(RE, 'g'), parts: (string | TargetValue)[] = []
-	let a: string[], lastIndex = 0
+	let a: string[] | null, lastIndex = 0
 	for (; a = re.exec(s); lastIndex = re.lastIndex) {
 		const [match, expr, prop, filter = ''] = a,
 			start = re.lastIndex - match.length
 		if (start)
 			parts.push(s.substring(lastIndex, start))
 		parts.push(expr ?
-			[expr, Function('return ' + expr.slice(1, -1))] :
+			[expr, Function(`with(this){return ${expr}}`)] :
 			[prop, filter])
 	}
 	if (lastIndex)
@@ -58,8 +58,8 @@ export class Cydon {
 	filters: Funcs
 
 	constructor(data: Data = {}, methods: Methods = {}) {
-		this.filters = new Proxy(this._filters = {}, {
-			set: (obj, prop: string, handler: Function) => {
+		this.filters = new Proxy(this._filters = {} as Funcs, {
+			set: (obj, prop: string, handler: (data?: any) => any) => {
 				obj[prop] = handler
 				this.updateValue('@' + prop)
 				return true
@@ -83,7 +83,7 @@ export class Cydon {
 		const depsWalker = (node: Node) => new Proxy(this._data, {
 			get: (obj, prop: string) => {
 				this.targets.get(node)?.deps.add(prop)
-				return prop in obj ? obj[prop] : '$' + prop
+				return obj[prop] ?? '$' + prop.toString()
 			}
 		}), addPart = (part: TargetValue, deps: Set<string>, node: Node) => {
 			const [key, val] = part
@@ -92,20 +92,20 @@ export class Cydon {
 				if (val)
 					deps.add(val)
 			} else
-				part[1] = val.bind(depsWalker(node))
+				part[1] = val!.bind(depsWalker(node))
 		}
 
 		const walker = document.createTreeWalker(
 			element,
 			5 /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT */)
-		for (let n: Node = element; n; n = walker.nextNode()) {
+		for (let n: Node | null = element; n; n = walker.nextNode()) {
 			if (n.nodeType == 3) {
 				let node: Text
 				const parts = extractParts((n as Text).data)
 				for (let i = 0; i < parts.length;) {
 					const vals = parts[i++]
 					if (typeof vals == 'string') {
-						if (node) {
+						if (node!) {
 							node = node.splitText(0)
 							node.data = vals
 							if (i < parts.length) {
@@ -118,8 +118,8 @@ export class Cydon {
 						walker.nextNode()
 					} else {
 						const deps = new Set<string>(),
-							data: TargetData = { node, deps, vals }
-						addPart(vals, deps, node)
+							data: TargetData = { node: node!, deps, vals }
+						addPart(vals, deps, node!)
 						this.add(data)
 					}
 				}
@@ -136,7 +136,7 @@ export class Cydon {
 						})
 					else if (name[0] == '@') {
 						n.addEventListener(name.slice(1),
-							(this.methods[value] || Function('e', value)).bind(this.data));
+							(this.methods[value] || Function('e', `with(this){${value}}`)).bind(this.data));
 						(n as Element).removeAttribute(name)
 						--i
 					} else {

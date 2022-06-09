@@ -21,7 +21,7 @@ export default defineConfig({
 				presetAttributify(),
 				presetUno(),
 			],
-			transformers: [transformerDirective()],
+			transformers: [transformerDirective()]
 		}),
 		emt(),
 		Inspect(),
