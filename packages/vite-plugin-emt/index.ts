@@ -78,23 +78,27 @@ const encoder = new TextEncoder,
 let lastlen: number, buffer: string, exp: any, mem: Uint8Array
 
 export let render: (str: string, data?: Data, maxDepth?: number) => string
-
-WebAssembly.instantiateStreaming(fetch(new URL('./simpletpl.wasm', import.meta.url).href), { env })
-	.then(obj => {
-		exp = obj.instance.exports
-		mem = new Uint8Array(exp.memory.buffer)
-		render = (str: string, data?, maxDepth = 5) => {
-			if (str)
-				lastlen = writeStr(str, exp.buf.value)
-			if (data)
-				Object.assign(appdata, data)
-			buffer = ''
-			let err = getCStr(exp.render(lastlen, exp.buf.value, maxDepth))
-			if (err)
-				throw new Error(err)
-			return buffer
-		}
-	})
+try {
+	// TODO: polyfill fetch for Node 16
+	WebAssembly.instantiateStreaming(fetch(new URL('./simpletpl.wasm', import.meta.url).href), { env })
+		.then(obj => {
+			exp = obj.instance.exports
+			mem = new Uint8Array(exp.memory.buffer)
+			render = (str: string, data?, maxDepth = 5) => {
+				if (str)
+					lastlen = writeStr(str, exp.buf.value)
+				if (data)
+					Object.assign(appdata, data)
+				buffer = ''
+				let err = getCStr(exp.render(lastlen, exp.buf.value, maxDepth))
+				if (err)
+					throw new Error(err)
+				return buffer
+			}
+		})
+} catch (e) {
+	console.error(e)
+}
 
 // https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
 const getShortName = (file: string, root: string) =>

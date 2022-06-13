@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"module": "esnext",
+		"lib": [
+			"es2020",
+			"dom",
+			"dom.iterable"
+		],
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"outDir": "./types",
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"moduleResolution": "node",
+		"isolatedModules": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		"target": "es2020",
+		"forceConsistentCasingInFileNames": true,
+		"useDefineForClassFields": false,
+		"skipLibCheck": true
+	},
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

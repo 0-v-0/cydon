@@ -18,8 +18,8 @@ export type Constructor<T> = {
  * @category Decorator
  * @param tagName The name of the custom element to define.
  */
-export const customElement = (tagName: string): ClassDecorator =>
-	(target: Function) => customElements.define(tagName, target as Constructor<HTMLElement>)
+export const customElement = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
+	(target: Function) => customElements.define(tagName, target as Constructor<HTMLElement>, options)
 
 const readWrite = {
 	enumerable: true,
