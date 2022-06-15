@@ -48,25 +48,34 @@ export type TargetData = {
 
 export type TargetValue = [string, (string | Function)?]
 
+export type DirectiveHandler = (this: Cydon, attr: Attr) => boolean | void
+
+export const directives: DirectiveHandler[] = []
+
 export class Cydon {
 	private _filters: Funcs
 	_data: Data
 	data: Data
 	queue = new Set<TargetData>()
 	targets = new Map<Node, TargetData>()
-	methods: Methods
-	filters: Funcs
+	methods
+	filters
+	directives
 
-	constructor(data: Data = {}, methods: Methods = {}) {
-		this.filters = new Proxy(this._filters = {} as Funcs, {
+	constructor({
+		data = <Data>{},
+		methods = <Methods>{},
+		filters = <Funcs>{},
+		directives: d = <Iterable<DirectiveHandler>>[...directives]
+	}) {
+		this.filters = new Proxy<Funcs>(this._filters = filters, {
 			set: (obj, prop: string, handler: (data?: any) => any) => {
 				obj[prop] = handler
 				this.updateValue('@' + prop)
 				return true
 			}
 		})
-		this._data = data
-		this.data = new Proxy(data, {
+		this.data = new Proxy(this._data = data, {
 			get(obj, prop: string) {
 				return prop in obj ? obj[prop] : '$' + prop
 			},
@@ -77,7 +86,9 @@ export class Cydon {
 			}
 		})
 		this.methods = methods
+		this.directives = d
 	}
+
 	// 绑定元素
 	bind(element: Element | ShadowRoot) {
 		const depsWalker = (node: Node) => new Proxy(this._data, {
@@ -101,7 +112,7 @@ export class Cydon {
 		for (let n: Node | null = element; n; n = walker.nextNode()) {
 			if (n.nodeType == 3) {
 				let node: Text
-				const parts = extractParts((n as Text).data)
+				const parts = extractParts((<Text>n).data)
 				for (let i = 0; i < parts.length;) {
 					const vals = parts[i++]
 					if (typeof vals == 'string') {
@@ -114,7 +125,7 @@ export class Cydon {
 							}
 						}
 						else
-							node = (n as Text).splitText(vals.length)
+							node = (<Text>n).splitText(vals.length)
 						walker.nextNode()
 					} else {
 						const deps = new Set<string>(),
@@ -125,32 +136,25 @@ export class Cydon {
 				}
 			} else {
 				// Find pattern in attributes
-				const attrs = (n as Element).attributes
-				for (let i = 0; i < attrs?.length; ++i) {
-					const { name, value } = attrs[i]
-					if (name == 'c-model' || name == 'c-model.lazy')
-						n.addEventListener(name == 'c-model' ? 'input' : 'change', e => {
-							const newVal = (e.target as HTMLInputElement).value
-							if (this.data[value] != newVal)
-								this.data[value] = newVal
-						})
-					else if (name[0] == '@') {
-						n.addEventListener(name.slice(1),
-							(this.methods[value] || Function('e', `with(this){${value}}`)).bind(this.data));
-						(n as Element).removeAttribute(name)
-						--i
-					} else {
-						const vals = extractParts(value)
-						if (vals.length) {
-							const deps = new Set<string>(),
-								data: TargetData = { node: attrs[i], deps, vals }
-							for (const p of vals) {
-								if (typeof p == 'object')
-									addPart(p, deps, attrs[i])
-							}
-							this.add(data)
+				const attrs = (<Element>n).attributes
+				next: for (let i = 0; i < attrs?.length;) {
+					const node = attrs[i]
+					for (const handler of this.directives)
+						if (handler.call(this, node)) {
+							(<Element>n).removeAttribute(node.name)
+							continue next;
 						}
+					const vals = extractParts(node.value)
+					if (vals.length) {
+						const deps = new Set<string>(),
+							data: TargetData = { node, deps, vals }
+						for (const p of vals) {
+							if (typeof p == 'object')
+								addPart(p, deps, node)
+						}
+						this.add(data)
 					}
+					++i;
 				}
 			}
 		}
@@ -185,10 +189,10 @@ export class Cydon {
 				val += typeof p == 'object' ? ToString(this.getValue(p)) : p
 			node.value = val
 		} else {
-			let newVal = this.getValue(data.vals as TargetValue)
+			let newVal = this.getValue(<TargetValue>data.vals)
 			newVal = newVal.cloneNode?.(true) || new Text(ToString(newVal))
 			this.targets.delete(node);
-			(node as ChildNode).replaceWith(newVal)
+			(<ChildNode>node).replaceWith(newVal)
 			data.node = newVal
 			this.targets.set(newVal, data)
 		}
@@ -214,5 +218,9 @@ export class Cydon {
 		const val = this.data[prop]
 		filter = filter.substring(1)
 		return filter in this._filters ? this._filters[filter](val) : val
+	}
+
+	getFunc(value: string) {
+		return (this.methods[value] || Function('e', `with(this){${value}}`)).bind(this.data)
 	}
 }

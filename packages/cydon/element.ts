@@ -2,10 +2,10 @@ import { Cydon, Data } from '.'
 
 // polyfill from https://github.com/mfreed7/declarative-shadow-dom#feature-detection-and-polyfilling
 if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot'))
-	document.querySelectorAll('template[shadowroot]').forEach((tpl) => {
-		(tpl.parentNode as Element).attachShadow({
-			mode: tpl.getAttribute('shadowroot') as ShadowRootMode
-		}).appendChild((tpl as HTMLTemplateElement).content)
+	document.querySelectorAll<HTMLTemplateElement>('template[shadowroot]').forEach(tpl => {
+		(<Element>tpl.parentNode).attachShadow({
+			mode: <ShadowRootMode>tpl.getAttribute('shadowroot')
+		}).appendChild(tpl.content)
 		tpl.remove()
 	})
 
@@ -19,7 +19,7 @@ export type Constructor<T> = {
  * @param tagName The name of the custom element to define.
  */
 export const customElement = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
-	(target: Function) => customElements.define(tagName, target as Constructor<HTMLElement>, options)
+	(target: Function) => customElements.define(tagName, <Constructor<HTMLElement>>target, options)
 
 const readWrite = {
 	enumerable: true,
@@ -34,10 +34,10 @@ const readWrite = {
  * @param cache An optional boolean which when true performs the DOM query only
  * @category Decorator
  */
-export const query = (selector: string, cache = true): PropertyDecorator =>
-	(target, key) => {
+export const query = (selector: string, cache = true) =>
+	(target: CydonElement, key: string) => {
 		if (cache)
-			(target as CydonElement)[key] = (target as CydonElement).renderRoot.querySelector(selector)
+			target[key] = target.renderRoot.querySelector(selector)
 		else
 			Object.defineProperty(target, key, {
 				get(this: CydonElement) {
@@ -54,10 +54,10 @@ export const query = (selector: string, cache = true): PropertyDecorator =>
  * @param selector A DOMString containing one or more selectors to match.
  * @category Decorator
  */
-export const queryAll = (selector: string, cache = true): PropertyDecorator =>
-	(target, key) => {
+export const queryAll = (selector: string, cache = true) =>
+	(target: CydonElement, key: string) => {
 		if (cache)
-			(target as CydonElement)[key] = (target as CydonElement).renderRoot.querySelectorAll(selector)
+			target[key] = target.renderRoot.querySelectorAll(selector)
 		else
 			Object.defineProperty(target, key, {
 				get(this: CydonElement) {
@@ -69,14 +69,14 @@ export const queryAll = (selector: string, cache = true): PropertyDecorator =>
 
 export abstract class CydonElement extends HTMLElement {
 	renderRoot: HTMLElement | ShadowRoot
-	cydon: Cydon
-	data: Data
-	[x: string | symbol]: any
+	cydon
+	data
+	[x: string]: any
 
 	constructor(data?: Data) {
 		super()
 		this.renderRoot = this.shadowRoot || this
-		const cydon = new Cydon(data, this)
+		const cydon = new Cydon({ data, methods: this })
 		if (this.shadowRoot)
 			cydon.bind(this.shadowRoot)
 		cydon.bind(this)

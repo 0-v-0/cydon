@@ -1,136 +1,127 @@
-import { Constructor, customElement } from 'cydon/element';
-import { bindAll, isDisabled } from './util';
+import { directives } from 'cydon'
+import { customElement } from 'cydon/element'
+import { isDisabled } from './util'
 
-export * from './util';
+export * from './util'
 
-export class VisibleElement {
-	show(this: HTMLElement) {
-		let cls = this.classList;
-		cls.remove('hidden')
-		cls.add('show')
-	}
-	hide(this: HTMLElement) {
-		let cls = this.classList;
-		cls.remove('show')
-		cls.add('hidden')
-	}
-	toggle(this: HTMLElement & VisibleElement) {
-		if (this.classList.contains('show'))
-			this.hide()
+export interface VisibleElement {
+	show(this: HTMLElement, el?: Element, tab?: Element): void
+	hide(this: HTMLElement, el?: Element): void
+}
+
+export const hide = (e?: Element | null) => e?.classList.add('hidden'),
+	toggle = (e: HTMLElement & VisibleElement) => {
+		if (e.classList.contains('hidden'))
+			e.show()
 		else
-			this.show()
+			e.hide()
 	}
-}
-
-export type Class = Constructor<{}>;
-
-export interface ExtendedType extends Class {
-	prototype?: {};
-}
-
-export const mixin = <T extends Class, E extends ExtendedType>(base: T, e: E) => {
-	return class extends base {
-		constructor(...args: any[]) {
-			super(...args);
-			Object.assign(this, e.prototype ? e.call(this) : e)
-		}
-	} as T & Omit<E, 'prototype'>;
-}, hide = (e?: Element | null) => e?.classList.add('hidden');
-
-export class Clickable extends EventTarget {
-	onClick!: EventListenerOrEventListenerObject | null;
-	constructor() {
-		super();
-		this.addEventListener('click', this.onClick);
-	}
-}
 
 @customElement('c-close', { extends: 'button' })
-export class CClose extends mixin(mixin(HTMLButtonElement, VisibleElement), Clickable) {
+export class CClose extends HTMLButtonElement {
 	constructor() {
-		super();
+		super()
 		this.addEventListener('click', e => {
-			let el = e.currentTarget as HTMLElement;
+			const el = <HTMLElement>e.currentTarget
 			if (el == this && !isDisabled(el)) {
-				hide(el.parentElement);
-				e.stopPropagation();
+				hide(el.parentElement)
+				e.stopPropagation()
 			}
 		})
-	}
-
-	onClick(this: Clickable & HTMLElement, e: Event) {
-		let el = e.currentTarget as HTMLElement;
-		if (el == this && !isDisabled(el)) {
-			hide(el.parentElement);
-			e.stopPropagation();
-		}
 	}
 }
 
 @customElement('c-modal')
-export class Modal extends mixin(HTMLElement, VisibleElement) {
+export class Modal extends HTMLElement implements VisibleElement {
 	constructor() {
-		super();
-		this.addEventListener('keydown', (e: KeyboardEvent) => {
-			if (e.key == 'Escape') {
-				e.preventDefault();
-				hide(e.target as Element);
-			}
-		})
+		super()
+		this.addEventListener('keydown', this.keydown)
 	}
 
 	show() {
-		this.ariaHidden = null;
-		this.ariaModal = 'true';
+		this.ariaHidden = null
+		this.ariaModal = 'true'
 		this.setAttribute('role', 'dialog')
 		this.classList.add('show')
 		setTimeout(() => {
 			this.classList.add('in')
 			this.focus()
-		}, 150);
+		}, 150)
 		//this.scrollBar.hide()
 	}
+
 	hide() {
-		this.ariaHidden = 'true';
-		this.ariaModal = null;
+		this.ariaHidden = 'true'
+		this.ariaModal = null
 		this.removeAttribute('role')
 		this.classList.remove('in')
-		setTimeout(() => this.classList.remove('show'), 150);
+		setTimeout(() => this.classList.remove('show'), 150)
+	}
+
+	keydown(e: KeyboardEvent) {
+		if (e.key == 'Escape') {
+			e.preventDefault()
+			hide(<Element>e.target)
+		}
 	}
 }
 
-declare global {
-	interface HTMLElementTagNameMap {
-		'c-close': CClose
-		'c-modal': Modal
-		'c-tooltip': Tooltip
-	}
-}
-
-export class Tab extends mixin(HTMLElement, VisibleElement) {
+@customElement('c-tab')
+export class Tab extends HTMLElement implements VisibleElement {
 	show(el?: Element, tab?: Element) {
-		if (!el) return;
-		for (let c of this.children)
-			if (c.classList.contains('tab')) {
-				if (c == tab)
-					c.classList.add('active');
-				else
-					c.classList.remove('active');
-				let targets = document.body.querySelectorAll(c.getAttribute('c-target')!);
-				for (let target of targets)
-					if (el != target)
-						this.hide(target);
+		if (!el) return
+		for (const c of this.children) {
+			const cls = c.classList
+			if (cls.contains('tab')) {
+				if (c == tab) {
+					cls.add('active')
+					c.ariaExpanded = 'true'
+				} else {
+					cls.remove('active')
+					c.ariaExpanded = 'false'
+				}
+				for (const tab of document.body.querySelectorAll(c.getAttribute('c-target')!))
+					if (el != tab)
+						this.hide(tab)
 			}
-		let cls = el.classList;
-		cls.remove('hidden');
-		cls.add('show');
+		}
+		const cls = el.classList
+		cls.remove('hidden')
+		if (cls.contains('fade'))
+			cls.add('in')
 	}
 
 	hide(el?: Element) {
-		if (!el) return;
-		let cls = el.classList;
-		cls.remove('show');
-		cls.add('hidden');
+		const cls = el?.classList;
+		cls?.add('hidden')
+		cls?.remove('in')
+	}
+}
+
+@customElement('c-dropdown')
+export class Dropdown extends Modal {
+	items
+	constructor() {
+		super()
+		this.items = this.querySelectorAll('*:not(.disabled):visible a')
+	}
+
+	keydown(e: KeyboardEvent) {
+		if (/38|40|27|32/.test(e.which + '') && !/INPUT|TEXTAREA/.test((<HTMLInputElement>e.target).tagName)) {
+			super.keydown(e)
+			e.preventDefault();
+			e.stopPropagation();
+			let index = this.items.length
+			while (index--) {
+				if (this.items[index] == e.target)
+					break;
+			}
+			if (e.which == 38)
+				index--; // up
+			if (e.which == 40)
+				index++; // down
+			(<HTMLAnchorElement>this.items[index])?.focus?.()
+		}
 	}
 }
 
@@ -138,13 +129,56 @@ export class Tab extends mixin(HTMLElement, VisibleElement) {
 export class Tooltip extends Modal {
 }
 
-bindAll('[c-target]', 'click', e => {
-	let el = e.currentTarget as HTMLElement;
-	if (el.tagName == 'A')
-		e.preventDefault();
-	if (isDisabled(el))
-		return;
-	let targets = document.body.querySelectorAll(el.getAttribute('c-target')!);
-	if (el.classList.contains('close'))
-		targets.forEach(hide);
+directives.unshift(function ({ name, value, ownerElement: el }) {
+	if (name == '@click.outside') {
+		const func = this.getFunc(value)
+		el!.addEventListener('click', e => {
+			if (e.target != el && !el!.contains(<Node>e.target))
+				func(e)
+		})
+		return true
+	}
+	return
 })
+
+directives.push(({ name, value, ownerElement: el }) => {
+	if (name == 'c-target') {
+		el!.addEventListener('click', e => {
+			const el = <HTMLElement>e.currentTarget
+			if (el.tagName == 'A' || el.tagName == 'AREA')
+				e.preventDefault()
+			if (isDisabled(el))
+				return
+			const targets = document.body.querySelectorAll(value)
+			if (el.classList.contains('close'))
+				targets.forEach(hide)
+			else {
+				const parent = el.parentElement
+				for (const target of targets) {
+					if (target instanceof Modal)
+						target.show()
+					else if (parent instanceof Tab)
+						parent.show(target, el)
+					else if (target instanceof Dropdown)
+						toggle(<Modal>target)
+				}
+			}
+		})
+		return true
+	}
+	return
+})
+
+export const CustomElements = {
+	'c-close': CClose,
+	'c-dropdown': Dropdown,
+	'c-modal': Modal,
+	'c-tab': Tab,
+	'c-tooltip': Tooltip
+}
+
+type CustomElements = typeof CustomElements
+declare global {
+	interface HTMLElementTagNameMap extends CustomElements {
+	}
+}
