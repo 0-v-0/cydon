@@ -9,10 +9,14 @@ import emt from 'vite-plugin-emt'
 export default defineConfig({
 	root: 'examples',
 	build: {
-		sourcemap: 'hidden'
+		sourcemap: 'hidden',
+		target: 'esnext'
 	},
 	optimizeDeps: {
-		include: ['cydon']
+		include: ['cydon'],
+		esbuildOptions: {
+			target: 'esnext'
+		}
 	},
 	plugins: [
 		Unocss({

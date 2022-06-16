@@ -4,10 +4,10 @@
 	"packageManager": "pnpm@7.1.9",
 	"version": "0.0.1",
 	"devDependencies": {
+		"@cydon/ui": "workspace:*",
 		"cydon": "workspace:*",
 		"emmetlite": "workspace:*",
-		"@cydon/ui": "workspace:*",
-		"vite": "^2.9.10"
+		"vite": "^2.9.12"
 	},
 	"type": "module"
 }

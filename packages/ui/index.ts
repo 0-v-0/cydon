@@ -1,5 +1,4 @@
-import { directives } from 'cydon'
-import { customElement } from 'cydon/element'
+import { customElement, directives } from 'cydon'
 import { isDisabled } from './util'
 
 export * from './util'
@@ -16,20 +15,6 @@ export const hide = (e?: Element | null) => e?.classList.add('hidden'),
 		else
 			e.hide()
 	}
-
-@customElement('c-close', { extends: 'button' })
-export class CClose extends HTMLButtonElement {
-	constructor() {
-		super()
-		this.addEventListener('click', e => {
-			const el = <HTMLElement>e.currentTarget
-			if (el == this && !isDisabled(el)) {
-				hide(el.parentElement)
-				e.stopPropagation()
-			}
-		})
-	}
-}
 
 @customElement('c-modal')
 export class Modal extends HTMLElement implements VisibleElement {
@@ -100,9 +85,13 @@ export class Tab extends HTMLElement implements VisibleElement {
 
 @customElement('c-dropdown')
 export class Dropdown extends Modal {
-	items
+	items!: NodeListOf<Element>
 	constructor() {
 		super()
+		this.updateItems()
+	}
+
+	updateItems() {
 		this.items = this.querySelectorAll('*:not(.disabled):visible a')
 	}
 
@@ -132,7 +121,7 @@ export class Tooltip extends Modal {
 directives.unshift(function ({ name, value, ownerElement: el }) {
 	if (name == '@click.outside') {
 		const func = this.getFunc(value)
-		el!.addEventListener('click', e => {
+		el.addEventListener('click', e => {
 			if (e.target != el && !el!.contains(<Node>e.target))
 				func(e)
 		})
@@ -142,26 +131,26 @@ directives.unshift(function ({ name, value, ownerElement: el }) {
 })
 
 directives.push(({ name, value, ownerElement: el }) => {
-	if (name == 'c-target') {
-		el!.addEventListener('click', e => {
+	if (name == 'c-open' || name == 'c-close') {
+		el.addEventListener('click', e => {
 			const el = <HTMLElement>e.currentTarget
 			if (el.tagName == 'A' || el.tagName == 'AREA')
 				e.preventDefault()
-			if (isDisabled(el))
-				return
-			const targets = document.body.querySelectorAll(value)
-			if (el.classList.contains('close'))
-				targets.forEach(hide)
-			else {
-				const parent = el.parentElement
-				for (const target of targets) {
-					if (target instanceof Modal)
-						target.show()
-					else if (parent instanceof Tab)
-						parent.show(target, el)
-					else if (target instanceof Dropdown)
-						toggle(<Modal>target)
-				}
+			if (!isDisabled(el)) {
+				e.stopPropagation()
+				const targets = value ? document.body.querySelectorAll(value) : [el.parentElement!]
+				if (name == 'c-open') {
+					const parent = el.parentElement
+					for (const target of targets) {
+						if (target instanceof Modal)
+							target.show()
+						else if (parent instanceof Tab)
+							parent.show(target, el)
+						else if (target instanceof Dropdown)
+							toggle(<Modal>target)
+					}
+				} else
+					targets.forEach(hide)
 			}
 		})
 		return true
@@ -170,7 +159,6 @@ directives.push(({ name, value, ownerElement: el }) => {
 })
 
 export const CustomElements = {
-	'c-close': CClose,
 	'c-dropdown': Dropdown,
 	'c-modal': Modal,
 	'c-tab': Tab,

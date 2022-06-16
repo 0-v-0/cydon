@@ -7,7 +7,7 @@
 	"dependencies": {
 		"emmetlite": "workspace:*",
 		"picocolors": "^1.0.0",
-		"vite": "^2.9.10"
+		"vite": "^2.9.12"
 	},
 	"main": "dist/index.es.js",
 	"type": "module"
