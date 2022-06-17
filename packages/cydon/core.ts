@@ -46,7 +46,7 @@ export type TargetData = {
 	vals: TargetValue | (string | TargetValue)[]
 }
 
-export type TargetValue = [string, (string | Function)?]
+export type TargetValue = [string, string | Function]
 
 type DOMAttr = Attr & {
 	ownerElement: Element
@@ -226,7 +226,7 @@ export class Cydon {
 		if (typeof filter != 'string')
 			return filter
 		const val = this.data[prop]
-		return filter in this._filters ? this._filters[filter](val) : val
+		return this._filters[filter] ? this._filters[filter](val) : val
 	}
 
 	getFunc(value: string) {

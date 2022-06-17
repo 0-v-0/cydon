@@ -1,4 +1,4 @@
-import { customElement, directives } from 'cydon'
+import { customElement, directives, TargetValue } from 'cydon'
 import { isDisabled } from './util'
 
 export * from './util'
@@ -153,6 +153,22 @@ directives.push(({ name, value, ownerElement: el }) => {
 					targets.forEach(hide)
 			}
 		})
+		return true
+	}
+	return
+})
+
+directives.push(function ({ name, value, ownerElement: node }) {
+	if (name[0] == ':') {
+		let data = this.targets.get(node.attributes[<any>name.substring(1)])
+		if (!data)
+			this.add(data = { node, deps: new Set<string>(), vals: [] })
+		for (const cls of value.split(';')) {
+			const p = cls.indexOf(':');
+			if (~p)
+				(<TargetValue[]>data.vals).push(['',
+					Function(`with(this){return ${cls.substring(p + 1)}?${cls.substring(0, p)}:''}`)])
+		}
 		return true
 	}
 	return

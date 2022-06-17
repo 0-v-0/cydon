@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"lib": [
-			"es2020",
+			"es2021",
 			"dom",
 			"dom.iterable"
 		],
@@ -18,7 +18,7 @@
 		"isolatedModules": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
-		"target": "es2020",
+		"target": "es2021",
 		"forceConsistentCasingInFileNames": true,
 		"useDefineForClassFields": false,
 		"skipLibCheck": true

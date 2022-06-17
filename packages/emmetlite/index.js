@@ -131,7 +131,17 @@ export const itags = {// default elements
 		img: ' type="image"',
 		button: ' type="button"',
 		btn: ' type="button"',
-	}
+	},
+	tagProcs = [prop => {
+		let { tag, taglist: list, result } = prop,
+			s = tag.split(':'),
+			t
+		if (tag = s[0])
+			for (t = tag.toLowerCase(); tabbr[t] && (t = tag.replace(t, tabbr[t])) != tag;) tag = t
+		prop.tag = (tag || (t = list[list.length - 1]) && itags[t.toLowerCase()] ||
+			(t = result[result.length - 1]) && itags[t.slice(1).replace(/[\s>][\S\s]*/, '').toLowerCase()] ||
+			'div') + (eabbr[s[1]] || '')
+	}]
 
 // two fns for counting single line nest tokens (.a>.b^.c)
 function countTokens(e, r) {
@@ -197,7 +207,7 @@ function extractTabs(input, indent) {
 	return res
 }
 
-function zencode(input, tagProc, styleProc) {
+function zencode(input, styleProc) {
 	function closeTag(ret) {
 		let tag = taglist.pop()
 		if (tag && !/^!|^(area|base|br|col|embed|frame|hr|img|input|link|meta|param|source|wbr)\b/i.test(tag)) {
@@ -303,7 +313,7 @@ function zencode(input, tagProc, styleProc) {
 						}
 				} else {
 					lastgroup.length = 0
-					n = RegExp(/\{([\s\S]+)}|\[([\s\S]+)]|([\.#]?)([\w:=!\$\@\-]+)/, "g")
+					n = RegExp(/\{([\s\S]+)}|\[([\s\S]+)]|([\.#]?)([\w:=!\$\@\-]+(?:(?<=\$)\{[^}]+})?)/, "g")
 					while (l = n.exec(set)) {
 						if (l[1])
 							content = l[1]
@@ -321,15 +331,16 @@ function zencode(input, tagProc, styleProc) {
 								tag = styleProc(buffer || "", tag, attr, result)
 						}
 					}
-					if (!content || tag || attr[0][0] || attr[1]) {
-						content = { tag, taglist, attr, content, result, next }
-						tag = tagProc(content)
-						if (attr[0][0])
+					if (!content || tag || attr[0] || attr[1]) {
+						content = { tag, taglist, attr, content, result }
+						for (l of tagProcs)
+							if (l(content))
+								break
+						if (attr[0])
 							attr[0] = ' class="' + attr[0].trimEnd() + '"'
-						if (tag) {
+						if (tag = content.tag)
 							result.push('<' + tag + attr.join(' ') + '>' + content.content)
-							taglist.push(tag.replace(/(!|\s)[\S\s]*/g, ''))
-						}
+						taglist.push(tag.replace(/(!|\s)[\S\s]*/g, ''))
 					} else {
 						result.push(content)
 						taglist.push('')
@@ -341,17 +352,8 @@ function zencode(input, tagProc, styleProc) {
 	return result.join('')
 }
 
-function next({ tag, taglist: list, result }) {
-	let s = tag.split(':'), t
-	if (tag = s[0])
-		for (t = tag.toLowerCase(); tabbr[t] && (t = tag.replace(t, tabbr[t])) != tag;) tag = t
-	return (tag || (t = list[list.length - 1]) && itags[t.toLowerCase()] ||
-		(t = result[result.length - 1]) && itags[t.slice(1).replace(/[\s>][\S\s]*/, '').toLowerCase()] ||
-		'div') + (eabbr[s[1]] || '')
-}
-
-export default (input, indent, tagProc = next, styleProc = tag => tag) => {
+export default (input, indent, styleProc = tag => tag) => {
 	if (indent)
 		input = extractTabs(input, indent)
-	return zencode(input, tagProc, styleProc)
+	return zencode(input, styleProc)
 }

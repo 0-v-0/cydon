@@ -1,4 +1,4 @@
-import emmet, { StyleProcFunc, TagProcFunc } from 'emmetlite'
+import emmet, { StyleProcFunc, tagProcs } from 'emmetlite'
 import { resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
@@ -6,6 +6,8 @@ import events from 'events'
 import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
 import { basename, posix } from 'path'
 import { Plugin, ViteDevServer } from 'vite'
+
+export * from 'emmetlite'
 
 type Data = {
 	[x: string]: any
@@ -26,8 +28,8 @@ export interface Option extends Omit<Plugin, 'name'> {
 	log?: boolean
 	alwaysReload?: boolean
 	root?: string
-	tagProc?: TagProcFunc
 	styleProc?: StyleProcFunc
+	read?(path: string): string
 }
 
 export const appdata: Data = {}
@@ -107,7 +109,7 @@ const getShortName = (file: string, root: string) =>
 const tplCache: TemplateCache = {}
 
 export default (config: Option = {}): Plugin => {
-	let { log, root, tagProc, styleProc } = config
+	let { log, read, root, styleProc } = config
 	const resolve = (p: string, throwOnErr = true) => {
 		let i = p.indexOf('?')
 		p = res(process.cwd(), root!, i < 0 ? p : p.substring(0, i))
@@ -125,20 +127,20 @@ export default (config: Option = {}): Plugin => {
 		return fullPath
 	}, include = globalThis.include = (url: string) => {
 		let content = readFileSync(resolve(url), 'utf8')
-		return url?.endsWith('.emt') ? emmet(content, '\t', tagProc, styleProc) : content
-	}
-	if (!tagProc)
-		tagProc = (prop) => {
-			const tag = prop.next(prop)
-			if (tag.includes('-')) {
-				if (!(tag in tplCache)) {
-					const path = resolve(tag, false)
-					tplCache[tag] = path ? include(path) : ''
-				}
-				prop.content = (tplCache[tag] || '') + prop.content
+		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
+	};
+	if (!read)
+		read = path => path ? include(path) : ''
+	tagProcs.push(prop => {
+		const { tag } = prop
+		if (tag.includes('-')) {
+			if (!(tag in tplCache)) {
+				const path = resolve(tag, false)
+				tplCache[tag] = read!(path)
 			}
-			return tag
+			prop.content = (tplCache[tag] || '') + prop.content
 		}
+	})
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
@@ -148,11 +150,11 @@ export default (config: Option = {}): Plugin => {
 			server.middlewares.use(async (req, res, next) => {
 				// if not emt, next it.
 				let url = req.url?.substring(1) || 'index.emt'
-				if (!url?.endsWith('.emt'))
+				if (!url.endsWith('.emt'))
 					return next()
 
 				let content = emmet(await fs.readFile(resolve('page.emt'), 'utf8'),
-					'\t', tagProc, styleProc)
+					'\t', styleProc)
 				const data: Data = { request_path: url },
 					time = (await fs.stat(resolve(url))).mtime.getTime()
 				if (url in titles && time == titles[url].time)
@@ -189,7 +191,7 @@ export default (config: Option = {}): Plugin => {
 				const name = basename(file, '.emt')
 				if (name.includes('-')) {
 					delete tplCache[name]
-					tplCache[name] = include(file)
+					tplCache[name] = read!(file)
 				}
 				server.ws.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
 				if (log ?? true) {
@@ -206,7 +208,7 @@ export default (config: Option = {}): Plugin => {
 	}
 }
 
-declare module globalThis {
+export declare module globalThis {
 	let include: (url: string) => string
 	let request_path: string
 }

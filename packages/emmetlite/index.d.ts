@@ -4,16 +4,22 @@ export type TagProp = {
 	attr: string[]
 	content: string
 	result: string[]
-	next: TagProcFunc
+}
+export type StringMap = {
+	[x: string]: string
 }
 
-export type TagProcFunc = (prop: TagProp) => string;
+export type TagProcFunc = (prop: TagProp) => boolean | void
 
-export type StyleProcFunc = (buffer: string, buffertag: string, attr: string[], result: string[]) => string;
+export type StyleProcFunc = (buffer: string, tag: string, attr: string[], result: string[]) => string
 
 declare module 'emmetlite' {
-	export const itags: any, tabbr: any, aabbr: any, eabbr: any;
+	export const itags: StringMap,
+		tabbr: StringMap,
+		aabbr: StringMap,
+		eabbr: StringMap,
+		tagProcs: TagProcFunc[]
 
-	const Emmet: (input: string, intent?: string, tagProc?: TagProcFunc, styleProc?: StyleProcFunc) => string;
-	export default Emmet;
+	const Emmet: (input: string, intent?: string, styleProc?: StyleProcFunc) => string
+	export default Emmet
 }
