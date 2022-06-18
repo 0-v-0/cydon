@@ -1,0 +1,12 @@
+template[shadowroot=open]
+	style{
+		button
+			@apply px-3
+		@unocss-placeholder
+	}
+	.flex.items-center
+		{$value}
+		slot[n=increase]
+			btn[@click=increase]{+1}
+		slot[n=decrease]
+			btn[@click=decrease]{-1}

@@ -1,0 +1,18 @@
+{
+	"name": "@cydon/ustyle",
+	"version": "0.0.1",
+	"scripts": {
+		"build": "vite build"
+	},
+	"dependencies": {
+		"stylus": "^0.58.1",
+		"unocss": "^0.38.2",
+		"vite": "^2.9.12",
+		"vite-plugin-emt": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/stylus": "^0.48.38"
+	},
+	"main": "dist/index.es.js",
+	"type": "module"
+}

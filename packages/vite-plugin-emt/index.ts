@@ -30,6 +30,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 	root?: string
 	styleProc?: StyleProcFunc
 	read?(path: string): string
+	render?(str: string, data: Data, maxDepth?: number): string
 }
 
 export const appdata: Data = {}
@@ -64,7 +65,7 @@ const encoder = new TextEncoder,
 		flushBuffer(len: number, ptr: number) { buffer += getStr(len, ptr); },
 		evalExpr(len: number, ptr: number) {
 			let expr = getStr(len, ptr)
-			globalThis.request_path = appdata.request_path
+			globalThis.REQUEST_PATH = appdata.REQUEST_PATH
 			if (expr.trimStart().startsWith('include'))
 				try {
 					expr = (0, eval)(expr)
@@ -79,7 +80,7 @@ const encoder = new TextEncoder,
 
 let lastlen: number, buffer: string, exp: any, mem: Uint8Array
 
-export let render: (str: string, data?: Data, maxDepth?: number) => string
+export let render: (str: string, data: Data, maxDepth?: number) => string
 try {
 	// TODO: polyfill fetch for Node 16
 	WebAssembly.instantiateStreaming(fetch(new URL('./simpletpl.wasm', import.meta.url).href), { env })
@@ -109,7 +110,13 @@ const getShortName = (file: string, root: string) =>
 const tplCache: TemplateCache = {}
 
 export default (config: Option = {}): Plugin => {
-	let { log, read, root, styleProc } = config
+	let {
+		log,
+		read = path => path ? include(path) : '',
+		root,
+		render: rend = render,
+		styleProc
+	} = config
 	const resolve = (p: string, throwOnErr = true) => {
 		let i = p.indexOf('?')
 		p = res(process.cwd(), root!, i < 0 ? p : p.substring(0, i))
@@ -129,8 +136,6 @@ export default (config: Option = {}): Plugin => {
 		let content = readFileSync(resolve(url), 'utf8')
 		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
 	};
-	if (!read)
-		read = path => path ? include(path) : ''
 	tagProcs.push(prop => {
 		const { tag } = prop
 		if (tag.includes('-')) {
@@ -155,7 +160,7 @@ export default (config: Option = {}): Plugin => {
 
 				let content = emmet(await fs.readFile(resolve('page.emt'), 'utf8'),
 					'\t', styleProc)
-				const data: Data = { request_path: url },
+				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 					time = (await fs.stat(resolve(url))).mtime.getTime()
 				if (url in titles && time == titles[url].time)
 					data.doc_title = titles[url].title
@@ -180,7 +185,7 @@ export default (config: Option = {}): Plugin => {
 					})
 					await events.once(rl, 'close')
 				}
-				content = render(content, data)
+				content = rend(content, data)
 				content = await server.transformIndexHtml?.(req.url!, content, req.originalUrl)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)
@@ -208,7 +213,7 @@ export default (config: Option = {}): Plugin => {
 	}
 }
 
-export declare module globalThis {
+declare module globalThis {
 	let include: (url: string) => string
-	let request_path: string
+	let REQUEST_PATH: string
 }

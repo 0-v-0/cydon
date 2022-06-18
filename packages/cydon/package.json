@@ -15,6 +15,5 @@
 		"cydon"
 	],
 	"packageManager": "pnpm@7.1.9",
-	"type": "module",
-	"main": "cydon"
+	"type": "module"
 }

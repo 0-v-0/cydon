@@ -32,8 +32,7 @@
 	},
 	"dependencies": {
 		"cydon": "workspace:*",
-		"emmetlite": "workspace:*",
-		"vite-plugin-emt": "workspace:*"
+		"@cydon/ustyle": "workspace:*"
 	},
 	"scripts": {
 		"dev": "vite",

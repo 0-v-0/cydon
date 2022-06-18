@@ -77,10 +77,13 @@ export abstract class CydonElement extends HTMLElement {
 		super()
 		this.renderRoot = this.shadowRoot || this
 		const cydon = new Cydon({ data, methods: this })
-		if (this.shadowRoot)
-			cydon.bind(this.shadowRoot)
-		cydon.bind(this)
-		this.data = cydon.data
 		this.cydon = cydon
+		this.data = cydon.data
+	}
+
+	bind() {
+		if (this.shadowRoot)
+			this.cydon.bind(this.shadowRoot)
+		this.cydon.bind(this)
 	}
 }
