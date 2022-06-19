@@ -69,14 +69,14 @@ export const queryAll = (selector: string, cache = true) =>
 
 export abstract class CydonElement extends HTMLElement {
 	renderRoot: HTMLElement | ShadowRoot
-	cydon
-	data
+	cydon: Cydon
+	data: Data
 	[x: string]: any
 
 	constructor(data?: Data) {
 		super()
 		this.renderRoot = this.shadowRoot || this
-		const cydon = new Cydon({ data, methods: this })
+		const cydon = new Cydon({ data: data || this, methods: this })
 		this.cydon = cydon
 		this.data = cydon.data
 	}

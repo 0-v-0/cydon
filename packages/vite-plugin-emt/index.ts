@@ -8,6 +8,7 @@ import { basename, posix } from 'path'
 import { Plugin, ViteDevServer } from 'vite'
 
 export * from 'emmetlite'
+export type { Plugin }
 
 type Data = {
 	[x: string]: any
@@ -24,13 +25,15 @@ type TemplateCache = {
 	[x: string]: string
 }
 
+export type Render = (str: string, data: Data, maxDepth?: number) => string
+
 export interface Option extends Omit<Plugin, 'name'> {
 	log?: boolean
 	alwaysReload?: boolean
 	root?: string
 	styleProc?: StyleProcFunc
 	read?(path: string): string
-	render?(str: string, data: Data, maxDepth?: number): string
+	render?: Render
 }
 
 export const appdata: Data = {}

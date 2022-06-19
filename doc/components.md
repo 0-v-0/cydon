@@ -36,7 +36,7 @@ my-counter.ts
 class MyCounter extends CydonElement {
 	constructor() {
 		super();
-		this.data.value = this.getAttribute('value') || 0
+		this.value = this.getAttribute('value') || 0
 		this.bind()
 	}
 	increase() {
@@ -55,11 +55,18 @@ declare global {
 ```
 my-counter.emt
 
-最简写法:
+一般写法:
 ```styl
 {$value}
 btn[@click=increase]{+1}
 btn[@click=decrease]{-1}
+```
+
+最简写法:
+```styl
+{$value}
+btn[@click=value++]{+1}
+btn[@click=value--]{-1}
 ```
 
 带上样式和Shadow DOM（假设使用了`@cydon/ustyle`插件）:

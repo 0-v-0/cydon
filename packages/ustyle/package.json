@@ -6,8 +6,6 @@
 	},
 	"dependencies": {
 		"stylus": "^0.58.1",
-		"unocss": "^0.38.2",
-		"vite": "^2.9.12",
 		"vite-plugin-emt": "workspace:*"
 	},
 	"devDependencies": {

@@ -72,7 +72,7 @@ export const directives: DirectiveHandler[] = [function ({ name, value, ownerEle
 
 export class Cydon {
 	private _filters: Funcs
-	_data: Data
+	$data: Data
 	data: Data
 	queue = new Set<TargetData>()
 	targets = new Map<Node, TargetData>()
@@ -91,7 +91,7 @@ export class Cydon {
 				return true
 			}
 		})
-		this.data = new Proxy(this._data = data, {
+		this.data = new Proxy(this.$data = data, {
 			get(obj, prop: string) {
 				return prop in obj ? obj[prop] : '$' + prop
 			},
@@ -102,11 +102,25 @@ export class Cydon {
 			}
 		})
 		this.methods = methods
+		if (!globalThis.CYDON_NO_UNBIND)
+			this.unbind = (element: Element, searchChildren = true) => {
+				const targets = this.targets
+				for (const [node] of targets) {
+					if (node instanceof Attr) {
+						if (node.ownerElement == element)
+							targets.delete(node)
+					} else
+						if (searchChildren && element.contains(node))
+							targets.delete(node)
+				}
+				for (const c of element.children)
+					this.unbind!(c, false)
+			}
 	}
 
 	// 绑定元素
 	bind(element: Element | ShadowRoot) {
-		const depsWalker = (node: Node) => new Proxy(this._data, {
+		const depsWalker = (node: Node) => new Proxy(this.$data, {
 			get: (obj, prop: string) => {
 				this.targets.get(node)?.deps.add(prop)
 				return obj[prop] ?? '$' + prop.toString()
@@ -177,19 +191,7 @@ export class Cydon {
 	}
 
 	// 解绑
-	unbind(element: Element, searchChildren = true) {
-		const targets = this.targets
-		for (const [node] of targets) {
-			if (node instanceof Attr) {
-				if (node.ownerElement == element)
-					targets.delete(node)
-			} else
-				if (searchChildren && element.contains(node))
-					targets.delete(node)
-		}
-		for (const c of element.children)
-			this.unbind(c, false)
-	}
+	unbind
 
 	update(data: TargetData) {
 		const { node } = data
@@ -232,4 +234,8 @@ export class Cydon {
 	getFunc(value: string) {
 		return (this.methods[value] || Function('e', `with(this){${value}}`)).bind(this.data)
 	}
+}
+
+declare module globalThis {
+	const CYDON_NO_UNBIND: boolean
 }

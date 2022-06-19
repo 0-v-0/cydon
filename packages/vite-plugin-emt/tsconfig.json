@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"lib": [
-			"es2021"
+			"es2021",
+			"WebWorker"
 		],
 		"declaration": true,
 		"emitDeclarationOnly": true,

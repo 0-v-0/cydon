@@ -3,11 +3,16 @@ import Inspect from 'vite-plugin-inspect'
 import progress from 'vite-plugin-progress'
 import { presetAttributify, presetUno } from 'unocss'
 import transformerDirective from '@unocss/transformer-directives'
-import ustyle from '@cydon/ustyle'
+import Unocss from 'unocss/vite'
+import emt, { inlineStylus } from '@cydon/ustyle'
 
 export default defineConfig({
 	root: 'examples',
+	define: {
+		'globalThis.CYDON_NO_UNBIND': 'true'
+	},
 	build: {
+		assetsDir: '.',
 		sourcemap: 'hidden',
 		target: 'esnext'
 	},
@@ -18,13 +23,18 @@ export default defineConfig({
 		}
 	},
 	plugins: [
-		ustyle({
+		emt(),
+		Unocss({
+			mode: 'shadow-dom',
 			preflights: [],
 			presets: [
 				presetAttributify(),
 				presetUno(),
 			],
-			transformers: [transformerDirective({ varStyle: false })]
+			transformers: [
+				inlineStylus(),
+				transformerDirective({ varStyle: false })
+			]
 		}),
 		Inspect(),
 		progress

@@ -7,13 +7,20 @@ Stylus preprocessor for Unocss
 2. emmet语法扩展
 
 ## Usage
-see [Stylus](https://github.com/stylus/stylus), [Unocss](https://github.com/unocss/unocss)
 ```ts
 // vite.config.ts
+import Unocss from 'unocss/vite'
+import emt, { inlineStylus } from '@cydon/ustyle'
+
 export default {
 	plugins: [
-		ustyle({
-			stylus: {/* stylus options */}
+		emt(/* emt options */),
+		Unocss({
+			mode: 'shadow-dom',
+			transformers: [
+				inlineStylus(/* stylus options */),
+				// other transformers...
+			]
 			// Unocss options...
 		})
 	]
@@ -36,3 +43,10 @@ output:
 ```html
 <div class="space-x-4 shadow-lg rounded-xl bg-white mx-auto max-w-sm p-6 flex items-center"></div>
 ```
+
+## Options
+所有参数均可选
+| 名称           | 类型    | 说明                         |
+| -------------- | ------- | ---------------------------- |
+| writeIndexHtml | boolean | 是否输出index.html，用于构建 |
+其他选项见vite-plugin-emt
