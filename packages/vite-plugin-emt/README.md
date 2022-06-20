@@ -32,3 +32,4 @@ export default {
 | styleProc    | StyleProcFunc           |                                             |
 | read         | (path: string)=> string | 自定义文件读取函数                          |
 | render       | Render                  | 自定义模板渲染函数                          |
+| template     | string                  | 自定义模板文件                              |

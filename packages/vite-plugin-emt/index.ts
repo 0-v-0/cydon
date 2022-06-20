@@ -34,6 +34,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 	styleProc?: StyleProcFunc
 	read?(path: string): string
 	render?: Render
+	template?: string
 }
 
 export const appdata: Data = {}
@@ -118,7 +119,8 @@ export default (config: Option = {}): Plugin => {
 		read = path => path ? include(path) : '',
 		root,
 		render: rend = render,
-		styleProc
+		styleProc,
+		template = 'page.emt'
 	} = config
 	const resolve = (p: string, throwOnErr = true) => {
 		let i = p.indexOf('?')
@@ -161,7 +163,7 @@ export default (config: Option = {}): Plugin => {
 				if (!url.endsWith('.emt'))
 					return next()
 
-				let content = emmet(await fs.readFile(resolve('page.emt'), 'utf8'),
+				let content = emmet(await fs.readFile(resolve(template), 'utf8'),
 					'\t', styleProc)
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 					time = (await fs.stat(resolve(url))).mtime.getTime()

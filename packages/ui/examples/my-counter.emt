@@ -7,6 +7,6 @@ template[shadowroot=open]
 	.flex.items-center
 		{$value}
 		slot[n=increase]
-			btn[@click=increase]{+1}
+			btn[@click=inc]{+1}
 		slot[n=decrease]
-			btn[@click=decrease]{-1}
+			btn[@click=dec]{-1}

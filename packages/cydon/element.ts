@@ -26,6 +26,10 @@ const readWrite = {
 	configurable: true
 }
 
+type Cache = {
+	[x: symbol]: any
+}
+
 /**
  * A property decorator that converts a class property into a getter that
  * executes a querySelector on the element's renderRoot.
@@ -35,16 +39,15 @@ const readWrite = {
  * @category Decorator
  */
 export const query = (selector: string, cache = true) =>
-	(target: CydonElement, key: string) => {
-		if (cache)
-			target[key] = target.renderRoot.querySelector(selector)
-		else
-			Object.defineProperty(target, key, {
-				get(this: CydonElement) {
-					return this.renderRoot.querySelector(selector)
-				},
-				...readWrite
-			})
+	(target: CydonElement, key: string, symbol = Symbol(key)) => {
+		Object.defineProperty(target, key, {
+			get(this: CydonElement & Cache) {
+				return cache && this[symbol] ?
+					this[symbol] :
+					this[symbol] = this.renderRoot.querySelector(selector)
+			},
+			...readWrite
+		})
 	}
 
 /**
@@ -55,28 +58,26 @@ export const query = (selector: string, cache = true) =>
  * @category Decorator
  */
 export const queryAll = (selector: string, cache = true) =>
-	(target: CydonElement, key: string) => {
-		if (cache)
-			target[key] = target.renderRoot.querySelectorAll(selector)
-		else
-			Object.defineProperty(target, key, {
-				get(this: CydonElement) {
-					return this.renderRoot.querySelectorAll(selector)
-				},
-				...readWrite
-			})
+	(target: CydonElement, key: string, symbol = Symbol(key)) => {
+		Object.defineProperty(target, key, {
+			get(this: CydonElement & Cache) {
+				return cache && this[symbol] ?
+					this[symbol] :
+					this[symbol] = this.renderRoot.querySelectorAll(selector)
+			},
+			...readWrite
+		})
 	}
 
 export abstract class CydonElement extends HTMLElement {
 	renderRoot: HTMLElement | ShadowRoot
 	cydon: Cydon
 	data: Data
-	[x: string]: any
 
 	constructor(data?: Data) {
 		super()
 		this.renderRoot = this.shadowRoot || this
-		const cydon = new Cydon({ data: data || this, methods: this })
+		const cydon = new Cydon({ data: data || this, methods: <any>this })
 		this.cydon = cydon
 		this.data = cydon.data
 	}

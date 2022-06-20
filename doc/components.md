@@ -33,18 +33,16 @@ declare global {
 my-counter.ts
 ```ts
 @customElement('my-counter')
-class MyCounter extends CydonElement {
+export class MyCounter extends CydonElement {
+	value = +this.getAttribute('value')!
+
 	constructor() {
-		super();
-		this.value = this.getAttribute('value') || 0
+		super()
 		this.bind()
 	}
-	increase() {
-		this.value++
-	}
-	decrease() {
-		this.value--
-	}
+
+	inc() { this.value++ }
+	dec() { this.value-- }
 }
 
 declare global {
@@ -58,8 +56,8 @@ my-counter.emt
 一般写法:
 ```styl
 {$value}
-btn[@click=increase]{+1}
-btn[@click=decrease]{-1}
+btn[@click=inc]{+1}
+btn[@click=dec]{-1}
 ```
 
 最简写法:
@@ -80,9 +78,9 @@ template[shadowroot=open]
 	.flex.items-center
 		{$value}
 		slot[n=increase]
-			btn[@click=increase]{+1}
+			btn[@click=inc]{+1}
 		slot[n=decrease]
-			btn[@click=decrease]{-1}
+			btn[@click=dec]{-1}
 ```
 
 使用组件
@@ -96,5 +94,10 @@ my-counter[value=1]
 自定义`-1`按钮
 ```styl
 my-counter[value=1]
-	btn[@click=decrease slot=decrease]{decrease}
+	btn[@click=dec slot=decrease]{decrease}
 ```
+
+### 说明
+1. 示例中用到的标签和属性缩写 `btn`: `button`, `n`: `name`
+2. 构造函数中别忘了调用`this.bind()`，这样才能实现数据的单向绑定
+3. `inc()`和`dec()`中的`this`其实是一个Proxy对象，因此所有对`this`所作的更改将会反映到DOM中
