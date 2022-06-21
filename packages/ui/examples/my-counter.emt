@@ -1,7 +1,7 @@
 template[shadowroot=open]
 	style{
 		button
-			@apply px-3
+			@apply px-3 text-lg
 		@unocss-placeholder
 	}
 	.flex.items-center

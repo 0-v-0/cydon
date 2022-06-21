@@ -10,6 +10,11 @@ Emmet with indentations ─► Standard Emmet
                 HTML ◄──── HTML Template
 ```
 
+## Build
+```sh
+pnpm build
+```
+
 ## Usage
 ```ts
 // vite.config.ts

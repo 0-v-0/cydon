@@ -6,6 +6,11 @@ Stylus preprocessor for Unocss
 1. Stylus预处理器：将所有`Shadow DOM`内的style标签的内容视为stylus处理，再将生成的css交给unocss处理
 2. emmet语法扩展
 
+## Build
+```sh
+pnpm build
+```
+
 ## Usage
 ```ts
 // vite.config.ts

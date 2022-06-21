@@ -1,0 +1,6 @@
+title{Cydon demo}*
+p
+	button[@click=alert(e)]{test event}
+my-counter[value=1]
+	btn.px-3[@click=dec slot=decrease]{- 1}
+scr[src=./MyCounter.ts t=module]
