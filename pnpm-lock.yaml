@@ -380,7 +380,7 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
-      browserslist: registry.npmmirror.com/browserslist/4.20.4
+      browserslist: registry.npmmirror.com/browserslist/4.21.0
       caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001358
       fraction.js: registry.npmmirror.com/fraction.js/4.2.0
       normalize-range: registry.npmmirror.com/normalize-range/0.1.2
@@ -420,18 +420,17 @@ packages:
       fill-range: registry.npmmirror.com/fill-range/7.0.1
     dev: true
 
-  registry.npmmirror.com/browserslist/4.20.4:
-    resolution: {integrity: sha512-ok1d+1WpnU24XYN7oC3QWgTyMhY/avPJ/r9T00xxvUOIparA/gc+UPUMaod3i+G6s+nI2nUb9xZ5k794uIwShw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/browserslist/-/browserslist-4.20.4.tgz}
+  registry.npmmirror.com/browserslist/4.21.0:
+    resolution: {integrity: sha512-UQxE0DIhRB5z/zDz9iA03BOfxaN2+GQdBYH/2WrSIWEUrnpzTPJbhqt+umq6r3acaPRTW1FNTkrcp0PXgtFkvA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/browserslist/-/browserslist-4.21.0.tgz}
     name: browserslist
-    version: 4.20.4
+    version: 4.21.0
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
       caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001358
       electron-to-chromium: registry.npmmirror.com/electron-to-chromium/1.4.164
-      escalade: registry.npmmirror.com/escalade/3.1.1
       node-releases: registry.npmmirror.com/node-releases/2.0.5
-      picocolors: registry.npmmirror.com/picocolors/1.0.0
+      update-browserslist-db: registry.npmmirror.com/update-browserslist-db/1.0.3_browserslist@4.21.0
     dev: true
 
   registry.npmmirror.com/cac/6.7.12:
@@ -1492,6 +1491,20 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - vite
+    dev: true
+
+  registry.npmmirror.com/update-browserslist-db/1.0.3_browserslist@4.21.0:
+    resolution: {integrity: sha512-ufSazemeh9Gty0qiWtoRpJ9F5Q5W3xdIPm1UZQqYQv/q0Nyb9EMHUB2lu+O9x1re9WsorpMAUu4Y6Lxcs5n+XQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/update-browserslist-db/-/update-browserslist-db-1.0.3.tgz}
+    id: registry.npmmirror.com/update-browserslist-db/1.0.3
+    name: update-browserslist-db
+    version: 1.0.3
+    hasBin: true
+    peerDependencies:
+      browserslist: '>= 4.21.0'
+    dependencies:
+      browserslist: registry.npmmirror.com/browserslist/4.21.0
+      escalade: registry.npmmirror.com/escalade/3.1.1
+      picocolors: registry.npmmirror.com/picocolors/1.0.0
     dev: true
 
   registry.npmmirror.com/vite-plugin-inspect/0.5.0_vite@2.9.12:
