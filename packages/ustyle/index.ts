@@ -24,7 +24,7 @@ type MagicStr = {
 
 export const inlineStylus = (options?: RenderOptions) => ({
 	name: 'inline-stylus',
-	enforce: <'pre'>'pre',
+	enforce: <const>'pre',
 	idFilter: (id: string) => /\.css$/.test(id),
 	transform(code: MagicStr) {
 		code.overwrite(0, code.length(), stylus(code.original, options!))

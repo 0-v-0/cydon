@@ -3,7 +3,7 @@
  * https://github.com/0-v-0/cydon
  */
 
-const RE = /\$\{([\S\s]+?)\}|\$([_a-zA-Z][_a-zA-Z0-9\.]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
+const RE = /\$\{([\S\s]+?)\}|\$([_a-zA-Z][_a-zA-Z0-9]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
 	ToString = (value: string | Node | Function): string => {
 		if (typeof value == 'object')
 			return value?.textContent || ''
@@ -118,7 +118,10 @@ export class Cydon {
 			}
 	}
 
-	// 绑定元素
+	/**
+	 * bind an element and update it immediately
+	 * @param element target element
+	 */
 	bind(element: Element | ShadowRoot) {
 		const depsWalker = (node: Node) => new Proxy(this.$data, {
 			get: (obj, prop: string) => {
@@ -185,14 +188,25 @@ export class Cydon {
 		this.updateQueued()
 	}
 
+	/**
+	 * add a node
+	 * @param data target
+	 */
 	add(data: TargetData) {
 		this.targets.set(data.node, data)
 		this.queue.add(data)
 	}
 
-	// 解绑
+	/**
+	 * unbind an element
+	 * @param element target element
+	 */
 	unbind
 
+	/**
+	 * update a node
+	 * @param data target
+	 */
 	update(data: TargetData) {
 		const { node } = data
 		if (node instanceof Attr) {
@@ -210,6 +224,10 @@ export class Cydon {
 		}
 	}
 
+	/**
+	 * update all nodes with specific variable
+	 * @param prop variable
+	 */
 	updateValue(prop: string) {
 		if (this.queue.size == 0)
 			requestAnimationFrame(() => this.updateQueued())
@@ -218,6 +236,9 @@ export class Cydon {
 				this.queue.add(data)
 	}
 
+	/**
+	 * update queued nodes immediately and clear queue
+	 */
 	updateQueued() {
 		for (const node of this.queue)
 			this.update(node)

@@ -1,42 +1,55 @@
 {
-	"name": "@cydon/ui",
-	"description": "UI library",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/0-v-0/cydon",
-		"directory": "packages/ui"
-	},
-	"keywords": [
-		"cydon"
-	],
-	"bugs": {
-		"url": "https://github.com/0-v-0/cydon/issues"
-	},
-	"packageManager": "pnpm@7.1.9",
-	"browserslist": [
-		"last 10 version",
-		"Chrome >= 84",
-		"not ie > 0",
-		"not opera > 0",
-		"not dead"
-	],
-	"version": "0.0.1",
-	"devDependencies": {
-		"@unocss/transformer-directives": "^0.38.2",
-		"autoprefixer": "^10.4.7",
-		"postcss": "^8.4.14",
-		"unocss": "^0.38.2",
-		"vite": "^2.9.12",
-		"vite-plugin-inspect": "^0.5.0",
-		"vite-plugin-progress": "^0.0.2"
-	},
-	"dependencies": {
-		"cydon": "workspace:*",
-		"@cydon/ustyle": "workspace:*"
-	},
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build"
-	},
-	"type": "module"
+  "name": "@cydon/ui",
+  "description": "UI library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0-v-0/cydon",
+    "directory": "packages/ui"
+  },
+  "keywords": [
+    "cydon"
+  ],
+  "bugs": {
+    "url": "https://github.com/0-v-0/cydon/issues"
+  },
+  "packageManager": "pnpm@7.3.0",
+  "browserslist": [
+    "last 10 version",
+    "Chrome >= 84",
+    "not ie > 0",
+    "not opera > 0",
+    "not dead"
+  ],
+  "version": "0.0.1",
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.6.3",
+    "@typescript-eslint/parser": "^5.29.0",
+    "@unocss/transformer-directives": "^0.38.2",
+    "autoprefixer": "^10.4.7",
+    "eslint": "^8.18.0",
+    "postcss": "^8.4.14",
+    "stylelint": "^14.9.1",
+    "stylelint-stylus": "^0.16.1",
+    "typedoc": "^0.22.17",
+    "typescript": "^4.7.4",
+    "unocss": "^0.38.2",
+    "vite": "^2.9.12",
+    "vite-plugin-inspect": "^0.5.0",
+    "vite-plugin-progress": "^0.0.2"
+  },
+  "dependencies": {
+    "@cydon/ustyle": "workspace:*",
+    "cydon": "workspace:*"
+  },
+  "scripts": {
+    "analyze": "cem analyze --globs \"src/**/*.ts\"",
+    "analyze:watch": "cem analyze --globs \"src/**/*.ts\" --watch",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "pnpm lint:eslint&&pnpm lint:stylelint",
+    "lint:eslint": "eslint 'src/**/*.ts'",
+    "lint:stylelint": "stylelint 'css/*.styl'"
+  },
+  "type": "module",
+  "customElements": "custom-elements.json"
 }

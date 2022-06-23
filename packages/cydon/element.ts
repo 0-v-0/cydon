@@ -21,7 +21,7 @@ export type Constructor<T> = {
 export const customElement = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
 	(target: Function) => customElements.define(tagName, <Constructor<HTMLElement>>target, options)
 
-const readWrite = {
+const descriptor = {
 	enumerable: true,
 	configurable: true
 }
@@ -46,7 +46,7 @@ export const query = (selector: string, cache = true) =>
 					this[symbol] :
 					this[symbol] = this.renderRoot.querySelector(selector)
 			},
-			...readWrite
+			...descriptor
 		})
 	}
 
@@ -65,10 +65,13 @@ export const queryAll = (selector: string, cache = true) =>
 					this[symbol] :
 					this[symbol] = this.renderRoot.querySelectorAll(selector)
 			},
-			...readWrite
+			...descriptor
 		})
 	}
 
+/**
+ * Base element class that manages element properties and attributes.
+ */
 export abstract class CydonElement extends HTMLElement {
 	renderRoot: HTMLElement | ShadowRoot
 	cydon: Cydon
