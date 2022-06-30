@@ -8,7 +8,7 @@ export default defineConfig({
 			fileName: 'index'
 		},
 		rollupOptions: {
-			external: /./,
+			external: ['emmetlite', 'events', 'fs', 'path', 'picocolors', 'readline', 'vite'],
 			output: { sourcemap: 'hidden' }
 		},
 		target: 'esnext'

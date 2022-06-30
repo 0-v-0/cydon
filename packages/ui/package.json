@@ -23,19 +23,19 @@
   "version": "0.0.1",
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.6.3",
-    "@typescript-eslint/parser": "^5.29.0",
-    "@unocss/transformer-directives": "^0.38.2",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@unocss/transformer-directives": "^0.42.0",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.18.0",
     "postcss": "^8.4.14",
     "stylelint": "^14.9.1",
     "stylelint-stylus": "^0.16.1",
-    "typedoc": "^0.22.17",
+    "typedoc": "^0.23.2",
     "typescript": "^4.7.4",
-    "unocss": "^0.38.2",
-    "vite": "^2.9.12",
-    "vite-plugin-inspect": "^0.5.0",
-    "vite-plugin-progress": "^0.0.2"
+    "unocss": "^0.42.0",
+    "vite": "^3.0.0-0",
+    "vite-plugin-inspect": "^0.5.1",
+    "vite-plugin-progress": "^0.0.3"
   },
   "dependencies": {
     "@cydon/ustyle": "workspace:*",

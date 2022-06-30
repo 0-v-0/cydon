@@ -8,7 +8,7 @@ export default defineConfig({
 			fileName: 'index'
 		},
 		rollupOptions: {
-			external: /./,
+			external: ['clean-css', 'fs', 'stylus', 'vite-plugin-emt'],
 			output: { sourcemap: 'hidden' }
 		},
 		target: 'esnext'

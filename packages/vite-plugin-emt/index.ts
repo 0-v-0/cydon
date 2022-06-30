@@ -1,10 +1,9 @@
 import emmet, { StyleProcFunc, tagProcs } from 'emmetlite'
-import { resolve as res } from 'path'
+import { basename, posix, resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
 import events from 'events'
 import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
-import { basename, posix } from 'path'
 import { Plugin, ViteDevServer } from 'vite'
 
 export * from 'emmetlite'
@@ -159,7 +158,7 @@ export default (config: Option = {}): Plugin => {
 			const titles: TitleCache = {}
 			server.middlewares.use(async (req, res, next) => {
 				// if not emt, next it.
-				let url = req.url?.substring(1) || 'index.emt'
+				let url = req.originalUrl?.substring(1) || 'index.emt'
 				if (!url.endsWith('.emt'))
 					return next()
 
@@ -180,7 +179,7 @@ export default (config: Option = {}): Plugin => {
 							line = line.substring(5).trimStart()
 							if (line[0] == '{') {
 								let a: string[] | null
-								if (a = /\s*\{(.*)\}\*/.exec(line)) {
+								if (a = /\{(.*)}\*/.exec(line)) {
 									data.doc_title = a[1]
 									titles[url] = { title: a[1], time }
 									rl.close()
@@ -191,7 +190,7 @@ export default (config: Option = {}): Plugin => {
 					await events.once(rl, 'close')
 				}
 				content = rend(content, data)
-				content = await server.transformIndexHtml?.(req.url!, content, req.originalUrl)
+				content = await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)
 			})

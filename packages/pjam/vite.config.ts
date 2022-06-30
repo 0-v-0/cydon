@@ -8,7 +8,7 @@ export default defineConfig({
 			fileName: 'index'
 		},
 		rollupOptions: {
-			external: /./,
+			external: 'cydon/events',
 			output: { sourcemap: 'hidden' }
 		}
 	}

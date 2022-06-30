@@ -7,10 +7,10 @@
 		"@cydon/ui": "workspace:*",
 		"cydon": "workspace:*",
 		"emmetlite": "workspace:*",
-		"vite": "^2.9.12"
+		"vite": "^3.0.0-0"
 	},
 	"scripts": {
-		"build": "cd packages/ustyle&&pnpm build&&cd ../vite-plugin-emt&&pnpm build"
+		"build": "cd packages/vite-plugin-emt&&pnpm build&&cd ../ustyle&&pnpm build"
 	},
 	"type": "module"
 }

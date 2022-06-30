@@ -15,5 +15,6 @@
 		"cydon"
 	],
 	"packageManager": "pnpm@7.3.0",
+	"main": "index.ts",
 	"type": "module"
 }

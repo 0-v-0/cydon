@@ -1,6 +1,7 @@
+import CleanCSS, { OptionsPromise } from 'clean-css'
 import { writeFile } from 'fs'
-import emt, { Option, render, tagProcs } from 'vite-plugin-emt'
 import { render as stylus, RenderOptions } from 'stylus'
+import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
 
 export * from 'vite-plugin-emt'
 
@@ -19,19 +20,34 @@ tagProcs.unshift(prop => {
 type MagicStr = {
 	overwrite(start: number, end: number, content: string): void
 	length(): number
-	original: string
+	toString(): string
 }
 
 export const inlineStylus = (options?: RenderOptions) => ({
 	name: 'inline-stylus',
 	enforce: <const>'pre',
-	idFilter: (id: string) => /\.css$/.test(id),
-	transform(code: MagicStr) {
-		code.overwrite(0, code.length(), stylus(code.original, options!))
+	idFilter: (id: string) => id.endsWith('.css'),
+	async transform(code: MagicStr) {
+		code.overwrite(0, code.length(), stylus(code + '', options!))
 	}
 })
 
-export default (config?: PluginConfig) => emt({
+export const cleanCSS = (options?: OptionsPromise) => {
+	const cleanCSS = new CleanCSS({
+		...options,
+		returnPromise: true
+	})
+	return {
+		name: 'clean-css',
+		enforce: <const>'post',
+		idFilter: (id: string) => id.endsWith('.css'),
+		async transform(code: MagicStr) {
+			code.overwrite(0, code.length(), (await cleanCSS.minify(code + '')).styles)
+		}
+	}
+}
+
+export default (config?: PluginConfig): Plugin => emt({
 	read(path) {
 		// HACK: make unocss recongize classes in Shadow Root
 		const html = path ? include(path) : ''
