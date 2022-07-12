@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>html2emt</title>
+</head>
+<body>
+	HTML<br>
+	<textarea id="src"></textarea><br>
+	emt<br>
+	<textarea id="d"></textarea><br>
+	<br>
+	<input type="button" value="Convert" onclick="$('#d').value=html2emmet($('#src').value,'\t','text/html');">
+	<script src="./html2emmet.js"></script>
+	<script>
+		function $(s) { return document.querySelector(s) }
+	</script>
+</body>
+</html>

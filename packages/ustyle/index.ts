@@ -1,4 +1,3 @@
-import CleanCSS, { OptionsPromise } from 'clean-css'
 import { writeFile } from 'fs'
 import { render as stylus, RenderOptions } from 'stylus'
 import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
@@ -17,7 +16,7 @@ tagProcs.unshift(prop => {
 	return
 })
 
-type MagicStr = {
+export type MagicString = {
 	overwrite(start: number, end: number, content: string): void
 	length(): number
 	toString(): string
@@ -27,25 +26,10 @@ export const inlineStylus = (options?: RenderOptions) => ({
 	name: 'inline-stylus',
 	enforce: <const>'pre',
 	idFilter: (id: string) => id.endsWith('.css'),
-	async transform(code: MagicStr) {
+	async transform(code: MagicString) {
 		code.overwrite(0, code.length(), stylus(code + '', options!))
 	}
 })
-
-export const cleanCSS = (options?: OptionsPromise) => {
-	const cleanCSS = new CleanCSS({
-		...options,
-		returnPromise: true
-	})
-	return {
-		name: 'clean-css',
-		enforce: <const>'post',
-		idFilter: (id: string) => id.endsWith('.css'),
-		async transform(code: MagicStr) {
-			code.overwrite(0, code.length(), (await cleanCSS.minify(code + '')).styles)
-		}
-	}
-}
 
 export default (config?: PluginConfig): Plugin => emt({
 	read(path) {
