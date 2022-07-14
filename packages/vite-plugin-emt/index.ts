@@ -39,7 +39,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 export const appdata: Data = {}
 
 const encoder = new TextEncoder,
-	decoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }),
+	decoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: false }),
 	getStr = (len: number, ptr: number) => decoder.decode(mem.subarray(ptr, ptr + len)),
 	getCStr = (ptr: number) => {
 		if (!ptr) return ''
@@ -47,8 +47,12 @@ const encoder = new TextEncoder,
 		while (mem[i]) i++
 		return getStr(i - ptr, ptr)
 	},
-	writeStr = (str: string, ptr: number) =>
-		encoder.encodeInto(str + '', mem.subarray(ptr, ptr + (24 << 10))).written!,
+	writeStr = (str: string, ptr: number) => {
+		const len = encoder.encodeInto(str + '', mem.subarray(ptr, ptr + (24 << 10))).written!
+		if (len > (24 << 10) - 4)
+			throw new Error('Input string is too long');
+		return len
+	},
 	flatten = (obj: any[]) => obj.length && obj.join ? '\0' + obj.join('\0')
 		: Object.getOwnPropertyNames(obj).join('\0'),
 	env = {
@@ -137,7 +141,8 @@ export default (config: Option = {}): Plugin => {
 		}
 		return fullPath
 	}, include = globalThis.include = (url: string) => {
-		let content = readFileSync(resolve(url), 'utf8')
+		url = resolve(url)
+		let content = readFileSync(url, 'utf8')
 		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
 	};
 	tagProcs.push(prop => {
