@@ -77,7 +77,7 @@ export class Tab extends HTMLElement implements VisibleElement {
 	}
 
 	hide(el?: Element) {
-		const cls = el?.classList;
+		const cls = el?.classList
 		cls?.add('hidden')
 		cls?.remove('in')
 	}
@@ -98,12 +98,12 @@ export class Dropdown extends Modal {
 	keydown(e: KeyboardEvent) {
 		if (/38|40|27|32/.test(e.which + '') && !/INPUT|TEXTAREA/.test((<HTMLInputElement>e.target).tagName)) {
 			super.keydown(e)
-			e.preventDefault();
-			e.stopPropagation();
+			e.preventDefault()
+			e.stopPropagation()
 			let index = this.items.length
 			while (index--) {
 				if (this.items[index] == e.target)
-					break;
+					break
 			}
 			if (e.which == 38)
 				index--; // up
@@ -164,7 +164,7 @@ directives.push(function ({ name, value, ownerElement: node }) {
 		if (!data)
 			this.add(data = { node, deps: new Set<string>(), vals: [] })
 		for (const cls of value.split(';')) {
-			const p = cls.indexOf(':');
+			const p = cls.indexOf(':')
 			if (~p)
 				(<TargetValue[]>data.vals).push(['',
 					Function(`with(this){return ${cls.substring(p + 1)}?${cls.substring(0, p)}:''}`)])

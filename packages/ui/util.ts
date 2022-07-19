@@ -1,9 +1,9 @@
 export const isDisabled = (el: Element) => {
 	if (!el || el.nodeType != Node.ELEMENT_NODE ||
 		el.classList.contains('disabled'))
-		return true;
+		return true
 
-	return 'disabled' in el && (<any>el).disabled;
+	return 'disabled' in el && (<any>el).disabled
 }
 	/**
 	* Trick to restart an element's animation
@@ -15,9 +15,9 @@ export const isDisabled = (el: Element) => {
 
 	onDOMContentLoaded = (callback: (ev?: Event) => any) => {
 		if (document.readyState == 'loading')
-			document.addEventListener('DOMContentLoaded', callback);
+			document.addEventListener('DOMContentLoaded', callback)
 		else
-			callback();
+			callback()
 	},
 
 	isRTL = (e: HTMLElement) => (e || document.documentElement).dir == 'rtl'

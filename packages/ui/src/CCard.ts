@@ -7,8 +7,8 @@ export class CCard extends HTMLElement {
 		super()
 		for (const el of this.shadowRoot!.querySelector<HTMLSlotElement>('slot#content')!.assignedNodes()) {
 			if (isFlushListGroupElement(el)) {
-				handleTopBorder(<HTMLElement>el);
-				handleBottomBorder(<HTMLElement>el);
+				handleTopBorder(<HTMLElement>el)
+				handleBottomBorder(<HTMLElement>el)
 			}
 		}
 	}

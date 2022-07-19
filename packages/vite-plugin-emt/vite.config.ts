@@ -12,8 +12,5 @@ export default defineConfig({
 			output: { sourcemap: 'hidden' }
 		},
 		target: 'esnext'
-	},
-	esbuild: {
-		banner: 'const self={};',
 	}
 })

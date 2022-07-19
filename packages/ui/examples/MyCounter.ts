@@ -1,4 +1,4 @@
-import { customElement, CydonElement } from 'cydon';
+import { customElement, CydonElement } from 'cydon'
 
 @customElement('my-counter')
 export class MyCounter extends CydonElement {

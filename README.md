@@ -6,9 +6,6 @@ Lightweight Frontend Framework
 - 轻量小巧
 - 模块间低耦合，大部分模块可单独使用
 
-# Requirements
-Node 17.5+
-
 # Usage
 ```html
 <div class="card">$msg</div>
