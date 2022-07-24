@@ -17,10 +17,10 @@ type Callback = (value: any[]) => void
 
 let ws: WebSocket,
 	id = 1,
-	callbacks: Callback[] = [];
+	callbacks: Callback[] = []
 
 export const timeoutError = new Error('Request timeout'),
-	wsAPI = {
+	wsAPI = <WSAPI>{
 		async open() {
 			if (wsAPI.state != WebSocket.CLOSED)
 				return
@@ -45,9 +45,9 @@ export const timeoutError = new Error('Request timeout'),
 			})
 			return new Promise(res => ws.addEventListener('open', res))
 		},
-		get state() { return ws ? ws.readyState : WebSocket.CLOSED; },
-		close() { ws.close(); }
-	} as WSAPI,
+		get state() { return ws ? ws.readyState : WebSocket.CLOSED },
+		close() { ws.close() }
+	},
 	initWSAPI = (funcs: string[]) => {
 		for (let func of funcs)
 			wsAPI[func] = async (...args) => {

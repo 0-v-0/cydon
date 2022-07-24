@@ -8,8 +8,9 @@ export default defineConfig({
 			fileName: 'index'
 		},
 		rollupOptions: {
-			external: 'cydon/events',
+			external: ['@ygoe/msgpack', 'cydon/events', 'idb'],
 			output: { sourcemap: 'hidden' }
-		}
+		},
+		target: 'esnext'
 	}
 })

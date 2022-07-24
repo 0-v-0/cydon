@@ -18,7 +18,7 @@ export default function Events<T, Events extends Record<EventType, unknown>>(
 	target: T,
 	events: EventHandlerMap = {}
 ) {
-	const obj = target as T & Emitter<Events>
+	const obj = <T & Emitter<Events>>target
 	obj.events = events
 	/**
 	 *  On: listen to events

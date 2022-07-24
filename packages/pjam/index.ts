@@ -26,7 +26,7 @@ const
 	popstate = () => turn(location.href, true),
 
 	click = (e: Event) => {
-		const el = e.target as HTMLAnchorElement
+		const el = <HTMLAnchorElement>e.target
 
 		// 过滤不匹配选择器的元素
 		if (!el.matches(PJAM.selector)) return
@@ -93,7 +93,7 @@ export const PJAM = Events({
 })
 
 PJAM.on('update', (url: string, fnb?: boolean, adata?: any, callback?: any) => {
-	PJAM.emit('start');
+	PJAM.emit('start')
 	getCache(url).then(cache =>
 		wsAPI.page(url, cache?.time || 0).then(async ([err, tpl, data]) => {
 			if (err) {
@@ -113,7 +113,7 @@ PJAM.on('update', (url: string, fnb?: boolean, adata?: any, callback?: any) => {
 			if (!fnb)
 				history.pushState('', '', url)
 		})).catch(e => {
-			PJAM.emit('error', e);
+			PJAM.emit('error', e)
 			return e
 		}).finally(() => PJAM.emit('done', callback))
 })
