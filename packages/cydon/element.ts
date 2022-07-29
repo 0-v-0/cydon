@@ -9,9 +9,7 @@ if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot'))
 		tpl.remove()
 	})
 
-export type Constructor<T> = {
-	new(...args: any[]): T
-}
+export type Constructor<T> = new (...args: any[]) => T
 
 /**
  * defines the decorated class as a custom element.
@@ -69,25 +67,42 @@ export const queryAll = (selector: string, cache = true) =>
 		})
 	}
 
+export interface ReactiveElement extends HTMLElement {
+	readonly data: Data
+}
+
+export interface CydonElement extends ReactiveElement {
+	renderRoot: HTMLElement | ShadowRoot
+	cydon: Cydon
+}
+
+interface Ctor<T> extends Constructor<T> {
+	new(): T
+}
+
+export const CydonElementOf = <T extends HTMLElement>(base: Ctor<T> = <any>HTMLElement) => {
+	const CE = class extends (<Ctor<HTMLElement>>base) {
+		renderRoot: HTMLElement | ShadowRoot = this.shadowRoot || this
+		cydon: Cydon
+		get data() {
+			return this.cydon.data
+		}
+
+		constructor(data?: Data, ...args: any[]) {
+			super(...args);
+			this.cydon = new Cydon({ data: data || this, methods: <any>this })
+		}
+
+		bind() {
+			if (this.shadowRoot)
+				this.cydon.bind(this.shadowRoot)
+			this.cydon.bind(this)
+		}
+	}
+	return <Constructor<T> & typeof CE>CE
+}
+
 /**
  * Base element class that manages element properties and attributes.
  */
-export abstract class CydonElement extends HTMLElement {
-	renderRoot: HTMLElement | ShadowRoot
-	cydon: Cydon
-	data: Data
-
-	constructor(data?: Data) {
-		super()
-		this.renderRoot = this.shadowRoot || this
-		const cydon = new Cydon({ data: data || this, methods: <any>this })
-		this.cydon = cydon
-		this.data = cydon.data
-	}
-
-	bind() {
-		if (this.shadowRoot)
-			this.cydon.bind(this.shadowRoot)
-		this.cydon.bind(this)
-	}
-}
+export const CydonElement = CydonElementOf()

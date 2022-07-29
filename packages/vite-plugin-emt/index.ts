@@ -33,7 +33,8 @@ export interface Option extends Omit<Plugin, 'name'> {
 	styleProc?: StyleProcFunc
 	read?(path: string): string
 	render?: Render
-	template?: string
+	tplFile?: string,
+	templated?: boolean
 }
 
 export let appdata: Data[] = []
@@ -194,7 +195,8 @@ export default (config: Option = {}): Plugin => {
 		root,
 		render: rend = render,
 		styleProc,
-		template = 'page.emt'
+		tplFile = 'page.emt',
+		templated
 	} = config
 	const resolve = (p: string, throwOnErr = true) => {
 		let i = p.indexOf('?')
@@ -217,15 +219,27 @@ export default (config: Option = {}): Plugin => {
 		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
 	}
 	tagProcs.push(prop => {
-		const { tag } = prop
-		if (tag.includes('-')) {
-			if (!(tag in tplCache)) {
-				const path = resolve(tag, false)
-				tplCache[tag] = read!(path)
+		const { tag, attr } = prop
+		let name: string | undefined
+		if (tag.includes('-'))
+			name = tag
+		else
+			for (let i = 1; i < attr.length;) {
+				const r = /^is="(.+?)"/i.exec(attr[i++])
+				if (r)
+					name = r[1]
 			}
-			prop.content = (tplCache[tag] || '') + prop.content
+		if (name) {
+			if (!(name in tplCache)) {
+				const path = resolve(name, false)
+				tplCache[name] = read!(path)
+			}
+			if (!used || !used.has(name))
+				prop.content = (tplCache[name] || '') + prop.content
+			used?.add(name)
 		}
 	})
+	let used = templated ? new Set<string>() : null
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
@@ -238,7 +252,8 @@ export default (config: Option = {}): Plugin => {
 				if (!url.endsWith('.emt'))
 					return next()
 
-				let content = emmet(await fs.readFile(resolve(template), 'utf8'),
+				used?.clear()
+				let content = emmet(await fs.readFile(resolve(tplFile), 'utf8'),
 					'\t', styleProc)
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 					time = (await fs.stat(resolve(url))).mtime.getTime()

@@ -1,0 +1,7 @@
+template[shadowroot=open]
+	style{@unocss-placeholder}
+	button.p-3[@click=add]{add}
+	button.p-3[@click=pop]{pop}
+	slot[n=list]
+s-item[slot=item]
+	div{$name}

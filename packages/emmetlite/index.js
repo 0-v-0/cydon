@@ -313,7 +313,7 @@ function zencode(input, styleProc) {
 						}
 				} else {
 					lastgroup.length = 0
-					n = RegExp(/\{([\s\S]+)}|\[([\s\S]+)]|([\.#]?)([\w:=!\$\@\-]+(?:(?<=\$)\{[^}]+})?)/, "g")
+					n = RegExp(/\{([\s\S]+)}|\[([\s\S]+)]|([.#]?)([\w:=!$@-]+(?:(?<=\$)\{[^}]+})?)/, "g")
 					while (l = n.exec(set)) {
 						if (l[1])
 							content = l[1]

@@ -48,8 +48,8 @@ export default (config?: PluginConfig): Plugin => emt({
 	},
 	render(str, data) {
 		str = render(str, data)
-		if (config?.writeIndexHtml && data.REQUEST_PATH == 'index.emt')
-			writeFile(data.DOCUMENT_ROOT + '/index.html', str, _ => { })
+		if (config?.writeIndexHtml && data!.REQUEST_PATH == 'index.emt')
+			writeFile(data!.DOCUMENT_ROOT + '/index.html', str, _ => { })
 		return str
 	},
 	styleProc(buffer, tag, _attr, result) {

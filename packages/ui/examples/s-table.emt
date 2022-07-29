@@ -1,0 +1,39 @@
+template[shadowroot=open]
+	style{
+		.wrapper
+			margin 1em
+		table
+			box-shadow 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12)
+			border-radius 0.3em
+			line-height 2em
+		th, td
+			padding 0 1em
+		td
+			border-bottom thin solid rgba(0,0,0,.12)
+	}
+	.wrapper
+		table
+			thead
+				tr
+					th{Dessert (100g serving)}
+					th{Calories}
+					th{Fat (g)}
+					th{Carbs (g)}
+					th{Protein (g)}
+					th{Iron (%)}
+			tbody
+				tr[is=s-row hidden]
+					td{$name}
+					td{$calories}
+					td{$fat}
+					td{$carbs}
+					td{$protein}
+					td{$iron}
+		select[c-model=perPage]
+			option[value=5]{5}
+			option[value=$perPage]{$perPage}
+			option[value=10]{10}
+			option[value=20]{20}
+		sp{per page ${pageNum*perPage+1}-${pageNum*perPage+items.length} of ${list.length}}
+		button[@click={pageNum--}]{prev}
+		button[@click={pageNum++}]{next}

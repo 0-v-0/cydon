@@ -20,6 +20,6 @@ declare module 'emmetlite' {
 		eabbr: StringMap,
 		tagProcs: TagProcFunc[]
 
-	const Emmet: (input: string, intent?: string, styleProc?: StyleProcFunc) => string
-	export default Emmet
+	const emmet: (input: string, intent?: string, styleProc?: StyleProcFunc) => string
+	export default emmet
 }
