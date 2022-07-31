@@ -33,7 +33,8 @@ export interface Option extends Omit<Plugin, 'name'> {
 	styleProc?: StyleProcFunc
 	read?(path: string): string
 	render?: Render
-	tplFile?: string,
+	tplFile?: string
+	paths?: string[]
 	templated?: boolean
 }
 
@@ -196,11 +197,12 @@ export default (config: Option = {}): Plugin => {
 		render: rend = render,
 		styleProc,
 		tplFile = 'page.emt',
+		paths = [],
 		templated
 	} = config
-	const resolve = (p: string, throwOnErr = true) => {
+	const resolve = (p: string, base = root!, throwOnErr = true) => {
 		let i = p.indexOf('?')
-		p = res(process.cwd(), root!, i < 0 ? p : p.substring(0, i))
+		p = res(process.cwd(), base, i < 0 ? p : p.substring(0, i))
 		let fullPath = p
 		if (!existsSync(fullPath)) {
 			fullPath += '.emt'
@@ -214,7 +216,12 @@ export default (config: Option = {}): Plugin => {
 		}
 		return fullPath
 	}, include = globalThis.include = (url: string) => {
-		url = resolve(url)
+		let resolved
+		for (let path of paths) {
+			resolved = resolve(url, path, false)
+			if (resolved) break
+		}
+		url = resolved || resolve(url, root)
 		let content = readFileSync(url, 'utf8')
 		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
 	}
@@ -231,7 +238,7 @@ export default (config: Option = {}): Plugin => {
 			}
 		if (name) {
 			if (!(name in tplCache)) {
-				const path = resolve(name, false)
+				const path = resolve(name, root, false)
 				tplCache[name] = read!(path)
 			}
 			if (!used || !used.has(name))
@@ -253,15 +260,15 @@ export default (config: Option = {}): Plugin => {
 					return next()
 
 				used?.clear()
-				let content = emmet(await fs.readFile(resolve(tplFile), 'utf8'),
-					'\t', styleProc)
+				let content = include(tplFile)
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
-					time = (await fs.stat(resolve(url))).mtime.getTime()
+					resolved = resolve(url),
+					time = (await fs.stat(resolved)).mtime.getTime()
 				if (url in titles && time == titles[url].time)
 					data.doc_title = titles[url].title
 				else {
 					const rl = readline.createInterface({
-						input: createReadStream(resolve(url)),
+						input: createReadStream(resolved),
 						crlfDelay: Infinity
 					})
 					rl.on('line', line => {

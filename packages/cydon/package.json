@@ -14,7 +14,7 @@
 	"keywords": [
 		"cydon"
 	],
-	"packageManager": "pnpm@7.5.2",
+	"packageManager": "pnpm@7.7.0",
 	"main": "index.ts",
 	"type": "module"
 }

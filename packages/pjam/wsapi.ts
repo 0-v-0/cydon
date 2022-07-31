@@ -48,7 +48,7 @@ export const timeoutError = new Error('Request timeout'),
 		get state() { return ws ? ws.readyState : WebSocket.CLOSED },
 		close() { ws.close() }
 	},
-	initWSAPI = (funcs: string[]) => {
+	initWSAPI = (funcs: string[], timeout = (_func: string) => 10 * 1000) => {
 		for (let func of funcs)
 			wsAPI[func] = async (...args) => {
 				let rid = id++, arr = [rid, func, ...args]
@@ -61,7 +61,7 @@ export const timeoutError = new Error('Request timeout'),
 							delete callbacks[rid]
 							rej(timeoutError)
 						}
-					}, func == 'post' ? 20 * 1000 : 10 * 1000)
+					}, timeout(func))
 				})
 			}
 	}

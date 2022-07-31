@@ -15,7 +15,7 @@ export const commonConfig = {
 		esbuildOptions: {
 			target: 'esnext'
 		}
-	},
+	}
 }
 
 export default {
@@ -23,7 +23,7 @@ export default {
 	build: {
 		assetsDir: '.',
 		sourcemap: 'hidden',
-		target: 'esnext',
+		target: 'esnext'
 	},
 	plugins: [
 		emt(),
@@ -32,7 +32,7 @@ export default {
 			preflights: [],
 			presets: [
 				presetAttributify(),
-				presetUno(),
+				presetUno()
 			],
 			transformers: [
 				inlineStylus(),
