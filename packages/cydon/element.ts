@@ -80,6 +80,7 @@ interface Ctor<T> extends Constructor<T> {
 	new(): T
 }
 
+// TODO: Dedupe Mixin. See npm @open-wc/dedupe-mixin
 export const CydonElementOf = <T extends HTMLElement>(base: Ctor<T> = <any>HTMLElement) => {
 	const CE = class extends (<Ctor<HTMLElement>>base) {
 		renderRoot: HTMLElement | ShadowRoot = this.shadowRoot || this
@@ -89,7 +90,7 @@ export const CydonElementOf = <T extends HTMLElement>(base: Ctor<T> = <any>HTMLE
 		}
 
 		constructor(data?: Data, ...args: any[]) {
-			super(...args);
+			super(...args)
 			this.cydon = new Cydon({ data: data || this, methods: <any>this })
 		}
 

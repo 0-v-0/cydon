@@ -121,8 +121,9 @@ export class Cydon {
 	/**
 	 * bind an element and update it immediately
 	 * @param element target element
+	 * @param extract custom variable extraction function
 	 */
-	bind(element: Element | ShadowRoot) {
+	bind(element: Element | ShadowRoot, extract = extractParts) {
 		const depsWalker = (node: Node) => new Proxy(this.$data, {
 			get: (obj, prop: string) => {
 				this.targets.get(node)?.deps.add(prop)
@@ -144,7 +145,7 @@ export class Cydon {
 		for (let n: Node | null = element; n;) {
 			if (n.nodeType == 3) {
 				let node = <Text>n
-				const parts = extractParts(node.data)
+				const parts = extract(node.data)
 				for (let i = 0; i < parts.length;) {
 					const vals = parts[i++]
 					let len;
@@ -171,7 +172,7 @@ export class Cydon {
 							(<Element>n).removeAttribute(node.name)
 							continue next;
 						}
-					const vals = extractParts(node.value)
+					const vals = extract(node.value)
 					if (vals.length) {
 						const deps = new Set<string>()
 						for (const p of vals) {

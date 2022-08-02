@@ -4,4 +4,5 @@ plugins:
   - stylelint-stylus
 rules:
   stylus/indentation: tab
+  stylus/selector-type-no-unknown: false
   unit-disallowed-list: ["px"]

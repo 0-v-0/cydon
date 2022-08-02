@@ -2,7 +2,7 @@ import { customElement, CydonElement } from 'cydon'
 import { getSlotElementNodes, querySlot, isTargetElement } from '../util'
 
 @customElement('c-card')
-export class CCard extends HTMLElement {
+export class Card extends HTMLElement {
 	constructor() {
 		super()
 		for (const el of this.shadowRoot!.querySelector<HTMLSlotElement>('slot#content')!.assignedNodes()) {
@@ -52,7 +52,7 @@ const isFlushListGroupElement = (el: Node) =>
 		|| (<Element>el).localName == 'c-list-group-action-flush')
 
 @customElement('c-card-body')
-export class CCardBody extends HTMLElement {
+export class CardBody extends HTMLElement {
 	constructor() {
 		super()
 		const slot = this.shadowRoot!.querySelector<HTMLSlotElement>('slot#plainSlot')
@@ -80,7 +80,7 @@ export class CCardBody extends HTMLElement {
 }
 
 @customElement('c-card-link')
-export class CCardLink extends CydonElement {
+export class CardLink extends CydonElement {
 	label
 	target
 	constructor() {
@@ -92,7 +92,7 @@ export class CCardLink extends CydonElement {
 }
 
 @customElement('c-card-links')
-export class CCardLinks extends HTMLElement {
+export class CardLinks extends HTMLElement {
 	constructor() {
 		super()
 		for (const el of this.children) {
@@ -116,9 +116,9 @@ const addLeftMarginToCardLink = (el: HTMLElement) =>
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'c-card': CCard,
-		'c-card-body': CCardBody,
-		'c-card-link': CCardLink
-		'c-card-links': CCardLinks
+		'c-card': Card,
+		'c-card-body': CardBody,
+		'c-card-link': CardLink
+		'c-card-links': CardLinks
 	}
 }

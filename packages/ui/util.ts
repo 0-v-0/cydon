@@ -1,10 +1,18 @@
-export const isDisabled = (el: Element) => {
-	if (!el || el.nodeType != Node.ELEMENT_NODE ||
-		el.classList.contains('disabled'))
-		return true
+import { Constructor as Ctor } from "cydon"
+import Events, { Emitter, EventType } from "cydon/events"
 
-	return 'disabled' in el && (<any>el).disabled
+export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) => {
+	const E = class extends (<Ctor<Object>>base) {
+		constructor(...args: any[]) {
+			super(...args)
+			Events(this)
+		}
+	}
+	return <Ctor<T & Emitter<Events>>>E
 }
+
+export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).disabled
+
 	/**
 	* Trick to restart an element's animation
 	*
