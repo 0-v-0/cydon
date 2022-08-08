@@ -7,7 +7,7 @@ export type WSResponse = {
 export type WSAPI = {
 	[x: string]: (...args: any) => Promise<any[]>
 } & {
-	open(): Promise<any>
+	open(): Promise<Event | void>
 	readonly state: number
 	close(): void
 	process?(data: any): void
@@ -24,14 +24,14 @@ export const timeoutError = new Error('Request timeout'),
 		async open() {
 			if (wsAPI.state != WebSocket.CLOSED)
 				return
-			let path = location.pathname.substring(1),
+			const path = location.pathname.substring(1),
 				i = path.indexOf('/')
 			ws = new WebSocket(`ws://${location.host}/wsapi?path=${i < 0 ? path : path.substring(0, i)}`)
 			ws.binaryType = 'arraybuffer'
 			ws.addEventListener('message', (e: WSResponse) => {
 				if (typeof e.data == 'string')
 					throw new Error(e.data)
-				let r: any[] = decode(e.data, { multiple: true }),
+				const r: any[] = decode(e.data, { multiple: true }),
 					id = r[0]
 				if (id > 0) {
 					if (id in callbacks) {
@@ -49,11 +49,10 @@ export const timeoutError = new Error('Request timeout'),
 		close() { ws.close() }
 	},
 	initWSAPI = (funcs: string[], timeout = (_func: string) => 10 * 1000) => {
-		for (let func of funcs)
-			wsAPI[func] = async (...args) => {
-				let rid = id++, arr = [rid, func, ...args]
-				await wsAPI.open()
-				ws.send(encode(arr, { multiple: true }))
+		for (const func of funcs)
+			wsAPI[func] = (...args) => {
+				const rid = id++, arr = [rid, func, ...args]
+				wsAPI.open().then(() => ws.send(encode(arr, { multiple: true })))
 				return new Promise((res, rej) => {
 					callbacks[rid] = res
 					setTimeout(() => {

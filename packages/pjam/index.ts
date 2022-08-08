@@ -8,6 +8,8 @@ import { wsAPI } from './wsapi'
 import { getCache, setCache } from './db'
 import Events from 'cydon/events'
 
+export * from './wsapi'
+
 /**
  * 获取url中的路径
  * getPath('example.com/abcd') => '/abcd'
@@ -117,5 +119,3 @@ PJAM.on('update', (url: string, fnb?: boolean, adata?: any, callback?: any) => {
 			return e
 		}).finally(() => PJAM.emit('done', callback))
 })
-
-wsAPI.open()

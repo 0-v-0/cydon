@@ -1,14 +1,11 @@
 // From https://github.com/XboxYan/xy-ui/blob/master/components/xy-tips.js
 
-import { customElement } from "cydon"
-
-@customElement('c-tip')
 export default class Tip extends HTMLElement {
 	static get observedAttributes() { return ['color'] }
 
 	constructor() {
-		super();
-		const shadowRoot = this.attachShadow({ mode: 'open' });
+		super()
+		const shadowRoot = this.attachShadow({ mode: 'open' })
 		shadowRoot.innerHTML = `
 		<style>
 		:host {
@@ -394,6 +391,8 @@ export default class Tip extends HTMLElement {
 			this.style.setProperty('--color', newVal)
 	}
 }
+
+customElements.define('c-tip', Tip)
 
 declare global {
 	interface HTMLElementTagNameMap {

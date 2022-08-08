@@ -4,7 +4,8 @@
 	"description": "Liteweight emmet for JavaScript",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/0-v-0/emmetLite"
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/emmetlite"
 	},
 	"keywords": [
 		"emmet"

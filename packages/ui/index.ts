@@ -1,6 +1,6 @@
 import { directives, ReactiveElement, TargetValue } from 'cydon'
-import Dropdown from './src/Dropdown'
-import Modal from './src/Modal'
+import Dropdown from './Dropdown'
+import Modal from './Modal'
 import { isDisabled } from './util'
 
 export * from './util'

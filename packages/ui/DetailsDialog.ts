@@ -62,9 +62,7 @@ function restrictTabBehavior(event: KeyboardEvent) {
 
 function allowClosingDialog(details: Element) {
 	const dialog = details.querySelector('details-dialog')
-	if (!(dialog instanceof DetailsDialog)) return true
-
-	return dialog.dispatchEvent(
+	return !(dialog instanceof DetailsDialog) || dialog.dispatchEvent(
 		new CustomEvent('details-dialog-close', {
 			bubbles: true,
 			cancelable: true
@@ -119,12 +117,12 @@ function findFocusElement(details: Element, dialog: DetailsDialog): HTMLElement 
 
 function toggleDetails(details: Element, open: boolean) {
 	// Don't update unless state is changing
-	if (open == details.hasAttribute('open')) return
-
-	if (open) {
-		details.setAttribute('open', '')
-	} else if (allowClosingDialog(details)) {
-		details.removeAttribute('open')
+	if (open != details.hasAttribute('open')) {
+		if (open) {
+			details.setAttribute('open', '')
+		} else if (allowClosingDialog(details)) {
+			details.removeAttribute('open')
+		}
 	}
 }
 
@@ -136,14 +134,14 @@ function loadIncludeFragment(event: Event) {
 	const loader = dialog.querySelector('include-fragment:not([src])')
 	if (!loader) return
 
-	const src = dialog.src
-	if (src == null) return
-
-	loader.addEventListener('loadend', () => {
-		if (details.hasAttribute('open')) autofocus(dialog)
-	})
-	loader.setAttribute('src', src)
-	removeIncludeFragmentEventListeners(details)
+	const { src } = dialog
+	if (src != null) {
+		loader.addEventListener('loadend', () => {
+			if (details.hasAttribute('open')) autofocus(dialog)
+		})
+		loader.setAttribute('src', src)
+		removeIncludeFragmentEventListeners(details)
+	}
 }
 
 function updateIncludeFragmentEventListeners(details: Element, src: string | null, preload: boolean) {
@@ -151,10 +149,9 @@ function updateIncludeFragmentEventListeners(details: Element, src: string | nul
 
 	if (src) {
 		details.addEventListener('toggle', loadIncludeFragment, { once: true })
-	}
-
-	if (src && preload) {
-		details.addEventListener('mouseover', loadIncludeFragment, { once: true })
+		if (preload) {
+			details.addEventListener('mouseover', loadIncludeFragment, { once: true })
+		}
 	}
 }
 
@@ -242,22 +239,20 @@ export default class DetailsDialog extends HTMLElement {
 		const state = initialized.get(this)
 		if (!state) return
 		const { details } = state
-		if (!details) return
-		details.removeEventListener('toggle', toggle)
-		removeIncludeFragmentEventListeners(details)
-		const summary = details.querySelector('summary')
-		if (summary) {
-			summary.removeEventListener('click', onSummaryClick, { capture: true })
+		if (details) {
+			details.removeEventListener('toggle', toggle)
+			removeIncludeFragmentEventListeners(details)
+			details.querySelector('summary')?.removeEventListener('click', onSummaryClick, { capture: true })
+			state.details = null
 		}
-		state.details = null
 	}
 
 	toggle(open: boolean) {
 		const state = initialized.get(this)
 		if (!state) return
 		const { details } = state
-		if (!details) return
-		toggleDetails(details, open)
+		if (details)
+			toggleDetails(details, open)
 	}
 
 	static get observedAttributes() {
@@ -268,9 +263,9 @@ export default class DetailsDialog extends HTMLElement {
 		const state = initialized.get(this)
 		if (!state) return
 		const { details } = state
-		if (!details) return
+		if (details)
 
-		updateIncludeFragmentEventListeners(details, this.src, this.preload)
+			updateIncludeFragmentEventListeners(details, this.src, this.preload)
 	}
 }
 customElements.define('details-dialog', DetailsDialog)

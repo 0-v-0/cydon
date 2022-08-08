@@ -1,0 +1,11 @@
+{
+	"name": "@cydon/css",
+	"version": "0.0.1",
+	"scripts": {
+		"lint": "stylelint 'src/*.styl'"
+	},
+	"devDependencies": {
+		"stylelint": "^14.9.1",
+		"stylelint-stylus": "^0.16.1"
+	}
+}

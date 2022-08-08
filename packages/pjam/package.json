@@ -1,6 +1,16 @@
 {
 	"name": "@cydon/pjam",
 	"version": "0.0.1",
+	"author": {
+		"name": "0-v-0",
+		"email": "kduice@qq.com"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/pjam"
+	},
 	"scripts": {
 		"build": "vite build"
 	},

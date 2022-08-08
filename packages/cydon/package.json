@@ -9,7 +9,8 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/0-v-0/cydon"
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/cydon"
 	},
 	"keywords": [
 		"cydon"

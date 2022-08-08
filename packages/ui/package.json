@@ -22,16 +22,14 @@
   ],
   "version": "0.0.1",
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.6.3",
+    "@custom-elements-manifest/analyzer": "^0.6.4",
     "@types/clean-css": "^4.2.5",
     "@typescript-eslint/parser": "^5.32.0",
     "@unocss/transformer-directives": "^0.44.7",
     "autoprefixer": "^10.4.8",
     "clean-css": "^5.3.1",
     "eslint": "^8.21.0",
-    "postcss": "^8.4.14",
-    "stylelint": "^14.9.1",
-    "stylelint-stylus": "^0.16.1",
+    "postcss": "^8.4.16",
     "stylus": "^0.58.1",
     "terser": "^5.14.2",
     "typedoc": "^0.23.10",
@@ -46,13 +44,12 @@
     "cydon": "workspace:0.0.1"
   },
   "scripts": {
-    "analyze": "cem analyze --globs \"src/**/*.ts\"",
-    "analyze:watch": "cem analyze --globs \"src/**/*.ts\" --watch",
+    "analyze": "cem analyze --globs \"**/*.ts\"",
+    "analyze:watch": "cem analyze --globs \"**/*.ts\" --watch",
     "dev": "vite",
     "build": "vite build --config build-config.ts",
-    "lint": "pnpm lint:eslint&&pnpm lint:stylelint",
-    "lint:eslint": "eslint 'src/**/*.ts'",
-    "lint:stylelint": "stylelint 'css/*.styl'"
+    "lint": "pnpm lint:eslint",
+    "lint:eslint": "eslint '**/*.ts'"
   },
   "type": "module",
   "customElements": "custom-elements.json"
