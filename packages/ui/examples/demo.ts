@@ -1,13 +1,13 @@
-import { customElement, Cydon, CydonElement, CydonElementOf } from 'cydon'
+import { bind, customElement, Cydon } from 'cydon'
 import { ListElement, TableElement } from '..'
 
 @customElement('my-counter')
-export class MyCounter extends CydonElement {
+export class MyCounter extends HTMLElement {
 	value = +this.getAttribute('value')!
 
 	constructor() {
 		super()
-		this.bind()
+		bind(this)
 	}
 
 	inc() { this.value++ }
@@ -46,17 +46,14 @@ export class SList extends ListElement<string> {
 }
 
 @customElement('s-item')
-export class SItem extends CydonElement {
-	constructor() {
-		super()
-		this.bind()
-	}
+export class SItem extends HTMLElement {
+	data = bind(this).data
 }
 
 @customElement('s-table')
-export class STable extends CydonElementOf(TableElement<{}>) {
+export class STable extends TableElement<{}> {
 	constructor() {
-		super(void 0, 'tbody>tr')
+		super('tbody>tr')
 		addEventListener('load', () => {
 			this.data.list = [
 				{
@@ -157,14 +154,11 @@ export class STable extends CydonElementOf(TableElement<{}>) {
 				},
 			]
 		})
-		this.bind()
+		bind(this)
 	}
 }
 
 @customElement('s-row', { extends: 'tr' })
-export class SRow extends CydonElementOf(HTMLTableRowElement) {
-	constructor() {
-		super()
-		this.bind()
-	}
+export class SRow extends HTMLTableRowElement {
+	data = bind(this).data
 }

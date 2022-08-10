@@ -8,14 +8,11 @@ import { customElement, CydonElement } from 'cydon'
 ## 基本组件
 e.g.
 ```ts
+import { bind, customElement } from 'cydon'
+
 @customElement('custom-element')
 class CustomElement extends HTMLElement {
-	canvas
-	constructor() {
-		super()
-		this.canvas = document.createElement('canvas')
-		this.appendChild(this.canvas)
-	}
+	canvas = this.appendChild(document.createElement('canvas'))
 }
 
 declare global {
@@ -32,13 +29,15 @@ declare global {
 
 my-counter.ts
 ```ts
+import { bind, customElement } from 'cydon'
+
 @customElement('my-counter')
 export class MyCounter extends CydonElement {
 	value = +this.getAttribute('value')!
 
 	constructor() {
 		super()
-		this.bind()
+		bind(this)
 	}
 
 	inc() { this.value++ }

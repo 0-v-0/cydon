@@ -255,9 +255,7 @@ export default class DetailsDialog extends HTMLElement {
 			toggleDetails(details, open)
 	}
 
-	static get observedAttributes() {
-		return ['src', 'preload']
-	}
+	static observedAttributes = ['src', 'preload']
 
 	attributeChangedCallback() {
 		const state = initialized.get(this)

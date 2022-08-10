@@ -1,11 +1,18 @@
-import { customElement } from "cydon"
-import Modal from "./Modal"
+import { customElement } from 'cydon'
+import Modal from './Modal'
 
 @customElement('c-dropdown')
 export default class Dropdown extends Modal {
 	items!: NodeListOf<Element>
 	connectedCallback() {
 		this.updateItems()
+	}
+
+	get open() {
+		return this.ariaExpanded == 'true'
+	}
+	set open(val) {
+		this.ariaExpanded = val + ''
 	}
 
 	updateItems() {

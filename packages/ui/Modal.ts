@@ -1,5 +1,5 @@
-import { customElement } from "cydon"
-import { hide } from ".."
+import { customElement } from 'cydon'
+import { hide } from '.'
 
 @customElement('c-modal')
 export default class Modal extends HTMLElement {

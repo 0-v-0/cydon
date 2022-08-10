@@ -167,7 +167,7 @@ directives.unshift(function ({ name, value, ownerElement: el }) {
 	if (name == '@click.outside') {
 		const func = this.getFunc(value)
 		el.addEventListener('click', e => {
-			if (e.target != el && !el!.contains(<Node>e.target))
+			if (e.target != el && !el.contains(<Node>e.target))
 				func(e)
 		})
 		return true

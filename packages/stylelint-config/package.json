@@ -1,0 +1,14 @@
+{
+	"name": "@cydon/stylelint-config",
+	"version": "0.0.1",
+	"scripts": {
+		"lint": "stylelint 'src/*.styl'"
+	},
+	"dependencies": {
+		"stylelint-config-recess-order": "^3.0.0",
+		"stylelint-stylus": "^0.16.1"
+	},
+	"devDependencies": {
+		"stylelint": "^14.9.1"
+	}
+}

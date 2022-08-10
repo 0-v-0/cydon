@@ -1,0 +1,26 @@
+{
+	"extends": [
+		"stylelint-stylus/standard",
+		"stylelint-config-recess-order"
+	],
+	"ignoreFiles": [
+		"**/*.emt"
+	],
+	"plugins": [
+		"stylelint-stylus"
+	],
+	"rules": {
+		"stylus/indentation": "tab",
+		"stylus/selector-type-no-unknown": [
+			true,
+			{
+				"ignore": [
+					"custom-elements"
+				]
+			}
+		],
+		"unit-disallowed-list": [
+			"px"
+		]
+	}
+}

@@ -4,7 +4,7 @@ type IncrementKeyCode = 'ArrowRight' | 'ArrowDown'
 type DecrementKeyCode = 'ArrowUp' | 'ArrowLeft'
 
 const getTabs =
-	(el: TabContainer) => [...el.querySelectorAll<HTMLElement>('[role="tablist"] [role="tab"]')].filter(
+	(el: TabContainer) => [...el.querySelectorAll<HTMLElement>('[role=tablist] [role=tab]')].filter(
 		tab => tab.closest(el.tagName) == el
 	)
 
@@ -33,11 +33,11 @@ export default class TabContainer extends HTMLElement {
 			const target = event.target
 			if (!(target instanceof HTMLElement)) return
 			if (target.closest(this.tagName) != this) return
-			if (target.getAttribute('role') != 'tab' && !target.closest('[role="tablist"]')) return
+			if (target.getAttribute('role') != 'tab' && !target.closest('[role=tablist]')) return
 			const tabs = getTabs(this)
 			const currentIndex = tabs.indexOf(tabs.find(tab => tab.ariaSelected == 'true')!)
 			const [incrementKeys, decrementKeys] = getNavigationKeyCodes(
-				target.closest('[role="tablist"]')?.ariaOrientation == 'vertical'
+				target.closest('[role=tablist]')?.ariaOrientation == 'vertical'
 			)
 
 			let index
@@ -63,8 +63,8 @@ export default class TabContainer extends HTMLElement {
 
 			if (event.target instanceof Element) {
 				if (event.target.closest(this.tagName) == this) {
-					const tab = event.target.closest('[role="tab"]')
-					if (!(tab instanceof HTMLElement) || !tab.closest('[role="tablist"]')) return
+					const tab = event.target.closest('[role=tab]')
+					if (!(tab instanceof HTMLElement) || !tab.closest('[role=tablist]')) return
 
 					this.select(tabs.indexOf(tab))
 				}
@@ -86,7 +86,7 @@ export default class TabContainer extends HTMLElement {
 
 	select(index: number) {
 		const tabs = getTabs(this)
-		const panels = [...this.querySelectorAll<HTMLElement>('[role="tabpanel"]')].filter(
+		const panels = [...this.querySelectorAll<HTMLElement>('[role=tabpanel]')].filter(
 			panel => panel.closest(this.tagName) == this
 		)
 

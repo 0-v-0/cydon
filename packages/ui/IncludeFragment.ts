@@ -8,9 +8,7 @@ const task = () => new Promise<void>(resolve => setTimeout(resolve, 0))
 const isWildcard = (accept: string | null) => accept && accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 
 export default class IncludeFragmentElement extends HTMLElement {
-	static get observedAttributes() {
-		return ['src', 'loading']
-	}
+	static observedAttributes = ['src', 'loading']
 
 	get src() {
 		const src = this.getAttribute('src')

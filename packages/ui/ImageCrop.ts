@@ -307,9 +307,7 @@ export default class ImageCrop extends HTMLElement {
 		if (this.src) image.src = this.src
 	}
 
-	static get observedAttributes() {
-		return ['src']
-	}
+	static observedAttributes = ['src']
 
 	get src() {
 		return this.getAttribute('src')
@@ -327,10 +325,7 @@ export default class ImageCrop extends HTMLElement {
 	}
 
 	set loaded(val) {
-		if (val)
-			this.setAttribute('loaded', '')
-		else
-			this.removeAttribute('loaded')
+		this.toggleAttribute('loaded', val)
 	}
 
 	attributeChangedCallback(attribute: string, oldValue: string, newValue: string) {

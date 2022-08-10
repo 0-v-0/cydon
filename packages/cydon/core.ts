@@ -28,16 +28,16 @@ function extractParts(s: string): (string | TargetValue)[] {
 	return parts
 }
 
-export type Data = {
-	[x: string]: any
-}
+export type Data = Record<string, any>
 
-export type Funcs = {
-	[x: string]: (data?: any) => any
-}
+export type Funcs = Record<string, (data?: any) => any>
 
-export type Methods = {
-	[x: string]: (this: Data, e: Event) => any
+export type Methods = Record<string, (this: Data, e: Event) => any>
+
+export type CydonOption = {
+	data?: Data
+	methods?: Methods
+	filters?: Funcs
 }
 
 export type TargetData = {
@@ -80,10 +80,10 @@ export class Cydon {
 	filters
 
 	constructor({
-		data = <Data>{},
-		methods = <Methods>{},
-		filters = <Funcs>{}
-	}) {
+		data = {},
+		methods = {},
+		filters = {}
+	}: CydonOption) {
 		this.filters = new Proxy<Funcs>(this._filters = filters, {
 			set: (obj, prop: string, handler: (data?: any) => any) => {
 				obj[prop] = handler
