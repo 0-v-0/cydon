@@ -6,11 +6,9 @@ export const copyText = (text: string) => navigator.clipboard.writeText(text)
 
 async function copy(button: HTMLElement) {
 	const id = button.getAttribute('for')
-	const text = button.getAttribute('value')
-
-	function trigger() {
-		button.dispatchEvent(new CustomEvent('clipboard-copy', { bubbles: true }))
-	}
+	const text = button.getAttribute('value'),
+		trigger = () =>
+			button.dispatchEvent(new CustomEvent('clipboard-copy', { bubbles: true }))
 
 	if (text) {
 		await copyText(text)

@@ -321,53 +321,29 @@ export default class Tip extends HTMLElement {
 		<slot></slot>`
 	}
 
-	get color() {
-		return this.getAttribute('color') || ''
-	}
+	get color() { return this.getAttribute('color') || '' }
 
-	get dir() {
-		return this.getAttribute('dir') || 'top'
-	}
+	get dir() { return this.getAttribute('dir') || 'top' }
 
-	get tips() {
-		return this.getAttribute('tips')!
-	}
+	get tips() { return this.getAttribute('tips')! }
 
-	get type() {
-		return this.getAttribute('tips')!
-	}
+	get type() { return this.getAttribute('tips')! }
 
-	get suffix() {
-		return this.getAttribute('suffix') || ''
-	}
+	get suffix() { return this.getAttribute('suffix') || '' }
 
-	get show() {
-		return this.getAttribute('show') != null
-	}
+	get show() { return this.hasAttribute('show') }
 
-	set color(value) {
-		this.setAttribute('color', value)
-	}
+	set color(value) { this.setAttribute('color', value) }
 
-	set dir(value) {
-		this.setAttribute('dir', value)
-	}
+	set dir(value) { this.setAttribute('dir', value) }
 
-	set tips(value) {
-		this.setAttribute('tips', value)
-	}
+	set tips(value) { this.setAttribute('tips', value) }
 
-	set suffix(value) {
-		this.setAttribute('suffix', value)
-	}
+	set suffix(value) { this.setAttribute('suffix', value) }
 
-	set show(value) {
-		this.setAttribute('show', value + '')
-	}
+	set show(value) { this.toggleAttribute('show', value) }
 
-	set type(value) {
-		this.setAttribute('type', value)
-	}
+	set type(value) { this.setAttribute('type', value) }
 
 	connectedCallback() {
 		if (this.dir == 'auto') {

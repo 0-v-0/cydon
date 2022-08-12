@@ -175,6 +175,16 @@ directives.unshift(function ({ name, value, ownerElement: el }) {
 	return
 })
 
+directives.push(function ({ name, value, ownerElement: el }) {
+	if (name == 'ref') {
+		if (import.meta.env.DEV && value in this.$data)
+			console.warn(`The ref "${value}" has already defined on`, this.$data)
+		this.$data[value] = el
+		return true
+	}
+	return
+})
+
 directives.push(({ name, value, ownerElement: el }) => {
 	if (name == 'c-open' || name == 'c-close') {
 		el.addEventListener('click', e => {

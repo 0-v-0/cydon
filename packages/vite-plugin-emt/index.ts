@@ -109,7 +109,6 @@ export default (config: Option = {}): Plugin => {
 					return next()
 
 				used?.clear()
-				let content = include(tplFile)
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 					resolved = resolve(url),
 					time = (await fs.stat(resolved)).mtime.getTime()
@@ -136,7 +135,7 @@ export default (config: Option = {}): Plugin => {
 					})
 					await events.once(rl, 'close')
 				}
-				content = rend(content, data)
+				let content = rend(include('doc_title' in data ? tplFile : resolved), data)
 				content = await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)

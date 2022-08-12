@@ -5,8 +5,8 @@
 		"lint": "stylelint src/*.styl"
 	},
 	"devDependencies": {
-		"@cydon/stylelint-config": "workspace:^",
-		"stylelint": "^14.9.1",
+		"@cydon/stylelint-config": "workspace:^0.0.1",
+		"stylelint": "14.9.1",
 		"stylelint-stylus": "^0.16.1"
 	},
 	"stylelint": {

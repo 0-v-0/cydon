@@ -8,71 +8,44 @@ const task = () => new Promise<void>(resolve => setTimeout(resolve, 0))
 const isWildcard = (accept: string | null) => accept && accept.split(',').find(x => x.match(/^\s*\*\/\*/))
 
 export default class IncludeFragmentElement extends HTMLElement {
-	static observedAttributes = ['src', 'loading']
+	static observedAttributes = ['src', 'lazy']
 
 	get src() {
 		const src = this.getAttribute('src')
 		return src ? new URL(src, this.ownerDocument!.baseURI).href : ''
 	}
 
-	set src(val) {
-		this.setAttribute('src', val)
-	}
+	set src(val) { this.setAttribute('src', val) }
 
-	get loading() {
-		return this.getAttribute('loading') == 'lazy' ? 'lazy' : 'eager'
-	}
+	get lazy() { return this.hasAttribute('lazy') }
 
-	set loading(value) {
-		this.setAttribute('loading', value)
-	}
+	set lazy(val) { this.toggleAttribute('lazy', val) }
 
-	get accept() {
-		return this.getAttribute('accept') || 'text/html'
-	}
+	get accept() { return this.getAttribute('accept') || 'text/html' }
 
-	set accept(val) {
-		this.setAttribute('accept', val)
-	}
+	set accept(val) { this.setAttribute('accept', val) }
 
-	get data() {
-		return this.load()
-	}
+	get data() { return this.load() }
 
 	private busy?: boolean
 
-	attributeChangedCallback(attribute: string, oldVal: string | null) {
-		if (attribute == 'src') {
-			// Source changed after attached so replace element.
-			if (this.isConnected && this.loading == 'eager') {
-				this.handleData()
-			}
-		} else if (attribute == 'loading') {
-			// Loading mode changed to Eager after attached so replace element.
-			if (this.isConnected && oldVal != 'eager' && this.loading == 'eager') {
-				this.handleData()
-			}
-		}
+	attributeChangedCallback() {
+		if (this.isConnected && !this.lazy)
+			this.handleData()
 	}
 
 	constructor() {
 		super()
 		this.attachShadow({ mode: 'open' }).innerHTML = `
-			<style>
-				:host {
-					display: block;
-				}
-			</style>
+			<style> :host { display: block } </style>
 			<slot></slot>`
 	}
 
 	connectedCallback() {
-		if (this.src && this.loading == 'eager') {
-			this.handleData()
-		}
-		if (this.loading == 'lazy') {
+		if (this.lazy)
 			this.observer.observe(this)
-		}
+		else if (this.src)
+			this.handleData()
 	}
 
 	request() {
@@ -94,71 +67,21 @@ export default class IncludeFragmentElement extends HTMLElement {
 		let data = loaded.get(this)
 		if (data && data.src == src)
 			return data.data
-		data = src ? this.fetchDataWithEvents() : Promise.reject(new Error('missing src'))
-		loaded.set(this, { src, data })
-		return data
-	}
 
-	private observer = new IntersectionObserver(
-		entries => {
-			for (const entry of entries) {
-				if (entry.isIntersecting) {
-					const { target } = entry
-					this.observer.unobserve(target)
-					if (target instanceof IncludeFragmentElement && target.loading == 'lazy')
-						this.handleData()
-				}
-			}
-		},
-		{
-			// Currently the threshold is set to 256px from the bottom of the viewport
-			// with a threshold of 0.1. This means the element will not load until about
-			// 2 keyboard-down-arrow presses away from being visible in the viewport,
-			// giving us some time to fetch it before the contents are made visible
-			rootMargin: '0 0 256px 0',
-			threshold: 0.01
-		}
-	)
-
-	private handleData() {
-		if (this.busy) return Promise.resolve()
-		this.busy = true
-
-		this.observer.unobserve(this)
-		return this.load().then(
-			(html: string) => {
-				const template = document.createElement('template')
-				template.innerHTML = html
-				const fragment = document.importNode(template.content, true)
-				const canceled = !this.dispatchEvent(
-					new CustomEvent('include-fragment-replace', { cancelable: true, detail: { fragment } })
-				)
-				if (!canceled) {
-					this.replaceWith(fragment)
-					this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
-				}
-			},
-			() => this.classList.add('is-error')
-		)
-	}
-
-	private fetchDataWithEvents() {
 		// We mimic the same event order as <img>, including the spec
 		// which states events must be dispatched after "queue a task".
 		// https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
-		return task()
+		data = src ? task()
 			.then(() => {
 				this.dispatchEvent(new Event('loadstart'))
 				return fetch(this.request())
 			})
 			.then(response => {
-				if (response.status != 200) {
+				if (response.status != 200)
 					throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-				}
 				const ct = response.headers.get('Content-Type')
-				if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept))) {
+				if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept)))
 					throw new Error(`Failed to load resource: expected ${this.accept} but was ${ct}`)
-				}
 				return response.text()
 			})
 			.then(
@@ -182,7 +105,52 @@ export default class IncludeFragmentElement extends HTMLElement {
 					})
 					throw error
 				}
-			)
+			) : Promise.reject(new Error('missing src'))
+		loaded.set(this, { src, data })
+		return data
+	}
+
+	private observer = new IntersectionObserver(
+		entries => {
+			for (const entry of entries) {
+				if (entry.isIntersecting) {
+					const { target } = entry
+					this.observer.unobserve(target)
+					if (target instanceof IncludeFragmentElement && target.lazy)
+						this.handleData()
+				}
+			}
+		},
+		{
+			// Currently the threshold is set to 256px from the bottom of the viewport
+			// with a threshold of 0.1. This means the element will not load until about
+			// 2 keyboard-down-arrow presses away from being visible in the viewport,
+			// giving us some time to fetch it before the contents are made visible
+			rootMargin: '0 0 256px 0',
+			threshold: 0.01
+		}
+	)
+
+	private handleData() {
+		if (this.busy) return Promise.resolve()
+		this.busy = true
+
+		this.observer.unobserve(this)
+		return this.load().then(
+			(html: string) => {
+				const tpl = document.createElement('template')
+				tpl.innerHTML = html
+				const fragment = document.importNode(tpl.content, true)
+				const canceled = !this.dispatchEvent(
+					new CustomEvent('include-fragment-replace', { cancelable: true, detail: { fragment } })
+				)
+				if (!canceled) {
+					this.replaceWith(fragment)
+					this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
+				}
+			},
+			() => this.classList.add('is-error')
+		)
 	}
 }
 
