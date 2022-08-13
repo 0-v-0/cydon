@@ -2,6 +2,7 @@
 	"name": "@cydon/css",
 	"version": "0.0.1",
 	"scripts": {
+		"fix": "stylelint src/*.styl --fix",
 		"lint": "stylelint src/*.styl"
 	},
 	"devDependencies": {

@@ -28,7 +28,7 @@ async function copy(button: HTMLElement) {
 function copyTarget(content: Element) {
 	if (content instanceof HTMLInputElement || content instanceof HTMLTextAreaElement)
 		return copyText(content.value)
-	if (content instanceof HTMLAnchorElement && content.hasAttribute('href'))
+	if (content instanceof HTMLAnchorElement && content.href)
 		return copyText(content.href)
 	return copyNode(content)
 }

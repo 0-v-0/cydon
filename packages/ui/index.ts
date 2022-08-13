@@ -1,13 +1,14 @@
 import { directives, ReactiveElement, TargetValue } from 'cydon'
-import Dropdown from './Dropdown'
-import Modal from './Modal'
 import { isDisabled } from './util'
 
 export * from './util'
 
 export const hide = (e?: Element | null) => e?.classList.add('hidden'),
 	toggle = (e: HTMLElement) => {
-		e.hidden = !e.hidden
+		if ((<any>e).show && (<any>e).hide)
+			e.ariaHidden ? (<any>e).show() : (<any>e).hide()
+		else
+			e.hidden = !e.hidden
 	}
 
 export class ListElement<T = any> extends HTMLElement {
@@ -185,24 +186,18 @@ directives.push(function ({ name, value, ownerElement: el }) {
 	return
 })
 
-directives.push(({ name, value, ownerElement: el }) => {
-	if (name == 'c-open' || name == 'c-close') {
+directives.push(function ({ name, value, ownerElement: el }) {
+	if (name == 'c-target') {
 		el.addEventListener('click', e => {
 			const el = <HTMLElement>e.currentTarget
 			if (el.tagName == 'A' || el.tagName == 'AREA')
 				e.preventDefault()
 			if (!isDisabled(el)) {
 				e.stopPropagation()
-				const targets = value ? document.body.querySelectorAll(value) : [el.parentElement!]
-				if (name == 'c-open') {
-					for (const target of targets) {
-						if (target instanceof Modal)
-							target.show()
-						else if (target instanceof Dropdown)
-							toggle(<Modal>target)
-					}
-				} else
-					targets.forEach(hide)
+				if (this.$data[value])
+					toggle(this.$data[value])
+				else
+					document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
 			}
 		})
 		return true
@@ -210,11 +205,15 @@ directives.push(({ name, value, ownerElement: el }) => {
 	return
 })
 
-directives.push(function ({ name, value, ownerElement: node }) {
+directives.push(function ({ name, value, ownerElement: el }) {
 	if (name[0] == ':') {
-		let data = this.targets.get(node.attributes[<any>name.substring(1)])
+		name = name.substring(1)
+		if (!el.hasAttribute(name))
+			el.setAttribute(name, '')
+		const node = el.attributes[<any>name]
+		let data = this.targets.get(node)
 		if (!data)
-			this.add(data = { node, deps: new Set<string>(), vals: [] })
+			this.add(data = { node, deps: new Set(), vals: [] })
 		for (const cls of value.split(';')) {
 			const p = cls.indexOf(':')
 			if (~p)

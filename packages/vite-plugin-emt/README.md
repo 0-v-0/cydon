@@ -42,6 +42,47 @@ export default {
 | tplFile      | string                   | 自定义模板文件                              |
 
 ## emt模板
+a.emt:
+```styl
+div
+	custom-component
+		br
+```
+custom-component.emt:
+```styl
+section
+	.foo
+```
+等价于：
+```styl
+div
+	custom-component
+		section
+			.foo
+		br
+```
+
+缩进与非缩进格式可以混用，例如：
+
+```styl
+div
+	.a>.b
+	.c+.d
+	(.e>.f)*2
+```
+等价于：
+```styl
+div
+	.a
+		.b
+	.c
+	.d
+	.e
+		.f
+	.e
+		.f
+```
+
 ### emt环境变量
 环境变量类型均为string
 | 名称         | 说明                  |
