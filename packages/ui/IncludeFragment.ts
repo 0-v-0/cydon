@@ -31,7 +31,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 
 	attributeChangedCallback() {
 		if (this.isConnected && !this.lazy)
-			this.handleData()
+			this.replace()
 	}
 
 	constructor() {
@@ -42,10 +42,30 @@ export default class IncludeFragmentElement extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.observer = new IntersectionObserver(
+			entries => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						const { target } = entry
+						this.observer!.unobserve(target)
+						if (target instanceof IncludeFragmentElement && target.lazy)
+							this.replace()
+					}
+				}
+			},
+			{
+				// Currently the threshold is set to 256px from the bottom of the viewport
+				// with a threshold of 0.1. This means the element will not load until about
+				// 2 keyboard-down-arrow presses away from being visible in the viewport,
+				// giving us some time to fetch it before the contents are made visible
+				rootMargin: '0px 0px 256px 0px',
+				threshold: 0.01
+			}
+		)
 		if (this.lazy)
 			this.observer.observe(this)
 		else if (this.src)
-			this.handleData()
+			this.replace()
 	}
 
 	request() {
@@ -77,7 +97,7 @@ export default class IncludeFragmentElement extends HTMLElement {
 				return fetch(this.request())
 			})
 			.then(response => {
-				if (response.status != 200)
+				if (!response.ok)
 					throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
 				const ct = response.headers.get('Content-Type')
 				if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept)))
@@ -110,42 +130,22 @@ export default class IncludeFragmentElement extends HTMLElement {
 		return data
 	}
 
-	private observer = new IntersectionObserver(
-		entries => {
-			for (const entry of entries) {
-				if (entry.isIntersecting) {
-					const { target } = entry
-					this.observer.unobserve(target)
-					if (target instanceof IncludeFragmentElement && target.lazy)
-						this.handleData()
-				}
-			}
-		},
-		{
-			// Currently the threshold is set to 256px from the bottom of the viewport
-			// with a threshold of 0.1. This means the element will not load until about
-			// 2 keyboard-down-arrow presses away from being visible in the viewport,
-			// giving us some time to fetch it before the contents are made visible
-			rootMargin: '0 0 256px 0',
-			threshold: 0.01
-		}
-	)
+	private observer?: IntersectionObserver
 
-	private handleData() {
+	private replace() {
 		if (this.busy) return Promise.resolve()
 		this.busy = true
 
-		this.observer.unobserve(this)
+		this.observer?.unobserve(this)
 		return this.load().then(
 			(html: string) => {
 				const tpl = document.createElement('template')
 				tpl.innerHTML = html
-				const fragment = document.importNode(tpl.content, true)
 				const canceled = !this.dispatchEvent(
-					new CustomEvent('include-fragment-replace', { cancelable: true, detail: { fragment } })
+					new CustomEvent('include-fragment-replace', { cancelable: true, detail: tpl.content })
 				)
 				if (!canceled) {
-					this.replaceWith(fragment)
+					this.replaceWith(tpl.content)
 					this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
 				}
 			},

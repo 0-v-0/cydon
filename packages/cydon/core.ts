@@ -212,12 +212,12 @@ export class Cydon {
 		const { node } = data
 		if (node instanceof Attr) {
 			let val = ''
-			for (let p of data.vals)
+			for (const p of data.vals)
 				val += typeof p == 'object' ? ToString(this.getValue(p)) : p
 			node.value = val
 		} else {
 			let newVal = this.getValue(<TargetValue>data.vals)
-			newVal = newVal.cloneNode?.(true) || new Text(ToString(newVal))
+			newVal = newVal?.cloneNode?.(true) || new Text(ToString(newVal))
 			this.targets.delete(node);
 			(<ChildNode>node).replaceWith(newVal)
 			data.node = newVal

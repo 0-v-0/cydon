@@ -6,7 +6,7 @@
 	},
 	"dependencies": {
 		"stylus": "^0.58.1",
-		"vite-plugin-emt": "workspace:*"
+		"vite-plugin-emt": "workspace:0.0.1"
 	},
 	"devDependencies": {
 		"@types/stylus": "^0.48.38"

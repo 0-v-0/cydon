@@ -210,7 +210,7 @@ function extractTabs(input, indent) {
 function zencode(input, styleProc) {
 	function closeTag(ret) {
 		let tag = taglist.pop()
-		if (tag && !/^!|^(area|base|br|col|embed|frame|hr|img|input|link|meta|param|source|wbr)\b/i.test(tag)) {
+		if (tag && !/^!|^(area|base|br|col|embed|frame|hr|img|input|link|meta|param|source|wbr)$/i.test(tag)) {
 			tag = '</' + tag + '>'
 			return ret ? tag : result.push(tag)
 		}

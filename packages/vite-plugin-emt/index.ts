@@ -135,8 +135,10 @@ export default (config: Option = {}): Plugin => {
 					})
 					await events.once(rl, 'close')
 				}
-				let content = rend(include('doc_title' in data ? tplFile : resolved), data)
-				content = await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl)
+				const content = 'doc_title' in data ?
+					await server.transformIndexHtml?.(
+						req.originalUrl!, rend(include(tplFile), data), req.originalUrl) :
+					rend(include(resolved), data)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)
 			})

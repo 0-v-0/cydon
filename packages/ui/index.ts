@@ -3,13 +3,12 @@ import { isDisabled } from './util'
 
 export * from './util'
 
-export const hide = (e?: Element | null) => e?.classList.add('hidden'),
-	toggle = (e: HTMLElement) => {
-		if ((<any>e).show && (<any>e).hide)
-			e.ariaHidden ? (<any>e).show() : (<any>e).hide()
-		else
-			e.hidden = !e.hidden
-	}
+export const toggle = (e: HTMLElement) => {
+	if ((<any>e).show && (<any>e).hide)
+		e.ariaHidden ? (<any>e).show() : (<any>e).hide()
+	else
+		e.hidden = !e.hidden
+}
 
 export class ListElement<T = any> extends HTMLElement {
 	$items: T[] = []

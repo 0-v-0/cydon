@@ -1,10 +1,13 @@
 import { customElement } from 'cydon'
-import { hide } from '.'
 
 @customElement('c-modal')
 export default class Modal extends HTMLElement {
 	constructor() {
 		super()
+		this.addEventListener('click', e => {
+			if (e.currentTarget == e.target)
+				this.hide()
+		})
 		this.addEventListener('keydown', this.keydown)
 	}
 
@@ -31,7 +34,7 @@ export default class Modal extends HTMLElement {
 	keydown(e: KeyboardEvent) {
 		if (e.key == 'Escape') {
 			e.preventDefault()
-			hide(<Element>e.target)
+			this.hide()
 		}
 	}
 }
