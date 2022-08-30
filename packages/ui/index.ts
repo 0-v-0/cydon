@@ -93,10 +93,10 @@ export class TableElement<T = any> extends ListElement<T> {
 		return this
 	}
 
-	get perPage(): number {
+	get perPage() {
 		return this._perPage
 	}
-	set perPage(value: number) {
+	set perPage(value) {
 		this._perPage = value || 10
 		this.list = this._list
 	}
