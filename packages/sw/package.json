@@ -1,5 +1,5 @@
 {
-	"name": "@cydon/pjam",
+	"name": "@cydon/sw",
 	"version": "0.0.1",
 	"author": {
 		"name": "0-v-0",
@@ -9,14 +9,13 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/0-v-0/cydon",
-		"directory": "packages/pjam"
+		"directory": "packages/sw"
 	},
 	"scripts": {
 		"build": "vite build"
 	},
 	"dependencies": {
-		"@cydon/sw": "workspace:0.0.1",
-		"idb": "^7.0.2"
+		"@ygoe/msgpack": "^1.0.3"
 	},
 	"devDependencies": {
 		"vite": "^3.1.0"
