@@ -2,6 +2,7 @@ export type WSAPI = {
 	[x: string]: (...args: any) => Promise<any[]>
 } & {
 	close(): void
+	process?(data: any): void
 }
 
 type Callback = (value: any[]) => void
@@ -9,10 +10,14 @@ type Callback = (value: any[]) => void
 const sw = navigator.serviceWorker
 sw.register('/sw.js') // TODO
 sw.addEventListener('message', e => {
-	const id = e.data[0]
-	console.log(e.data)
-	callbacks[id]?.(e.data.slice(1))
-	delete callbacks[id]
+	if (e.data.process)
+		wsAPI.process?.(e.data.process)
+	else {
+		const id = e.data[0]
+		console.log(e.data)
+		callbacks[id]?.(e.data.slice(1))
+		delete callbacks[id]
+	}
 })
 
 let id = 1,

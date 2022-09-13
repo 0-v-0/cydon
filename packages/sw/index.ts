@@ -58,7 +58,7 @@ self.addEventListener('message', e => {
 		const cid = (<Client | null>e.source)?.id
 		if (cid) {
 			console.assert(typeof e.data[0] == 'number')
-			console.log(e.data[1])
+			console.assert(typeof e.data[1] == 'string')
 			let rid = map.get(cid)!
 			if (rid == void 0)
 				map.set(cid, rid = id++)
