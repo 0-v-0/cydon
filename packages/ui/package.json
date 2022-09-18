@@ -27,7 +27,7 @@
     "@types/clean-css": "^4.2.5",
     "@typescript-eslint/parser": "^5.37.0",
     "@unocss/transformer-directives": "^0.45.21",
-    "autoprefixer": "^10.4.10",
+    "autoprefixer": "^10.4.11",
     "clean-css": "^5.3.1",
     "eslint": "^8.23.1",
     "postcss": "^8.4.16",
@@ -36,7 +36,7 @@
     "typedoc": "^0.23.14",
     "typescript": "^4.8.3",
     "unocss": "^0.45.21",
-    "vite": "^3.1.0",
+    "vite": "^3.1.2",
     "vite-plugin-inspect": "^0.5.1",
     "vite-plugin-progress": "^0.0.4"
   },

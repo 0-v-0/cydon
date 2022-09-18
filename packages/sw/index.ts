@@ -18,9 +18,7 @@ const map = new Map<string, number>(),
 // 创建或返回已存在的ws连接
 const connect = async (): Promise<Event | void> => {
 	if (!ws || ws.readyState == WebSocket.CLOSED) {
-		const path = location.pathname.substring(1),
-			i = path.indexOf('/')
-		ws = new WebSocket(`ws://${location.host}/wsapi?path=${i < 0 ? path : path.substring(0, i)}`)
+		ws = new WebSocket(`ws://${location.host}/wsapi`)
 		ws.binaryType = 'arraybuffer'
 		ws.addEventListener('message', (e: WSResponse) => {
 			if (typeof e.data == 'string')
