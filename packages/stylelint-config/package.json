@@ -9,6 +9,6 @@
 		"stylelint-stylus": "^0.17.0"
 	},
 	"devDependencies": {
-		"stylelint": "^14.11.0"
+		"stylelint": "^14.12.0"
 	}
 }
