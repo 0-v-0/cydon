@@ -16,7 +16,7 @@
 	},
 	"dependencies": {
 		"@cydon/sw": "workspace:0.0.1",
-		"idb": "^7.0.2"
+		"idb": "^7.1.0"
 	},
 	"devDependencies": {
 		"vite": "^3.1.3"
