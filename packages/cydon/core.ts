@@ -148,7 +148,7 @@ export class Cydon {
 				const parts = extract(node.data)
 				for (let i = 0; i < parts.length;) {
 					const vals = parts[i++]
-					let len;
+					let len
 					if (typeof vals == 'string')
 						len = vals.length
 					else {
@@ -170,7 +170,7 @@ export class Cydon {
 					for (const handler of directives)
 						if (handler.call(this, node)) {
 							(<Element>n).removeAttribute(node.name)
-							continue next;
+							continue next
 						}
 					const vals = extract(node.value)
 					if (vals.length) {
@@ -181,7 +181,7 @@ export class Cydon {
 						}
 						this.add({ node, deps, vals })
 					}
-					++i;
+					++i
 				}
 			}
 			n = walker.nextNode()
