@@ -13,14 +13,14 @@ export * from './wsapi'
 /**
  * 获取url中的路径
  * getPath('example.com/abcd') => '/abcd'
- * @param {String} url
+ * @param url
  */
 export const getPath = (url: string) => url.replace(location.protocol + '//' + location.host, '')
 
 const
 	/**
 	 * 通过相对路径获取完整的url
-	 * @param {String} href
+	 * @param href
 	 */
 	getURL = (url: string | URL) => new URL(url, location.href),
 
@@ -61,7 +61,7 @@ export const PJAM = Events({
 	selector: '',
 	/**
 	 * 初始化
-	 * @param {String} s 选择器，支持querySelector选择器
+	 * @param s 选择器，支持querySelector选择器
 	 */
 	bind(s: string = 'a') {
 		if (!PJAM.container)
@@ -85,9 +85,9 @@ export const PJAM = Events({
 	},
 	/**
 	 * 使用pjam跳转到指定页面
-	 * @param {String}   url
-	 * @param {Object}   data     要传到新页面的参数，可以为null
-	 * @param {Function} callback 请求成功时的回调
+	 * @param url
+	 * @param data     要传到新页面的参数，可以为null
+	 * @param callback 请求成功时的回调
 	 */
 	jump(url: string, data?: any, callback?: Function) {
 		turn(url, false, data, callback)
