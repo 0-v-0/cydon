@@ -18,7 +18,7 @@
 		"@ygoe/msgpack": "^1.0.3"
 	},
 	"devDependencies": {
-		"vite": "^3.1.6"
+		"vite": "^3.1.8"
 	},
 	"module": "dist/index.mjs"
 }
