@@ -10,6 +10,36 @@ Emmet with indentations ─► Standard Emmet
                 HTML ◄──── HTML Template
 ```
 
+Cydon使用EMT来替代常规的HTML，EMT是一个看起来很像Stylus的标记语言，EMT不是必须的，但它有以下优点：
+- 比HTML更简洁
+- 支持组件化开发
+
+emt文件按使用方式可分为页面模板和单文件组件(SFC)
+
+## SFC
+一个emt文件只能定义一个组件
+
+### 例子
+a.emt:
+```styl
+div
+	custom-component
+		br
+```
+custom-component.emt:
+```styl
+section
+	.foo
+```
+等价于：
+```styl
+div
+	custom-component
+		section
+			.foo
+		br
+```
+
 ## Build
 ```sh
 pnpm build
@@ -41,27 +71,7 @@ export default {
 | templated    | boolean                  | 为true时每个emt元素模板至多展开一次         |
 | tplFile      | string                   | 自定义模板文件                              |
 
-## emt模板
-a.emt:
-```styl
-div
-	custom-component
-		br
-```
-custom-component.emt:
-```styl
-section
-	.foo
-```
-等价于：
-```styl
-div
-	custom-component
-		section
-			.foo
-		br
-```
-
+## emt缩进格式
 缩进与非缩进格式可以混用，例如：
 
 ```styl

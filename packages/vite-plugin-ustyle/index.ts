@@ -1,6 +1,7 @@
 import { writeFile } from 'fs'
 import { render as stylus, RenderOptions } from 'stylus'
 import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
+import { EsbuildTransformOptions, transformWithEsbuild } from 'vite'
 
 export * from 'vite-plugin-emt'
 
@@ -16,18 +17,19 @@ tagProcs.unshift(prop => {
 	return
 })
 
-export type MagicString = {
-	overwrite(start: number, end: number, content: string): void
-	length(): number
-	toString(): string
-}
-
-export const inlineStylus = (options?: RenderOptions) => ({
+export const inlineStylus = (options?: RenderOptions): Plugin => ({
 	name: 'inline-stylus',
-	enforce: <const>'pre',
-	idFilter: (id: string) => id.endsWith('.css'),
-	async transform(code: MagicString) {
-		code.overwrite(0, code.length(), stylus(code + '', options!))
+	transformIndexHtml: html =>
+		html.replace(/(<style[^>]*\s)lang=(?:"styl"|'styl')([^>]*?>)([\S\s]*?)(?=<\/style>)/g,
+			(_, a, b, s) => a + b + stylus(s, options!))
+})
+
+export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
+	name: 'inline-ts',
+	transform(code, id) {
+		if (id.includes('html-proxy&') && id.endsWith('.js'))
+			return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
+		return
 	}
 })
 
@@ -37,7 +39,7 @@ export default (config?: PluginConfig): Plugin => emt({
 		const html = path ? include(path) : ''
 		return html.replaceAll('@unocss-placeholder', match => {
 			let classes = ''
-			const re = RegExp(/ class="([^"]+)"/, 'g')
+			const re = / class="([^"]+?)"/g
 			let a: string[] | null
 			while (a = re.exec(html))
 				classes += a[1] + ' '

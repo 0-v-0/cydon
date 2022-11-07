@@ -124,21 +124,6 @@ export class Cydon {
 	 * @param extract custom variable extraction function
 	 */
 	bind(element: Element | ShadowRoot, extract = extractParts) {
-		const depsWalker = (node: Node) => new Proxy(this.$data, {
-			get: (obj, prop: string) => {
-				this.targets.get(node)?.deps.add(prop)
-				return obj[prop] ?? '$' + prop.toString()
-			}
-		}), addPart = (part: TargetValue, deps: Set<string>, node: Node) => {
-			const [key, val] = part
-			if (typeof val == 'string') {
-				deps.add(key)
-				if (val)
-					deps.add('@' + val)
-			} else
-				part[1] = val!.bind(depsWalker(node))
-		}
-
 		const walker = document.createTreeWalker(
 			element,
 			5 /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT */)
@@ -154,7 +139,7 @@ export class Cydon {
 					else {
 						len = vals[0].length + (typeof vals[1] == 'string' ? 1 : 3)
 						const deps = new Set<string>()
-						addPart(vals, deps, node)
+						this.addPart(vals, deps)
 						this.add({ node, deps, vals })
 					}
 					if (parts[i]) {
@@ -177,7 +162,7 @@ export class Cydon {
 						const deps = new Set<string>()
 						for (const p of vals) {
 							if (typeof p == 'object')
-								addPart(p, deps, node)
+								this.addPart(p, deps)
 						}
 						this.add({ node, deps, vals })
 					}
@@ -187,6 +172,22 @@ export class Cydon {
 			n = walker.nextNode()
 		}
 		this.updateQueued()
+	}
+
+	addPart(part: TargetValue, deps: Set<string>) {
+		const depsWalker = () => new Proxy(this.$data, {
+			get: (obj, prop: string) => {
+				deps.add(prop)
+				return obj[prop] ?? '$' + prop.toString()
+			}
+		})
+		const [key, val] = part
+		if (typeof val == 'string') {
+			deps.add(key)
+			if (val)
+				deps.add('@' + val)
+		} else
+			part[1] = val!.bind(depsWalker())
 	}
 
 	/**

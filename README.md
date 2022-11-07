@@ -1,5 +1,5 @@
 # Cydon
-Lightweight Frontend Framework
+A lightweight library for building fast, reactive web components.
 
 ## 特点
 - 简单易用
@@ -13,13 +13,16 @@ Lightweight Frontend Framework
 ```
 
 ```ts
-import { Cydon } from 'cydon';
-let app = new Cydon({
-	msg: 'Hello world',
-	css_class: 'bold red'
-});
-app.bind(document.body);
-let { data } = app;
-data.msg = 'foo';
-data.css_class = 'bar';
+import { Cydon } from 'cydon'
+
+const app = new Cydon({
+	data: {
+		msg: 'Hello world',
+		css_class: 'bold red'
+	}
+})
+app.bind(document.body)
+let { data } = app
+data.msg = 'foo'
+data.css_class = 'bar'
 ```

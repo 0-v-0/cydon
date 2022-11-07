@@ -1,4 +1,4 @@
-# @cydon/ustyle
+# vite-plugin-ustyle
 
 Stylus preprocessor for Unocss
 
@@ -15,7 +15,7 @@ pnpm build
 ```ts
 // vite.config.ts
 import Unocss from 'unocss/vite'
-import emt, { inlineStylus } from '@cydon/ustyle'
+import emt, { inlineStylus } from 'vite-plugin-ustyle'
 
 export default {
 	plugins: [

@@ -55,18 +55,18 @@ my-counter.emt
 一般写法:
 ```styl
 {$value}
-btn[@click=inc]{+1}
-btn[@click=dec]{-1}
+button[@click=inc]{+1}
+button[@click=dec]{-1}
 ```
 
 最简写法:
 ```styl
 {$value}
-btn[@click=value++]{+1}
-btn[@click=value--]{-1}
+button[@click=value++]{+1}
+button[@click=value--]{-1}
 ```
 
-带上样式和Shadow DOM（假设使用了`@cydon/ustyle`插件）:
+带上样式和Shadow DOM（假设使用了`vite-plugin-ustyle`插件）:
 ```styl
 template[shadowroot=open]
 	style{
@@ -76,10 +76,10 @@ template[shadowroot=open]
 	}
 	.flex.items-center
 		{$value}
-		slot[n=increase]
-			btn[@click=inc]{+1}
-		slot[n=decrease]
-			btn[@click=dec]{-1}
+		slot[name=increase]
+			button[@click=inc]{+1}
+		slot[name=decrease]
+			button[@click=dec]{-1}
 ```
 
 使用组件
@@ -93,10 +93,9 @@ my-counter[value=1]
 自定义`-1`按钮
 ```styl
 my-counter[value=1]
-	btn[@click=dec slot=decrease]{decrease}
+	button[@click=dec slot=decrease]{decrease}
 ```
 
 ### 说明
-1. 示例中用到的标签和属性缩写 `btn`: `button`, `n`: `name`
-2. 构造函数中别忘了调用`this.bind()`，这样才能实现数据的单向绑定
-3. `inc()`和`dec()`中的`this`其实是一个Proxy对象，因此所有对`this`所作的更改将会反映到DOM中
+1. 构造函数中别忘了调用`this.bind()`，这样才能实现数据的单向绑定
+2. `inc()`和`dec()`中的`this`其实是一个Proxy对象，因此所有对`this`所作的更改将会反映到DOM中

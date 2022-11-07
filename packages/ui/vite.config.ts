@@ -3,7 +3,7 @@ import progress from 'vite-plugin-progress'
 import { presetAttributify, presetUno } from 'unocss'
 import transformerDirective from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
-import emt, { inlineStylus } from '@cydon/ustyle'
+import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
 
 export const commonConfig = {
 	root: 'examples',
@@ -27,6 +27,8 @@ export default {
 	},
 	plugins: [
 		emt(),
+		inlineStylus(),
+		inlineTS(),
 		Unocss({
 			mode: 'shadow-dom',
 			preflights: [],
@@ -35,7 +37,6 @@ export default {
 				presetUno()
 			],
 			transformers: [
-				inlineStylus(),
 				transformerDirective({ varStyle: false })
 			]
 		}),

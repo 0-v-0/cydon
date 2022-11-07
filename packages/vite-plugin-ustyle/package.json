@@ -1,6 +1,14 @@
 {
-	"name": "@cydon/ustyle",
+	"name": "vite-plugin-ustyle",
 	"version": "0.0.1",
+	"author": {
+		"name": "0-v-0",
+		"email": "kduice@qq.com"
+	},
+	"license": "MIT",
+	"keywords": [
+		"vite-plugin"
+	],
 	"scripts": {
 		"build": "vite build"
 	},

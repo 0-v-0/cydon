@@ -1,4 +1,4 @@
-import { directives, ReactiveElement, TargetValue } from 'cydon'
+import { bind, CydonOption, directives, ReactiveElement, TargetValue } from 'cydon'
 import { isDisabled } from './util'
 
 export * from './util'
@@ -22,6 +22,7 @@ export class ListElement<T = any> extends HTMLElement {
 		if (!tpl)
 			throw new Error('Item template element not found')
 		this.template = <HTMLElement>cloneWithShadowRoots(tpl)
+		tpl.remove() // TODO why?
 	}
 
 	get length() { return this.$items.length }
@@ -89,9 +90,7 @@ export class TableElement<T = any> extends ListElement<T> {
 	private _perPage = 10
 	private _pageNum = 0
 
-	get data() {
-		return this
-	}
+	data
 
 	get perPage() {
 		return this._perPage
@@ -115,15 +114,16 @@ export class TableElement<T = any> extends ListElement<T> {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		super.items = data.slice(i * n, (i + 1) * n)
+		super.items = data.slice(i * n, i * n + n)
 	}
 
-	constructor(selector = '[slot=row]') {
+	constructor(selector = '[slot=row]', options?: CydonOption) {
 		super(selector)
 		const tbody = query(this, 'tbody')
 		if (!tbody)
 			throw new Error('Missing table element')
 		this.root = tbody
+		this.data = bind(this, options).data
 	}
 
 	attributeChangedCallback() {
@@ -137,6 +137,7 @@ export class TableElement<T = any> extends ListElement<T> {
 	}
 }
 
+// query an element in its shadow root (if exists) or its descendants
 const query = (el: Element, selector: string) =>
 	el.shadowRoot?.querySelector<HTMLElement>(selector) ||
 	el.querySelector<HTMLElement>(selector)
@@ -204,6 +205,17 @@ directives.push(function ({ name, value, ownerElement: el }) {
 	return
 })
 
+/**
+ * A simple utility for conditionally joining attributes like classNames together
+ *
+ * e.g. :class="a:cond1;b:cond2"
+ * cond1 & cond2 is true:	class="a b"
+ * cond1 is true:			class="a"
+ * cond2 is true:			class="b"
+ * neither is true:			class=""
+ *
+ * NOTE: This differs from Vue
+ */
 directives.push(function ({ name, value, ownerElement: el }) {
 	if (name[0] == ':') {
 		name = name.substring(1)
@@ -211,13 +223,22 @@ directives.push(function ({ name, value, ownerElement: el }) {
 			el.setAttribute(name, '')
 		const node = el.attributes[<any>name]
 		let data = this.targets.get(node)
-		if (!data)
-			this.add(data = { node, deps: new Set(), vals: [] })
+		let val
+		if (!data) {
+			val = node.value
+			this.add(data = { node, deps: new Set(), vals: [val] })
+		}
 		for (const cls of value.split(';')) {
 			const p = cls.indexOf(':')
-			if (~p)
-				(<TargetValue[]>data.vals).push(['',
-					Function(`with(this){return ${cls.substring(p + 1)}?${cls.substring(0, p)}:''}`)])
+			if (~p) {
+				const part = <TargetValue>['',
+					Function(`with(this){return ${cls.substring(p + 1)}?'${cls.substring(0, p)}':''}`)]
+				this.addPart(part, data.deps)
+				if (val)
+					data.vals.push(' ');
+				(<TargetValue[]>data.vals).push(part)
+				val = 1
+			}
 		}
 		return true
 	}

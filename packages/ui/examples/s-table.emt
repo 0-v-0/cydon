@@ -1,5 +1,5 @@
 template[shadowroot=open]
-	style{
+	style[lang=styl]{
 		.wrapper
 			margin 1em
 		table
@@ -31,9 +31,8 @@ template[shadowroot=open]
 					td{$iron}
 		select[c-model=perPage]
 			option[value=5]{5}
-			option[value=$perPage]{$perPage}
 			option[value=10]{10}
 			option[value=20]{20}
 		sp{per page ${pageNum*perPage+1}-${pageNum*perPage+items.length} of ${list.length}}
-		button[@click={pageNum--}]{prev}
-		button[@click={pageNum++}]{next}
+		button[@click=pageNum--]{prev}
+		button[@click=pageNum++]{next}

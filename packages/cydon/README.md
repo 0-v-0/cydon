@@ -9,5 +9,5 @@
 - 支持`computed`属性
 - 支持自定义指令
 
-## Known issues
-- 在Cydon绑定过的元素上(通过`Cydon.bind`)调用`Node.normalize()`可能会出现问题
+## 注意
+绕过Cydon直接使用DOM操作修改`Cydon.bind`绑定过的元素可能会出现问题

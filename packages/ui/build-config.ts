@@ -5,7 +5,7 @@ import progress from 'vite-plugin-progress'
 import { presetAttributify, presetUno } from 'unocss'
 import transformerDirective from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
-import emt, { inlineStylus, MagicString } from '@cydon/ustyle'
+import emt, { inlineStylus, MagicString } from 'vite-plugin-ustyle'
 import { commonConfig } from './vite.config'
 
 const cleanCSS = (options?: OptionsPromise) => {

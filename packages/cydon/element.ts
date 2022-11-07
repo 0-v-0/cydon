@@ -23,6 +23,13 @@ export interface ReactiveElement extends HTMLElement {
 	readonly data: Data
 }
 
+/**
+ * A utility function for binding an element to Cydon
+ *
+ * @param el target element
+ * @param options options passed to Cydon
+ * @returns a Cydon object
+ */
 export const bind = (el: Element | ShadowRoot, options?: CydonOption) => {
 	const cydon = new Cydon({ data: el, methods: <any>el, ...options })
 	if ((<Element>el).shadowRoot)
