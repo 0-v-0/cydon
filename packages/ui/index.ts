@@ -126,8 +126,9 @@ export class TableElement<T = any> extends ListElement<T> {
 		this.data = bind(this, options).data
 	}
 
-	attributeChangedCallback() {
-		this.data.perPage = +this.getAttribute('per-page')! || 10
+	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
+		if (name == 'per-page')
+			this.data.perPage = +newVal || 10
 	}
 
 	override render(el: ReactiveElement, item?: T) {

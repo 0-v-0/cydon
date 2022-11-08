@@ -1,12 +1,27 @@
 template[shadowroot=open]
 	style[lang=styl]{
 		button
-			@apply px-3 text-lg
-		@unocss-placeholder
+			padding 0.3em
+		.wrapper
+			display flex
+			align-items center
 	}
-	.flex.items-center
+	.wrapper
 		{$value}
 		slot[n=increase]
-			button[@click=inc]{+1}
+			button[@click=value++]{+1}
 		slot[n=decrease]
-			button[@click=dec]{-1}
+			button[@click=value--]{-1}
+script[type=module]{
+	import { bind, customElement } from 'cydon'
+
+	@customElement('my-counter')
+	export class MyCounter extends HTMLElement {
+		value = +this.getAttribute('value')!
+
+		constructor() {
+			super()
+			bind(this)
+		}
+	}
+}

@@ -1,0 +1,25 @@
+{
+  "name": "emt",
+  "displayName": "emt",
+  "description": "Language support for emt",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "emt",
+      "aliases": ["Emt", "emt"],
+      "extensions": [".emt"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "emt",
+      "scopeName": "source.emt",
+      "path": "./syntaxes/emt.json"
+    }]
+  }
+}

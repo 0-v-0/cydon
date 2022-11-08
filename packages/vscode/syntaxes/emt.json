@@ -1,0 +1,224 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Emt",
+	"scopeName": "source.emt",
+	"fileTypes": [
+		"emt"
+	],
+	"patterns": [
+		{
+			"include": "#html-tag"
+		},
+		{
+			"include": "text.html.basic#entities"
+		},
+		{
+			"begin": "(?<=style([.:#]\\w*)*\\[[^\\]]*?\\bl(ang)?\\s*=\\s*(['\"]?)styl\\b\\3[^\\]]*?\\])\\{",
+			"end": "\\}",
+			"name": "source.stylus",
+			"patterns": [
+				{
+					"include": "text.html.basic#entities"
+				},
+				{
+					"include": "source.stylus"
+				}
+			]
+		},
+		{
+			"begin": "(?<=style([.:#]\\w*)*\\[[^\\]]*?\\bl(ang)?\\s*=\\s*(['\"]?)postcss\\b\\3[^\\]]*?\\])\\{",
+			"end": "(?=)\\}",
+			"name": "source.postcss",
+			"patterns": [
+				{
+					"include": "text.html.basic#entities"
+				},
+				{
+					"include": "source.postcss"
+				}
+			]
+		},
+		{
+			"begin": "(\\s*)(?<=style([.:#]\\w*)*(\\[[^\\]]*?\\])?)\\{",
+			"end": "(?<=\\1)\\}",
+			"name": "source.css",
+			"patterns": [
+				{
+					"include": "text.html.basic#entities"
+				},
+				{
+					"include": "source.css"
+				}
+			]
+		},
+		{
+			"begin": "(\\s*)(?<=script([.:#]\\w*)*(\\[[^\\]]*?\\])?)\\{",
+			"end": "(?<=\\1)\\}",
+			"name": "source.ts",
+			"patterns": [
+				{
+					"include": "text.html.basic#entities"
+				},
+				{
+					"include": "source.ts"
+				}
+			]
+		},
+		{
+			"begin": "\\{",
+			"beginCaptures": {
+				"0": {
+					"name": "meta.brace.curly.css"
+				}
+			},
+			"end": "(\\}(?!\\*(?!\\d)))|([^\\}]*?)(\\}\\*)(?!\\d)",
+			"endCaptures": {
+				"1": {
+					"name": "meta.brace.curly.css"
+				},
+				"2": {
+					"name": "comment.block.html"
+				},
+				"3": {
+					"name": "meta.brace.curly.css"
+				}
+			},
+			"patterns": [
+				{
+					"include": "text.html.basic#entities"
+				},
+				{
+					"include": "#cydon-var"
+				},
+				{
+					"include": "#cydon-expr"
+				}
+			]
+		}
+	],
+	"repository": {
+		"html-tag": {
+			"patterns": [
+				{
+					"match": "([!a-zA-Z_][\\w\\-]*)",
+					"name": "entity.name.tag.$2.html.cydon"
+				},
+				{
+					"include": "#tag-stuff"
+				},
+				{
+					"include": "#operator"
+				}
+			]
+		},
+		"tag-stuff": {
+			"patterns": [
+				{
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.entity.css"
+						}
+					},
+					"match": "(:)[\\w\\-]+",
+					"name": "entity.other.attribute-name.pseudo-element.css"
+				},
+				{
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.entity.css"
+						}
+					},
+					"match": "(\\.)[\\w\\-]+",
+					"name": "entity.other.attribute-name.class.css"
+				},
+				{
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.entity.css"
+						}
+					},
+					"match": "(#)[a-zA-Z][\\w\\-]*",
+					"name": "entity.other.attribute-name.id.css"
+				},
+				{
+					"include": "#attribute"
+				}
+			]
+		},
+		"attribute": {
+			"begin": "(\\[)\\s*",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.entity.css"
+				}
+			},
+			"end": "(\\])",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.entity.css"
+				}
+			},
+			"patterns": [
+				{
+					"captures": {
+						"1": {
+							"name": "entity.other.attribute-name.attribute.css"
+						},
+						"2": {
+							"name": "punctuation.separator.operator.css"
+						},
+						"3": {
+							"name": "string.unquoted.attribute-value.css"
+						},
+						"4": {
+							"name": "string.quoted.double.attribute-value.css"
+						},
+						"5": {
+							"name": "punctuation.definition.string.begin.css"
+						},
+						"6": {
+							"name": "punctuation.definition.string.end.css"
+						}
+					},
+					"match": "(?i)([_a-z\\\\[[:^ascii:]]][_a-z0-9\\-\\\\[[:^ascii:]]]*)(?:\\s*(=)\\s*(?:([_a-z\\\\[[:^ascii:]]][\\w\\-\\\\[[:^ascii:]]]*)|((?>(['\"])(?:[^\\\\]|\\\\.)*?(\\5)))))?",
+					"name": "meta.attribute-selector.css"
+				}
+			]
+		},
+		"operator": {
+			"patterns": [
+				{
+					"match": "\\+|>|\\^|\\*",
+					"name": "keyword.operator.stylus"
+				}
+			]
+		},
+		"cydon-var": {
+			"patterns": [
+				{
+					"name": "variable.other.cydon",
+					"match": "\\$([_a-zA-Z][_a-zA-Z0-9]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?"
+				}
+			]
+		},
+		"cydon-expr": {
+			"begin": "(?<=\\$)(\\{)",
+			"beginCaptures": {
+				"1": {
+					"name": "meta.brace.curly"
+				}
+			},
+			"end": "(\\})",
+			"endCaptures": {
+				"1": {
+					"name": "meta.brace.curly"
+				}
+			},
+			"patterns": [
+				{
+					"include": "source.js"
+				}
+			]
+		}
+	}
+}
