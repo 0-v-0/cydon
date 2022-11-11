@@ -1,4 +1,4 @@
-import { bind, CydonOption, directives, ReactiveElement, TargetValue } from 'cydon'
+import { bind, customBind, CydonOption, directives, ReactiveElement, TargetValue } from 'cydon'
 import { isDisabled } from './util'
 
 export * from './util'
@@ -10,11 +10,12 @@ export const toggle = (e: HTMLElement) => {
 		e.hidden = !e.hidden
 }
 
-export class ListElement<T = any> extends HTMLElement {
+export class ListElement<T extends {}> extends HTMLElement {
 	$items: T[] = []
 	private _items: T[] | undefined
 	template: HTMLElement
 	root: HTMLElement = this
+	data = customBind(this).data
 
 	constructor(selector = '[slot=item]') {
 		super()
@@ -45,28 +46,34 @@ export class ListElement<T = any> extends HTMLElement {
 
 	get items() {
 		return this._items || (this._items = new Proxy(this.$items, {
+			get: (obj: any, prop) => {
+				const val = obj[prop]
+				return (val && (<ReactiveElement>this.root.children[<any>prop])?.data) ?? val
+			},
 			set: (obj, prop, value: T) => {
 				if (prop == 'length')
 					this.length = +value
 				else {
-					obj[<any>prop] = value;
 					if (typeof prop == 'string' && <any>prop == parseInt(prop)) {
 						const old = <HTMLElement>this.root.children[<any>prop],
-							node = old || this.createItem();
+							node = old || this.createItem()
 						this.render(node, value)
 						if (old) {
 							if (old != node)
 								old.replaceWith(node)
 						} else
 							this.root.append(node)
-					}
+						obj[<any>prop] = node
+					} else
+						obj[<any>prop] = value
 				}
 				return true
 			}
 		}))
 	}
-	set items(items) {
-		Object.assign(this.items, items).length = items.length
+	set items(items: T[]) {
+		if (items != this.items)
+			Object.assign(this.items, items).length = items.length
 	}
 
 	/**
@@ -84,7 +91,7 @@ export class ListElement<T = any> extends HTMLElement {
 	}
 }
 
-export class TableElement<T = any> extends ListElement<T> {
+export class TableElement<T extends {}> extends ListElement<T> {
 	static observedAttributes = ['per-page']
 	private _list: T[] = []
 	private _perPage = 10
@@ -145,11 +152,11 @@ const query = (el: Element, selector: string) =>
 
 // From https://gist.github.com/zalelion/df185578a456eb855e43f959af71059d
 function walk(node: Element, clone: Element) {
-	const nodes = node.shadowRoot;
+	const nodes = node.shadowRoot
 	if (nodes) {
 		const shadow = clone.attachShadow({ mode: 'open' })
 		nodes.childNodes.forEach(c => shadow.append(c.nodeType == 1/*Node.ELEMENT_NODE*/ ?
-			cloneWithShadowRoots(<Element>c) : c.cloneNode(true)));
+			cloneWithShadowRoots(<Element>c) : c.cloneNode(true)))
 	}
 	for (let i = 0; i < node.children.length; i++)
 		walk(node.children[i], clone.children[i])
@@ -224,23 +231,41 @@ directives.push(function ({ name, value, ownerElement: el }) {
 			el.setAttribute(name, '')
 		const node = el.attributes[<any>name]
 		let data = this.targets.get(node)
-		let val
-		if (!data) {
-			val = node.value
-			this.add(data = { node, deps: new Set(), vals: [val] })
-		}
+		if (!data)
+			this.add(data = { node, deps: new Set(), vals: [node.value] })
 		for (const cls of value.split(';')) {
 			const p = cls.indexOf(':')
 			if (~p) {
 				const part = <TargetValue>['',
-					Function(`with(this){return ${cls.substring(p + 1)}?'${cls.substring(0, p)}':''}`)]
-				this.addPart(part, data.deps)
-				if (val)
-					data.vals.push(' ');
+					Function(`with(this){return ${cls.substring(p + 1)}?'${(data.vals.length ? ' ' : '') +
+						cls.substring(0, p)}':''}`)]
+				this.addPart(part, data.deps);
 				(<TargetValue[]>data.vals).push(part)
-				val = 1
 			}
 		}
+		return true
+	}
+	return
+})
+
+directives.push(function ({ name, value, ownerElement: el }) {
+	if (name[0] == '$') {
+		name = name.slice(1)
+		let attrName = this.data[name]
+		el.setAttribute(attrName, value)
+		const node = el.attributes[<any>name]
+		this.add(({
+			node, deps: new Set([name]), vals: [['', () => {
+				const newName = this.data[name]
+				if (newName != attrName) {
+					el.removeAttribute(attrName)
+					if (newName)
+						el.setAttribute(newName, value)
+				}
+				return ''
+			}
+			]]
+		}))
 		return true
 	}
 	return

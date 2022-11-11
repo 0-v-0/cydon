@@ -7,11 +7,19 @@
 | c-model      | 双向绑定（实时更新）   |
 | c-model.lazy | 双向绑定（非实时更新） |
 | @*event*     | 事件绑定               |
+| @$*event*    | 动态事件名称绑定       |
 
 e.g.
 ```styl
 button[@click="alert('Hello world')"]{Click me}
 ```
+
+## 扩展指令
+
+| 指令  | 说明              |
+| ----- | ----------------- |
+| ref   | DOM节点引用       |
+| $attr | 动态属性名（WIP） |
 
 ## 自定义指令
 ### 全局指令

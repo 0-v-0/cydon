@@ -16,12 +16,18 @@ script[type=module]{
 	import { bind, customElement } from 'cydon'
 
 	@customElement('my-counter')
-	export class MyCounter extends HTMLElement {
+	class MyCounter extends HTMLElement {
 		value = +this.getAttribute('value')!
 
 		constructor() {
 			super()
 			bind(this)
+		}
+	}
+
+	declare global {
+		interface HTMLElementTagNameMap {
+			'my-counter': MyCounter
 		}
 	}
 }

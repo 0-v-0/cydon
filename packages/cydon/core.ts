@@ -54,24 +54,40 @@ type DOMAttr = Attr & {
 
 export type DirectiveHandler = (this: Cydon, attr: DOMAttr) => boolean | void
 
-export const directives: DirectiveHandler[] = [function ({ name, value, ownerElement: n }) {
+export const directives: DirectiveHandler[] = [function (node) {
+	let { name, value, ownerElement: n } = node
 	if (name == 'c-model' || name == 'c-model.lazy') {
-		n.addEventListener(name == 'c-model' ? 'input' : 'change', e => {
-			const newVal = (<HTMLInputElement>e.target).value
-			if (this.data[value] != newVal)
-				this.data[value] = newVal
+		const isCheckbox = n.tagName == 'INPUT' && (<HTMLInputElement>n).type == 'checkbox'
+		n.addEventListener(name == 'c-model' ? 'input' : 'change', () => {
+			const newVal = isCheckbox ?
+				(<HTMLInputElement>n).checked :
+				(<HTMLInputElement>n).value
+			this.data[value] = newVal
 		})
+		// Two-way binding
+		this.add(({
+			node, deps: new Set([value]), vals: [['', () => {
+				if (isCheckbox)
+					(<HTMLInputElement>n).checked = this.data[value]
+				else
+					(<HTMLInputElement>n).value = this.data[value]
+				return ''
+			}]]
+		}))
+		if (isCheckbox)
+			(<HTMLInputElement>n).checked = this.data[value]
 		return true
 	}
 	if (name[0] == '@') {
-		n.addEventListener(name.slice(1), this.getFunc(value))
+		name = name.slice(1)
+		// dynamic event name
+		n.addEventListener(name[0] == '$' ? this.data[name.slice(1)] : name, this.getFunc(value))
 		return true
 	}
 	return
 }]
 
 export class Cydon {
-	private _filters: Funcs
 	$data: Data
 	data: Data
 	queue = new Set<TargetData>()
@@ -84,7 +100,7 @@ export class Cydon {
 		methods = {},
 		filters = {}
 	}: CydonOption) {
-		this.filters = new Proxy<Funcs>(this._filters = filters, {
+		this.filters = new Proxy<Funcs>(filters, {
 			set: (obj, prop: string, handler: (data?: any) => any) => {
 				obj[prop] = handler
 				this.updateValue('@' + prop)
@@ -92,9 +108,8 @@ export class Cydon {
 			}
 		})
 		this.data = new Proxy(this.$data = data, {
-			get(obj, prop: string) {
-				return prop in obj ? obj[prop] : '$' + prop
-			},
+			get: (obj, prop: string) =>
+				prop in obj ? obj[prop] : '$' + prop,
 			set: (obj, prop: string, value) => {
 				obj[prop] = value
 				this.updateValue(prop)
@@ -251,7 +266,7 @@ export class Cydon {
 		if (typeof filter != 'string')
 			return filter
 		const val = this.data[prop]
-		return this._filters[filter] ? this._filters[filter](val) : val
+		return this.filters[filter] ? this.filters[filter](val) : val
 	}
 
 	getFunc(value: string) {

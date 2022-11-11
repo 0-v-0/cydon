@@ -1,5 +1,5 @@
-import { Constructor as Ctor } from "cydon"
-import Events, { Emitter, EventType } from "cydon/events"
+import { Constructor as Ctor } from 'cydon'
+import Events, { Emitter, EventType } from 'cydon/events'
 
 export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) => {
 	const E = class extends (<Ctor<Object>>base) {

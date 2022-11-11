@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "dependencies": {
+    "cydon": "workspace:0.0.1",
+    "todomvc-app-css": "^2.4.2",
+    "todomvc-common": "^1.0.5",
+    "vite-plugin-ustyle": "workspace:0.0.1"
+  },
+  "devDependencies": {
+    "vite": "^3.2.3"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "type": "module"
+}

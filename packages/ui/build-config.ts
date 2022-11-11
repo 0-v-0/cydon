@@ -5,8 +5,13 @@ import progress from 'vite-plugin-progress'
 import { presetAttributify, presetUno } from 'unocss'
 import transformerDirective from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
-import emt, { inlineStylus, MagicString } from 'vite-plugin-ustyle'
+import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
 import { commonConfig } from './vite.config'
+
+type MagicString = {
+	overwrite(start: number, end: number, content: string): void
+	length(): number
+}
 
 const cleanCSS = (options?: OptionsPromise) => {
 	const cleanCSS = new CleanCSS({
@@ -54,6 +59,8 @@ export default {
 	},*/
 	plugins: [
 		emt(),
+		inlineStylus(),
+		inlineTS(),
 		Unocss({
 			mode: 'shadow-dom',
 			preflights: [],
@@ -63,7 +70,6 @@ export default {
 			],
 			transformers: [
 				cleanCSS(),
-				inlineStylus(),
 				transformerDirective({ varStyle: false })
 			]
 		}),

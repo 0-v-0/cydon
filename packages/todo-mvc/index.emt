@@ -1,0 +1,41 @@
+!
+html[lang=en]
+	head
+		meta[charset=utf-8]
+		meta[name=viewport content="width=device-width,initial-scale=1.0"]
+		title{Cydon • TodoMVC}
+		link:css[href=node_modules/todomvc-common/base.css]
+		link:css[href=node_modules/todomvc-app-css/index.css]
+		style{
+			todo-app { display: block }
+		}
+	.
+		todo-app.todoapp
+			header.header
+				h1{todos}
+				input.new-todo[autofocus autocomplete=off placeholder="What needs to be done?" c-model.lazy=newTodo @keyup=addTodo]
+			section.main[:class="hidden: !items.length"]
+				input#toggle-all.toggle-all[type=checkbox c-model=allDone]
+				label[for=toggle-all]{Mark all as complete}
+				ul.todo-list
+					li.todo[is=todo-item :class="completed: done; editing: editing; hidden: list.filter != null && done != list.filter"]
+						.view
+							input.toggle[type=checkbox c-model=done title=done]
+							label[@dblclick=editTodo]{$name}
+							button.destroy[@click=removeTodo]
+						input.edit[c-model=name @blur=doneEdit @keyup=keyup]
+			footer.footer[:class="hidden: !items.length"]
+				span.todo-count
+					strong{${remaining()}}
+					{ ${pluralize('item', remaining)} left}
+				ul.filters
+					li
+						a[href=#/all :class="selected: visibility == 'all'"]{All}
+					li
+						a[href=#/active :class="selected: visibility == 'active'"]{Active}
+					li
+						a[href=#/completed :class="selected: visibility == 'completed'"]{Completed}
+				button.clear-completed[@click=removeCompleted :class="hidden: items.length == remaining()"]{Clear completed}
+		footer.info
+			p{Double-click to edit a todo}
+		scr[src=./app.ts type=module]

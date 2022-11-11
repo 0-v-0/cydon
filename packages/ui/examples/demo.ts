@@ -1,22 +1,8 @@
 import { bind, customElement, Cydon } from 'cydon'
 import { ListElement, TableElement } from '..'
 
-@customElement('my-counter')
-export class MyCounter extends HTMLElement {
-	value = +this.getAttribute('value')!
-
-	constructor() {
-		super()
-		bind(this)
-	}
-
-	inc() { this.value++ }
-	dec() { this.value-- }
-}
-
 declare global {
 	interface HTMLElementTagNameMap {
-		'my-counter': MyCounter
 		's-list': SList
 		's-item': SItem
 		's-table': STable

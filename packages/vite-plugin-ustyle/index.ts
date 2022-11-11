@@ -4,6 +4,7 @@ import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
 import { EsbuildTransformOptions, transformWithEsbuild } from 'vite'
 
 export * from 'vite-plugin-emt'
+export type { EsbuildTransformOptions }
 
 export interface PluginConfig extends Option {
 	writeIndexHtml?: boolean
@@ -20,18 +21,29 @@ tagProcs.unshift(prop => {
 export const inlineStylus = (options?: RenderOptions): Plugin => ({
 	name: 'inline-stylus',
 	transformIndexHtml: html =>
-		html.replace(/(<style[^>]*\s)lang=(?:"styl"|'styl')([^>]*?>)([\S\s]*?)(?=<\/style>)/g,
+		html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)([\S\s]*?)(?=<\/style>)/g,
 			(_, a, b, s) => a + b + stylus(s, options!))
 })
 
-export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
-	name: 'inline-ts',
-	transform(code, id) {
-		if (id.includes('html-proxy&') && id.endsWith('.js'))
-			return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
-		return
+export function inlineTS(options?: EsbuildTransformOptions): Plugin {
+	const tsCode = new Set<string>
+	return {
+		name: 'inline-ts',
+		transform(code, id) {
+			if (id.includes('html-proxy&') && id.endsWith('.js')) {
+				if (tsCode.has(code))
+					return ''
+				tsCode.add(code)
+				return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
+			}
+			return
+		},
+		handleHotUpdate({ file }) {
+			if (file.endsWith('.emt'))
+				tsCode.clear()
+		}
 	}
-})
+}
 
 export default (config?: PluginConfig): Plugin => emt({
 	read(path) {
