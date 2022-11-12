@@ -1,4 +1,4 @@
-import { bind, customBind, CydonOption, directives, ReactiveElement, TargetValue } from 'cydon'
+import { bind, customBind, CydonOption, directives, ReactiveElement } from 'cydon'
 import { isDisabled } from './util'
 
 export * from './util'
@@ -15,7 +15,8 @@ export class ListElement<T extends {}> extends HTMLElement {
 	private _items: T[] | undefined
 	template: HTMLElement
 	root: HTMLElement = this
-	data = customBind(this).data
+	cydon = customBind(this)
+	data = this.cydon.data
 
 	constructor(selector = '[slot=item]') {
 		super()
@@ -172,28 +173,6 @@ function cloneWithShadowRoots(node: Element) {
 	return clone
 }
 
-directives.unshift(function ({ name, value, ownerElement: el }) {
-	if (name == '@click.outside') {
-		const func = this.getFunc(value)
-		el.addEventListener('click', e => {
-			if (e.target != el && !el.contains(<Node>e.target))
-				func(e)
-		})
-		return true
-	}
-	return
-})
-
-directives.push(function ({ name, value, ownerElement: el }) {
-	if (name == 'ref') {
-		if (import.meta.env.DEV && value in this.$data)
-			console.warn(`The ref "${value}" has already defined on`, this.$data)
-		this.$data[value] = el
-		return true
-	}
-	return
-})
-
 directives.push(function ({ name, value, ownerElement: el }) {
 	if (name == 'c-target') {
 		el.addEventListener('click', e => {
@@ -208,64 +187,6 @@ directives.push(function ({ name, value, ownerElement: el }) {
 					document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
 			}
 		})
-		return true
-	}
-	return
-})
-
-/**
- * A simple utility for conditionally joining attributes like classNames together
- *
- * e.g. :class="a:cond1;b:cond2"
- * cond1 & cond2 is true:	class="a b"
- * cond1 is true:			class="a"
- * cond2 is true:			class="b"
- * neither is true:			class=""
- *
- * NOTE: This differs from Vue
- */
-directives.push(function ({ name, value, ownerElement: el }) {
-	if (name[0] == ':') {
-		name = name.substring(1)
-		if (!el.hasAttribute(name))
-			el.setAttribute(name, '')
-		const node = el.attributes[<any>name]
-		let data = this.targets.get(node)
-		if (!data)
-			this.add(data = { node, deps: new Set(), vals: [node.value] })
-		for (const cls of value.split(';')) {
-			const p = cls.indexOf(':')
-			if (~p) {
-				const part = <TargetValue>['',
-					Function(`with(this){return ${cls.substring(p + 1)}?'${(data.vals.length ? ' ' : '') +
-						cls.substring(0, p)}':''}`)]
-				this.addPart(part, data.deps);
-				(<TargetValue[]>data.vals).push(part)
-			}
-		}
-		return true
-	}
-	return
-})
-
-directives.push(function ({ name, value, ownerElement: el }) {
-	if (name[0] == '$') {
-		name = name.slice(1)
-		let attrName = this.data[name]
-		el.setAttribute(attrName, value)
-		const node = el.attributes[<any>name]
-		this.add(({
-			node, deps: new Set([name]), vals: [['', () => {
-				const newName = this.data[name]
-				if (newName != attrName) {
-					el.removeAttribute(attrName)
-					if (newName)
-						el.setAttribute(newName, value)
-				}
-				return ''
-			}
-			]]
-		}))
 		return true
 	}
 	return

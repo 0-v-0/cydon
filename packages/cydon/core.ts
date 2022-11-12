@@ -3,16 +3,14 @@
  * https://github.com/0-v-0/cydon
  */
 
-const RE = /\$\{([\S\s]+?)\}|\$([_a-zA-Z][_a-zA-Z0-9]*)(?:@([_a-zA-Z][_a-zA-Z0-9]*))?/,
-	ToString = (value: string | Node | Function): string => {
-		if (typeof value == 'object')
-			return value?.textContent || ''
-
-		return typeof value == 'function' ? ToString(value()) : value
-	}
+const ToString = (value: string | Node | Function): string =>
+	typeof value == 'object' ? value?.textContent || '' :
+		typeof value == 'function' ? ToString(value()) :
+			value
 
 function extractParts(s: string): (string | TargetValue)[] {
-	const re = RegExp(RE, 'g'), parts: (string | TargetValue)[] = []
+	const re = /\$\{([\S\s]+?)}|\$([_a-z]\w*)(?:@([_a-z]\w*))?/gi,
+		parts: (string | TargetValue)[] = []
 	let a: string[] | null, lastIndex!: number
 	for (; a = re.exec(s); lastIndex = re.lastIndex) {
 		const [match, expr, prop, filter = ''] = a,
@@ -20,7 +18,7 @@ function extractParts(s: string): (string | TargetValue)[] {
 		if (start)
 			parts.push(s.substring(lastIndex, start))
 		parts.push(expr ?
-			[expr, Function(`with(this){return ${expr}}`)] :
+			[expr, Function('$ctx', `with($ctx){return ${expr}}`)] :
 			[prop, filter])
 	}
 	if (lastIndex < s.length)
@@ -32,7 +30,7 @@ export type Data = Record<string, any>
 
 export type Funcs = Record<string, (data?: any) => any>
 
-export type Methods = Record<string, (this: Data, e: Event) => any>
+export type Methods = Record<string, (this: Data, $evt: Event) => any>
 
 export type CydonOption = {
 	data?: Data
@@ -54,38 +52,7 @@ type DOMAttr = Attr & {
 
 export type DirectiveHandler = (this: Cydon, attr: DOMAttr) => boolean | void
 
-export const directives: DirectiveHandler[] = [function (node) {
-	let { name, value, ownerElement: n } = node
-	if (name == 'c-model' || name == 'c-model.lazy') {
-		const isCheckbox = n.tagName == 'INPUT' && (<HTMLInputElement>n).type == 'checkbox'
-		n.addEventListener(name == 'c-model' ? 'input' : 'change', () => {
-			const newVal = isCheckbox ?
-				(<HTMLInputElement>n).checked :
-				(<HTMLInputElement>n).value
-			this.data[value] = newVal
-		})
-		// Two-way binding
-		this.add(({
-			node, deps: new Set([value]), vals: [['', () => {
-				if (isCheckbox)
-					(<HTMLInputElement>n).checked = this.data[value]
-				else
-					(<HTMLInputElement>n).value = this.data[value]
-				return ''
-			}]]
-		}))
-		if (isCheckbox)
-			(<HTMLInputElement>n).checked = this.data[value]
-		return true
-	}
-	if (name[0] == '@') {
-		name = name.slice(1)
-		// dynamic event name
-		n.addEventListener(name[0] == '$' ? this.data[name.slice(1)] : name, this.getFunc(value))
-		return true
-	}
-	return
-}]
+export const directives: DirectiveHandler[] = []
 
 export class Cydon {
 	$data: Data
@@ -94,6 +61,7 @@ export class Cydon {
 	targets = new Map<Node, TargetData>()
 	methods
 	filters
+	onUpdate?: (prop: string) => void
 
 	constructor({
 		data = {},
@@ -143,6 +111,7 @@ export class Cydon {
 			element,
 			5 /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT */)
 		for (let n: Node | null = element; n;) {
+			// text node
 			if (n.nodeType == 3) {
 				let node = <Text>n
 				const parts = extract(node.data)
@@ -154,7 +123,7 @@ export class Cydon {
 					else {
 						len = vals[0].length + (typeof vals[1] == 'string' ? 1 : 3)
 						const deps = new Set<string>()
-						this.addPart(vals, deps)
+						this.addPart(vals, deps, n.parentNode!)
 						this.add({ node, deps, vals })
 					}
 					if (parts[i]) {
@@ -177,7 +146,7 @@ export class Cydon {
 						const deps = new Set<string>()
 						for (const p of vals) {
 							if (typeof p == 'object')
-								this.addPart(p, deps)
+								this.addPart(p, deps, n)
 						}
 						this.add({ node, deps, vals })
 					}
@@ -189,20 +158,21 @@ export class Cydon {
 		this.updateQueued()
 	}
 
-	addPart(part: TargetValue, deps: Set<string>) {
-		const depsWalker = () => new Proxy(this.$data, {
-			get: (obj, prop: string) => {
-				deps.add(prop)
-				return obj[prop] ?? '$' + prop.toString()
-			}
-		})
+	addPart(part: TargetValue, deps: Set<string>, node: Node) {
 		const [key, val] = part
 		if (typeof val == 'string') {
 			deps.add(key)
 			if (val)
 				deps.add('@' + val)
-		} else
-			part[1] = val!.bind(depsWalker())
+		} else {
+			const depsWalker = new Proxy(this.$data, {
+				get: (obj, prop: string) => {
+					deps.add(prop)
+					return obj[prop] ?? '$' + prop.toString()
+				}
+			})
+			part[1] = val!.bind(node, depsWalker)
+		}
 	}
 
 	/**
@@ -251,6 +221,7 @@ export class Cydon {
 		for (const [, data] of this.targets)
 			if (data.deps.has(prop))
 				this.queue.add(data)
+		this.onUpdate?.(prop)
 	}
 
 	/**
@@ -269,8 +240,8 @@ export class Cydon {
 		return this.filters[filter] ? this.filters[filter](val) : val
 	}
 
-	getFunc(value: string) {
-		return (this.methods[value] || Function('e', `with(this){${value}}`)).bind(this.data)
+	getFunc(value: string, el?: Node) {
+		return this.methods[value]?.bind(this.data) || Function('$ctx', '$evt', `with($ctx){${value}}`).bind(el, this.data)
 	}
 }
 

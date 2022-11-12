@@ -2,12 +2,14 @@
 
 ## 内置指令
 
-| 指令         | 说明                   |
-| ------------ | ---------------------- |
-| c-model      | 双向绑定（实时更新）   |
-| c-model.lazy | 双向绑定（非实时更新） |
-| @*event*     | 事件绑定               |
-| @$*event*    | 动态事件名称绑定       |
+| 指令         | 说明                       |
+| ------------ | -------------------------- |
+| c-model      | 双向绑定（实时更新）       |
+| c-model.lazy | 双向绑定（非实时更新）     |
+| :*attr*      | 属性绑定                   |
+| @*event*     | 事件绑定                   |
+| @$*event*    | 动态事件名称绑定           |
+| c-cloak      | 该属性在组件初始化后被移除 |
 
 e.g.
 ```styl
@@ -16,10 +18,10 @@ button[@click="alert('Hello world')"]{Click me}
 
 ## 扩展指令
 
-| 指令  | 说明              |
-| ----- | ----------------- |
-| ref   | DOM节点引用       |
-| $attr | 动态属性名（WIP） |
+| 指令  | 说明        |
+| ----- | ----------- |
+| ref   | DOM节点引用 |
+| $attr | 动态属性名  |
 
 ## 自定义指令
 ### 全局指令
@@ -43,10 +45,10 @@ import { directives } from 'cydon'
 
 e.g.
 
-`c-cloak`：带有该属性的元素将在页面加载完成时被自动删除
+`to-remove`：带有该属性的元素将在页面加载完成时被自动删除
 ```js
 directives.push(({ name, ownerElement: el }) => {
-	if (name == 'c-cloak') {
+	if (name == 'to-remove') {
 		addEventListener('load', () => el.remove())
 		return true
 	}

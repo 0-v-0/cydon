@@ -1,4 +1,4 @@
-import { customBind, customElement, mixinData, ReactiveElement } from 'cydon'
+import { customBind, customElement, mixinData } from 'cydon'
 import { ListElement } from '../ui'
 
 type Todo = {
@@ -9,7 +9,7 @@ type Todo = {
 const STORAGE_KEY = 'todos-cydon'
 
 const storage = {
-	fetch: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
+	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
 	save(todos: Todo[]) {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
 	}
@@ -18,24 +18,19 @@ const storage = {
 @customElement('todo-item', { extends: 'li' })
 export class TodoItem extends mixinData(HTMLLIElement, {
 	name: '',
-	ok: false
+	done: false
 }) {
 	list!: TodoApp
 	editing = false
-	get done() {
-		return this.ok
-	}
-	set done(value) {
-		this.list.data.items = this.list.$items
-		this.ok = value
-	}
-
-	data = customBind(this).data
+	cydon = customBind(this)
+	data = this.cydon.data
 	beforeEditCache?: string
 
 	connectedCallback() {
-		if (this.list)
+		if (this.list) {
+			this.cydon.onUpdate = prop => this.list.cydon.updateValue(prop)
 			this.data.bind()
+		}
 	}
 
 	keyup(e: KeyboardEvent) {
@@ -71,10 +66,11 @@ export class TodoItem extends mixinData(HTMLLIElement, {
 }
 
 @customElement('todo-app')
-export class TodoApp extends ListElement<Todo> {
+export class TodoApp extends ListElement<TodoItem> {
 	newTodo = ''
 	visibility = 'all'
 	filter: boolean | null = null
+	done: undefined
 
 	get allDone() {
 		return !this.remaining()
@@ -89,6 +85,7 @@ export class TodoApp extends ListElement<Todo> {
 			if (!todo.done)
 				count++
 		}
+		this.done // HACK
 		return count
 	}
 
@@ -99,26 +96,23 @@ export class TodoApp extends ListElement<Todo> {
 	}
 
 	connectedCallback() {
-		this.items = storage.fetch()
+		this.items = storage.load()
 		this.data.bind()
 		this.updateFilter()
 	}
 
 	updateFilter() {
 		let visibility = location.hash.substring(2)
-		if (visibility == 'active')
-			this.filter = false
-		else if (visibility == 'completed')
-			this.filter = true
-		else
-			this.filter = null
+
+		this.filter = visibility == 'active' ? false :
+			visibility == 'completed' ? true : null
 		this.data.visibility = visibility
-		this.data.items.forEach((item: TodoItem) => item.list = this)
+		this.items.forEach(item => item.data.list = this)
 	}
 
 	addTodo(e: KeyboardEvent) {
 		if (e.key == 'Enter' && this.newTodo) {
-			this.data.items.push({ name: this.newTodo, done: false })
+			this.items.push(<TodoItem>{ name: this.newTodo, done: false })
 			this.newTodo = ''
 		}
 	}
@@ -131,14 +125,13 @@ export class TodoApp extends ListElement<Todo> {
 		return word + (count == 1 ? '' : 's')
 	}
 
-	override render(el: ReactiveElement, item?: Todo) {
+	override render(el: TodoItem, item?: Todo) {
 		el.hidden = item == void 0
 		if (item) {
 			Object.assign(el.data, item)
 			this.data.items = this.items
 		}
-		Promise.resolve().then(() =>
-			storage.save(this.items.map((item: any) => item.$data)))
+		queueMicrotask(() => storage.save(this.items.map((item: any) => item.$data)))
 	}
 
 	override createItem() {
