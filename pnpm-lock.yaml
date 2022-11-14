@@ -90,11 +90,11 @@ importers:
       postcss: ^8.4.19
       stylus: ^0.58.1
       terser: ^5.15.1
-      typedoc: ^0.23.20
+      typedoc: ^0.23.21
       typescript: ^4.8.4
       unocss: ^0.45.30
       vite: ^3.2.3
-      vite-plugin-inspect: ^0.7.7
+      vite-plugin-inspect: ^0.7.8
       vite-plugin-progress: ^0.0.5
       vite-plugin-ustyle: workspace:0.0.1
     dependencies:
@@ -112,11 +112,11 @@ importers:
       postcss: registry.npmmirror.com/postcss/8.4.19
       stylus: registry.npmmirror.com/stylus/0.58.1
       terser: registry.npmmirror.com/terser/5.15.1
-      typedoc: registry.npmmirror.com/typedoc/0.23.20_typescript@4.8.4
+      typedoc: registry.npmmirror.com/typedoc/0.23.21_typescript@4.8.4
       typescript: registry.npmmirror.com/typescript/4.8.4
       unocss: registry.npmmirror.com/unocss/0.45.30_vite@3.2.3
       vite: registry.npmmirror.com/vite/3.2.3_hlwyyva6a7vbzfbixyxzi4ssrm
-      vite-plugin-inspect: registry.npmmirror.com/vite-plugin-inspect/0.7.7_vite@3.2.3
+      vite-plugin-inspect: registry.npmmirror.com/vite-plugin-inspect/0.7.8_vite@3.2.3
       vite-plugin-progress: registry.npmmirror.com/vite-plugin-progress/0.0.5_vite@3.2.3
 
   packages/vite-plugin-emt:
@@ -3457,15 +3457,15 @@ packages:
     version: 0.8.1
     engines: {node: '>=8'}
 
-  registry.npmmirror.com/typedoc/0.23.20_typescript@4.8.4:
-    resolution: {integrity: sha512-nfb4Mx05ZZZXux3zPcLuc7+3TVePDW3jTdEBqXdQzJUyEILxoprgPIiTChbvci9crkqNJG9YESmfCptuh9Gn3g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typedoc/-/typedoc-0.23.20.tgz}
-    id: registry.npmmirror.com/typedoc/0.23.20
+  registry.npmmirror.com/typedoc/0.23.21_typescript@4.8.4:
+    resolution: {integrity: sha512-VNE9Jv7BgclvyH9moi2mluneSviD43dCE9pY8RWkO88/DrEgJZk9KpUk7WO468c9WWs/+aG6dOnoH7ccjnErhg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typedoc/-/typedoc-0.23.21.tgz}
+    id: registry.npmmirror.com/typedoc/0.23.21
     name: typedoc
-    version: 0.23.20
+    version: 0.23.21
     engines: {node: '>= 14.14'}
     hasBin: true
     peerDependencies:
-      typescript: 4.6.x || 4.7.x || 4.8.x
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x
     dependencies:
       lunr: registry.npmmirror.com/lunr/2.3.9
       marked: registry.npmmirror.com/marked/4.2.2
@@ -3603,11 +3603,11 @@ packages:
       spdx-correct: registry.npmmirror.com/spdx-correct/3.1.1
       spdx-expression-parse: registry.npmmirror.com/spdx-expression-parse/3.0.1
 
-  registry.npmmirror.com/vite-plugin-inspect/0.7.7_vite@3.2.3:
-    resolution: {integrity: sha512-2IlnshZuv0RHtUwMBNR8cW//VDLVKfBOG+JY9qqeL2TaNdet5m+Rw/Zxp63vtcX5FNhWO1fYCK1ENRv6PCOevg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vite-plugin-inspect/-/vite-plugin-inspect-0.7.7.tgz}
-    id: registry.npmmirror.com/vite-plugin-inspect/0.7.7
+  registry.npmmirror.com/vite-plugin-inspect/0.7.8_vite@3.2.3:
+    resolution: {integrity: sha512-LjLcpKOV3CPxCXXZ+jS6H/3xk9c/lcGLnGu9dCj5RU4jCbHg84dqlrS02UekVx9SvZfaitVJZMUHtWtXG4T4JA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vite-plugin-inspect/-/vite-plugin-inspect-0.7.8.tgz}
+    id: registry.npmmirror.com/vite-plugin-inspect/0.7.8
     name: vite-plugin-inspect
-    version: 0.7.7
+    version: 0.7.8
     engines: {node: '>=14'}
     peerDependencies:
       vite: ^3.1.0

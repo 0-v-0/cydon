@@ -11,28 +11,23 @@ declare global {
 }
 
 @customElement('s-list')
-export class SList extends ListElement<string> {
+export class SList extends ListElement<{}> {
 	constructor() {
 		super()
 		new Cydon({ data: this, methods: <any>this }).bind(this.shadowRoot!)
 	}
 
 	add() {
-		this.items.push('foo', 'bar')
+		this.items.push(<any>{ name: 'foo' }, <any>{ name: 'bar' })
 	}
 	pop() {
 		this.items.pop()
-	}
-
-	override render(el: SItem, item?: string) {
-		if (item)
-			el.data.name = item
-		super.render(el, item)
 	}
 }
 
 @customElement('s-item')
 export class SItem extends HTMLElement {
+	name = ''
 	data = bind(this).data
 }
 
@@ -48,6 +43,7 @@ export class STable extends TableElement<{}> {
 	}
 
 	connectedCallback() {
+		this.data.bind()
 		this.data.list = [
 			{
 				name: 'Frozen Yogurt',

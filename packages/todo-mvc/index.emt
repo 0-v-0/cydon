@@ -8,9 +8,10 @@ html[lang=en]
 		link:css[href=node_modules/todomvc-app-css/index.css]
 		style{
 			todo-app { display: block }
+			[c-cloak] { display: none }
 		}
 	.
-		todo-app.todoapp
+		todo-app.todoapp[c-cloak]
 			header.header
 				h1{todos}
 				input.new-todo[autofocus autocomplete=off placeholder="What needs to be done?" c-model.lazy=newTodo @keyup=addTodo]
@@ -38,4 +39,8 @@ html[lang=en]
 				button.clear-completed[@click=removeCompleted :class="hidden: items.length == remaining()"]{Clear completed}
 		footer.info
 			p{Double-click to edit a todo}
+			p{Written by }
+				a[href=https://github.com/0-v-0]{0-v-0}
+			p{Part of }
+				a[href=http://todomvc.com]{TodoMVC}
 		scr[src=./app.ts type=module]

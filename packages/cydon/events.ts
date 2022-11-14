@@ -1,3 +1,5 @@
+import { Constructor as Ctor } from '.'
+
 export type EventType = string | number | symbol
 export type Handler = (...args: any[]) => void
 export type EventHandlerList = Handler[]
@@ -50,4 +52,14 @@ export default function Events<T, Events extends Record<EventType, unknown>>(
 		return obj
 	}
 	return obj
+}
+
+export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) => {
+	const E = class extends (<Ctor<Object>>base) {
+		constructor(...args: any[]) {
+			super(...args)
+			Events(this)
+		}
+	}
+	return <Ctor<T & Emitter<Events>>>E
 }

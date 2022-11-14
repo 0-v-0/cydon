@@ -1,22 +1,17 @@
-import { bind, customBind, CydonOption, directives, ReactiveElement } from 'cydon'
-import { isDisabled } from './util'
+import { lazyBind, directives, ReactiveElement } from 'cydon'
+import { isDisabled, toggle } from './util'
 
 export * from './util'
 
-export const toggle = (e: HTMLElement) => {
-	if ((<any>e).show && (<any>e).hide)
-		e.ariaHidden ? (<any>e).show() : (<any>e).hide()
-	else
-		e.hidden = !e.hidden
-}
-
 export class ListElement<T extends {}> extends HTMLElement {
 	$items: T[] = []
-	private _items: T[] | undefined
+	private _items?: T[]
 	template: HTMLElement
 	root: HTMLElement = this
-	cydon = customBind(this)
-	data = this.cydon.data
+	cydon = lazyBind(this)
+	get data() {
+		return this.cydon.data
+	}
 
 	constructor(selector = '[slot=item]') {
 		super()
@@ -33,40 +28,39 @@ export class ListElement<T extends {}> extends HTMLElement {
 		if (n > this.capacity)
 			this.capacity = n
 		for (let d = this.capacity; d-- > n;)
-			this.render(<HTMLElement>this.root.children[d], this.$items[d])
+			this.render(<ReactiveElement>this.root.children[d], void 0)
 	}
 
 	get capacity() { return this.root.children.length }
 	set capacity(n) {
 		let d = this.capacity
 		for (; d < n; d++)
-			this.root.append(this.createItem())
+			this.root.append(this.render())
 		for (; d-- > n;)
 			this.root.children[d].remove()
 	}
 
 	get items() {
 		return this._items || (this._items = new Proxy(this.$items, {
-			get: (obj: any, prop) => {
+			get: (obj, prop: any) => {
 				const val = obj[prop]
-				return (val && (<ReactiveElement>this.root.children[<any>prop])?.data) ?? val
+				return (val && (<ReactiveElement>this.root.children[prop])?.data) ?? val
 			},
-			set: (obj, prop, value: T) => {
+			set: (obj: any, prop, value: T) => {
 				if (prop == 'length')
 					this.length = +value
 				else {
 					if (typeof prop == 'string' && <any>prop == parseInt(prop)) {
-						const old = <HTMLElement>this.root.children[<any>prop],
-							node = old || this.createItem()
-						this.render(node, value)
+						const old = <ReactiveElement>this.root.children[<any>prop],
+							node = this.render(old, value)
 						if (old) {
 							if (old != node)
 								old.replaceWith(node)
 						} else
 							this.root.append(node)
-						obj[<any>prop] = node
+						obj[prop] = node
 					} else
-						obj[<any>prop] = value
+						obj[prop] = value
 				}
 				return true
 			}
@@ -80,15 +74,23 @@ export class ListElement<T extends {}> extends HTMLElement {
 	/**
 	 * render target element with the item
 	 *
-	 * @param el target element
+	 * @param el target element, return a new element if it is undefined
 	 * @param item item to render
+	 * @returns element
 	 */
-	render(el: HTMLElement, item?: T) {
-		el.slot = item == void 0 ? 'hidden' : 'list'
-	}
+	render(el?: ReactiveElement, item?: T) {
+		// create a new element
+		if (!el)
+			el = <ReactiveElement>cloneWithShadowRoots(this.template)
 
-	createItem() {
-		return <HTMLElement>cloneWithShadowRoots(this.template)
+		// if item is undefined, hide the element
+		el.data.hidden = item == void 0
+
+		// update data
+		if (item)
+			Object.assign(el.data, item)
+		this.cydon.updateValue('items')
+		return el
 	}
 }
 
@@ -97,8 +99,6 @@ export class TableElement<T extends {}> extends ListElement<T> {
 	private _list: T[] = []
 	private _perPage = 10
 	private _pageNum = 0
-
-	data
 
 	get perPage() {
 		return this._perPage
@@ -125,24 +125,17 @@ export class TableElement<T extends {}> extends ListElement<T> {
 		super.items = data.slice(i * n, i * n + n)
 	}
 
-	constructor(selector = '[slot=row]', options?: CydonOption) {
+	constructor(selector = '[slot=row]') {
 		super(selector)
 		const tbody = query(this, 'tbody')
 		if (!tbody)
 			throw new Error('Missing table element')
 		this.root = tbody
-		this.data = bind(this, options).data
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
 		if (name == 'per-page')
 			this.data.perPage = +newVal || 10
-	}
-
-	override render(el: ReactiveElement, item?: T) {
-		el.hidden = item == void 0
-		if (item)
-			Object.assign(el.data, item)
 	}
 }
 
@@ -173,8 +166,8 @@ function cloneWithShadowRoots(node: Element) {
 	return clone
 }
 
-directives.push(function ({ name, value, ownerElement: el }) {
-	if (name == 'c-target') {
+directives.push(function ({ name, value, ownerElement: el }): true | void {
+	if (name == 'c-toggle') {
 		el.addEventListener('click', e => {
 			const el = <HTMLElement>e.currentTarget
 			if (el.tagName == 'A' || el.tagName == 'AREA')
@@ -189,5 +182,4 @@ directives.push(function ({ name, value, ownerElement: el }) {
 		})
 		return true
 	}
-	return
 })

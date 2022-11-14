@@ -1,4 +1,4 @@
-import { customBind, customElement, mixinData } from 'cydon'
+import { lazyBind, customElement } from 'cydon'
 import { ListElement } from '../ui'
 
 type Todo = {
@@ -11,24 +11,27 @@ const STORAGE_KEY = 'todos-cydon'
 const storage = {
 	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
 	save(todos: Todo[]) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, ['name', 'done']))
 	}
 }
 
 @customElement('todo-item', { extends: 'li' })
-export class TodoItem extends mixinData(HTMLLIElement, {
-	name: '',
-	done: false
-}) {
-	list!: TodoApp
+class TodoItem extends HTMLLIElement {
+	name = ''
+	done = false
 	editing = false
-	cydon = customBind(this)
-	data = this.cydon.data
-	beforeEditCache?: string
+
+	list!: TodoApp
+	#cydon = lazyBind(this)
+	private beforeEditCache?: string
+
+	get data() {
+		return this.#cydon.data
+	}
 
 	connectedCallback() {
 		if (this.list) {
-			this.cydon.onUpdate = prop => this.list.cydon.updateValue(prop)
+			this.#cydon.onUpdate = prop => this.list.cydon.updateValue(prop)
 			this.data.bind()
 		}
 	}
@@ -49,6 +52,9 @@ export class TodoItem extends mixinData(HTMLLIElement, {
 			this.name = this.name?.trim()
 			if (!this.name)
 				this.removeTodo()
+
+			// save data
+			queueMicrotask(() => storage.save(this.list.items))
 		}
 	}
 
@@ -59,19 +65,23 @@ export class TodoItem extends mixinData(HTMLLIElement, {
 
 	removeTodo() {
 		const { items } = this.list
-		// BUG
-		const index = items.findIndex(todo => todo == this.data)
+		const index = items.findIndex(todo => todo == this)
 		items.splice(index, 1)
 	}
 }
 
 @customElement('todo-app')
-export class TodoApp extends ListElement<TodoItem> {
+export class TodoApp extends ListElement<Todo> {
+	// app initial state
 	newTodo = ''
 	visibility = 'all'
 	filter: boolean | null = null
+
+	// HACK
+	name: undefined
 	done: undefined
 
+	// computed
 	get allDone() {
 		return !this.remaining()
 	}
@@ -85,13 +95,21 @@ export class TodoApp extends ListElement<TodoItem> {
 			if (!todo.done)
 				count++
 		}
-		this.done // HACK
+		// HACK: update subcomponents
+		this.name
+		this.done
+
+		// save data
+		queueMicrotask(() => storage.save(this.items))
 		return count
 	}
 
+	// init
 	constructor() {
 		super('.todo')
 		this.root = this.querySelector('.todo-list')!
+
+		// simple router
 		addEventListener('hashchange', () => this.updateFilter())
 	}
 
@@ -107,12 +125,17 @@ export class TodoApp extends ListElement<TodoItem> {
 		this.filter = visibility == 'active' ? false :
 			visibility == 'completed' ? true : null
 		this.data.visibility = visibility
-		this.items.forEach(item => item.data.list = this)
+
+		// update subcomponents
+		this.items.forEach(item => (<TodoItem>item).data.list = this)
 	}
+
+	// methods that implement data logic.
+	// note there's no DOM manipulation here at all.
 
 	addTodo(e: KeyboardEvent) {
 		if (e.key == 'Enter' && this.newTodo) {
-			this.items.push(<TodoItem>{ name: this.newTodo, done: false })
+			this.items.push({ name: this.newTodo, done: false })
 			this.newTodo = ''
 		}
 	}
@@ -125,19 +148,11 @@ export class TodoApp extends ListElement<TodoItem> {
 		return word + (count == 1 ? '' : 's')
 	}
 
-	override render(el: TodoItem, item?: Todo) {
-		el.hidden = item == void 0
-		if (item) {
-			Object.assign(el.data, item)
-			this.data.items = this.items
-		}
-		queueMicrotask(() => storage.save(this.items.map((item: any) => item.$data)))
-	}
-
-	override createItem() {
-		const item = <TodoItem>super.createItem()
-		item.list = <this>this.data
-		return item
+	override render(el?: TodoItem, item?: Todo) {
+		el = <TodoItem>super.render(el, item)
+		if (!el.list)
+			el.list = <this>this.data
+		return el
 	}
 }
 

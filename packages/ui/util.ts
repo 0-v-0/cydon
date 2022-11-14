@@ -1,16 +1,3 @@
-import { Constructor as Ctor } from 'cydon'
-import Events, { Emitter, EventType } from 'cydon/events'
-
-export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) => {
-	const E = class extends (<Ctor<Object>>base) {
-		constructor(...args: any[]) {
-			super(...args)
-			Events(this)
-		}
-	}
-	return <Ctor<T & Emitter<Events>>>E
-}
-
 export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).disabled
 
 	/**
@@ -38,3 +25,10 @@ export const getSlotElementNodes = (slot: HTMLSlotElement) =>
 
 export const querySlot = (el: HTMLElement, name: string) =>
 	el.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
+
+export const toggle = (e: HTMLElement) => {
+	if ((<any>e).show && (<any>e).hide)
+		e.ariaHidden ? (<any>e).show() : (<any>e).hide()
+	else
+		e.hidden = !e.hidden
+}
