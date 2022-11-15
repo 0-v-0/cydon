@@ -15,29 +15,32 @@ directives.push(function (node): true | void {
 			this.data[value] = newVal
 		})
 		// Two-way binding
+		const deps = new Set([value])
 		this.add(({
-			node, deps: new Set([value]), vals: [['', () => {
+			node, deps, vals: [[() => {
+				const val = this.getDeps(value, deps)
 				if (isCheckbox)
-					(<HTMLInputElement>el).checked = this.data[value]
+					(<HTMLInputElement>el).checked = val
 				else
-					(<HTMLInputElement>el).value = this.data[value]
+					(<HTMLInputElement>el).value = val
 				return ''
 			}]]
 		}))
 		if (isCheckbox)
-			(<HTMLInputElement>el).checked = this.data[value]
+			(<HTMLInputElement>el).checked = this.getDeps(value, deps)
 		return true
 	}
 	// bind event
 	if (name[0] == '@') {
 		name = name.slice(1)
 		// dynamic event name
-		el.addEventListener(name[0] == '$' ? this.data[name.slice(1)] : name, this.getFunc(value))
+		el.addEventListener(name[0] == '$' ? this.data[name.slice(1)] : name,
+			this.methods[value]?.bind(this.data) ?? this.getFunc(value, el))
 		return true
 	}
 })
 
-directives.unshift(function ({ name, value, ownerElement: el }) {
+directives.unshift(function ({ name, value, ownerElement: el }): true | void {
 	if (name == '@click.away') {
 		const func = this.getFunc(value, el)
 		el.addEventListener('click', e => {
@@ -46,17 +49,15 @@ directives.unshift(function ({ name, value, ownerElement: el }) {
 		})
 		return true
 	}
-	return
 })
 
-directives.push(function ({ name, value, ownerElement: el }) {
+directives.push(function ({ name, value, ownerElement: el }): true | void {
 	if (name == 'ref') {
 		if (import.meta.env.DEV && value in this.$data)
 			console.warn(`The ref "${value}" has already defined on`, this.$data)
 		this.$data[value] = el
 		return true
 	}
-	return
 })
 
 
@@ -79,14 +80,14 @@ directives.push(function ({ name, value, ownerElement: el }): true | void {
 		const node = el.attributes[<any>name]
 		let data = this.targets.get(node)
 		if (!data)
-			this.add(data = { node, deps: new Set(), vals: [node.value] })
+			this.add(data = { node, deps: new Set<string>(), vals: [node.value] })
 		for (const cls of value.split(';')) {
 			const p = cls.indexOf(':')
 			if (~p) {
-				const part = <TargetValue>['',
-					Function('$ctx', `with($ctx){return ${cls.substring(p + 1)}?'${(data.vals.length ? ' ' : '') +
-						cls.substring(0, p)}':''}`)]
-				this.addPart(part, data.deps, el);
+				const part: TargetValue = [,
+					`${cls.substring(p + 1)}?'${(data.vals.length ? ' ' : '') +
+					cls.substring(0, p)}':''`]
+				this.addPart(part, el, data.deps);
 				(<TargetValue[]>data.vals).push(part)
 			}
 		}
@@ -101,7 +102,7 @@ directives.push(function ({ name, value, ownerElement: el }): true | void {
 		el.setAttribute(attrName, value)
 		const node = el.attributes[<any>name]
 		this.add(({
-			node, deps: new Set([name]), vals: [['', () => {
+			node, deps: new Set([name]), vals: [[() => {
 				const newName = this.data[name]
 				if (newName != attrName) {
 					el.removeAttribute(attrName)

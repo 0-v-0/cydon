@@ -25,7 +25,7 @@
     "@custom-elements-manifest/analyzer": "^0.6.6",
     "@cydon/css": "workspace:^0.0.1",
     "@types/clean-css": "^4.2.6",
-    "@typescript-eslint/parser": "^5.42.1",
+    "@typescript-eslint/parser": "^5.43.0",
     "@unocss/transformer-directives": "^0.45.30",
     "autoprefixer": "^10.4.13",
     "clean-css": "^5.3.1",

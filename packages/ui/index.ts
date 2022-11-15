@@ -1,20 +1,16 @@
-import { lazyBind, directives, ReactiveElement } from 'cydon'
+import { CydonElement, Data, directives, ReactiveElement } from 'cydon'
 import { isDisabled, toggle } from './util'
 
 export * from './util'
 
-export class ListElement<T extends {}> extends HTMLElement {
+export class ListElement<T extends {}> extends CydonElement {
 	$items: T[] = []
 	private _items?: T[]
 	template: HTMLElement
 	root: HTMLElement = this
-	cydon = lazyBind(this)
-	get data() {
-		return this.cydon.data
-	}
 
-	constructor(selector = '[slot=item]') {
-		super()
+	constructor(selector = '[slot=item]', data?: Data) {
+		super(data)
 		const tpl = query(this, selector)
 		if (!tpl)
 			throw new Error('Item template element not found')
@@ -87,9 +83,13 @@ export class ListElement<T extends {}> extends HTMLElement {
 		el.data.hidden = item == void 0
 
 		// update data
-		if (item)
-			Object.assign(el.data, item)
-		this.cydon.updateValue('items')
+		if (item) {
+			const keys = (<any>this.constructor).itemKeys
+			if (keys)
+				for (const key of keys)
+					el.data[key] = (<Data>item)[key]
+		}
+		this.updateValue('items')
 		return el
 	}
 }
@@ -125,8 +125,8 @@ export class TableElement<T extends {}> extends ListElement<T> {
 		super.items = data.slice(i * n, i * n + n)
 	}
 
-	constructor(selector = '[slot=row]') {
-		super(selector)
+	constructor(selector = '[slot=row]', data?: Data) {
+		super(selector, data)
 		const tbody = query(this, 'tbody')
 		if (!tbody)
 			throw new Error('Missing table element')
@@ -166,20 +166,25 @@ function cloneWithShadowRoots(node: Element) {
 	return clone
 }
 
-directives.push(function ({ name, value, ownerElement: el }): true | void {
-	if (name == 'c-toggle') {
-		el.addEventListener('click', e => {
-			const el = <HTMLElement>e.currentTarget
-			if (el.tagName == 'A' || el.tagName == 'AREA')
-				e.preventDefault()
-			if (!isDisabled(el)) {
-				e.stopPropagation()
-				if (this.$data[value])
-					toggle(this.$data[value])
-				else
-					document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
-			}
-		})
-		return true
-	}
-})
+if (!globalThis.CYDON_NO_TOGGLE)
+	directives.push(function ({ name, value, ownerElement: el }): true | void {
+		if (name == 'c-toggle') {
+			el.addEventListener('click', e => {
+				const el = <HTMLElement>e.currentTarget
+				if (el.tagName == 'A' || el.tagName == 'AREA')
+					e.preventDefault()
+				if (!isDisabled(el)) {
+					e.stopPropagation()
+					if (this.$data[value])
+						toggle(this.$data[value])
+					else
+						document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
+				}
+			})
+			return true
+		}
+	})
+
+declare module globalThis {
+	const CYDON_NO_TOGGLE: boolean
+}

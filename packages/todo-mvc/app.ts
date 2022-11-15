@@ -1,4 +1,4 @@
-import { lazyBind, customElement } from 'cydon'
+import { customElement, CydonOf } from 'cydon'
 import { ListElement } from '../ui'
 
 type Todo = {
@@ -11,28 +11,23 @@ const STORAGE_KEY = 'todos-cydon'
 const storage = {
 	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
 	save(todos: Todo[]) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, ['name', 'done']))
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, TodoApp.itemKeys))
 	}
 }
 
 @customElement('todo-item', { extends: 'li' })
-class TodoItem extends HTMLLIElement {
+class TodoItem extends CydonOf(HTMLLIElement) {
 	name = ''
 	done = false
 	editing = false
 
 	list!: TodoApp
-	#cydon = lazyBind(this)
 	private beforeEditCache?: string
-
-	get data() {
-		return this.#cydon.data
-	}
 
 	connectedCallback() {
 		if (this.list) {
-			this.#cydon.onUpdate = prop => this.list.cydon.updateValue(prop)
-			this.data.bind()
+			this.onUpdate = prop => this.list.updateValue(prop)
+			this.bind()
 		}
 	}
 
@@ -72,13 +67,14 @@ class TodoItem extends HTMLLIElement {
 
 @customElement('todo-app')
 export class TodoApp extends ListElement<Todo> {
+	static itemKeys = ['name', 'done']
+
 	// app initial state
 	newTodo = ''
 	visibility = 'all'
 	filter: boolean | null = null
 
 	// HACK
-	name: undefined
 	done: undefined
 
 	// computed
@@ -96,7 +92,6 @@ export class TodoApp extends ListElement<Todo> {
 				count++
 		}
 		// HACK: update subcomponents
-		this.name
 		this.done
 
 		// save data
@@ -115,7 +110,7 @@ export class TodoApp extends ListElement<Todo> {
 
 	connectedCallback() {
 		this.items = storage.load()
-		this.data.bind()
+		this.bind()
 		this.updateFilter()
 	}
 
@@ -127,7 +122,7 @@ export class TodoApp extends ListElement<Todo> {
 		this.data.visibility = visibility
 
 		// update subcomponents
-		this.items.forEach(item => (<TodoItem>item).data.list = this)
+		this.items.forEach(item => (<TodoItem>item).list = this)
 	}
 
 	// methods that implement data logic.
@@ -151,7 +146,7 @@ export class TodoApp extends ListElement<Todo> {
 	override render(el?: TodoItem, item?: Todo) {
 		el = <TodoItem>super.render(el, item)
 		if (!el.list)
-			el.list = <this>this.data
+			el.list = this
 		return el
 	}
 }

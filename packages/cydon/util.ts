@@ -1,4 +1,4 @@
-import { Cydon, CydonOption, Data } from '.'
+import { Data } from '.'
 
 // polyfill from https://github.com/mfreed7/declarative-shadow-dom#feature-detection-and-polyfilling
 if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot'))
@@ -21,29 +21,4 @@ export const customElement = (tagName: string, options?: ElementDefinitionOption
 
 export interface ReactiveElement extends HTMLElement {
 	readonly data: Data
-}
-
-/**
- * A utility function for binding an element to Cydon
- *
- * @param el target element
- * @param options options passed to Cydon
- * @returns a Cydon object
- */
-export const bind = (el: Element | ShadowRoot, options?: CydonOption) => {
-	const cydon = new Cydon({ data: el, methods: <any>el, ...options })
-	if ((<Element>el).shadowRoot)
-		cydon.bind((<Element>el).shadowRoot!)
-	cydon.bind(el)
-	return cydon
-}
-
-export const lazyBind = (el: Element | ShadowRoot, options?: CydonOption) => {
-	const cydon = new Cydon({ data: el, methods: <any>el, ...options })
-	cydon.$data.bind = () => {
-		if ((<Element>el).shadowRoot)
-			cydon.bind((<Element>el).shadowRoot!)
-		cydon.bind(el)
-	}
-	return cydon
 }

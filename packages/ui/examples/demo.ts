@@ -1,4 +1,4 @@
-import { bind, customElement, Cydon } from 'cydon'
+import { customElement, Cydon, CydonElement, CydonOf, Data } from 'cydon'
 import { ListElement, TableElement } from '..'
 
 declare global {
@@ -26,24 +26,23 @@ export class SList extends ListElement<{}> {
 }
 
 @customElement('s-item')
-export class SItem extends HTMLElement {
+export class SItem extends CydonElement {
 	name = ''
-	data = bind(this).data
 }
 
 @customElement('s-row', { extends: 'tr' })
-export class SRow extends HTMLTableRowElement {
-	data = bind(this).data
+export class SRow extends CydonOf(HTMLTableRowElement) {
 }
 
 @customElement('s-table')
 export class STable extends TableElement<{}> {
+	static itemKeys = ['name', 'calories', 'fat', 'carbs', 'protein', 'iron']
 	constructor() {
 		super('tbody>tr')
 	}
 
 	connectedCallback() {
-		this.data.bind()
+		super.connectedCallback()
 		this.data.list = [
 			{
 				name: 'Frozen Yogurt',

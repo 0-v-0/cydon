@@ -6,5 +6,5 @@
 import './directives'
 
 export * from './core'
-export * from './element'
 export * from './events'
+export * from './util'

@@ -13,16 +13,11 @@ template[shadowroot=open]
 		slot[n=decrease]
 			button[@click=value--]{-1}
 script[type=module]{
-	import { bind, customElement } from 'cydon'
+	import { CydonElement, customElement } from 'cydon'
 
 	@customElement('my-counter')
-	class MyCounter extends HTMLElement {
+	class MyCounter extends CydonElement {
 		value = +this.getAttribute('value')!
-
-		constructor() {
-			super()
-			bind(this)
-		}
 	}
 
 	declare global {

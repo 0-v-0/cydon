@@ -1,19 +1,15 @@
-import { bind, Cydon, CydonOption, Data } from '.'
+import { Cydon } from '.'
 
-export interface CydonElement extends Element {
-	cydon: Cydon
-	data: Data
-}
-
-function walk(el: Element, options?: CydonOption) {
+function walk(el: Element) {
 	for (const child of el.children)
 		walk(child)
 	const data = el.getAttribute('c-data')
 	if (data != null) {
-		Object.assign(el, Function(`return ${data}`)())
-		const cydon = bind(el, options);
-		(<CydonElement>el).cydon = cydon;
-		(<CydonElement>el).data = cydon.data
+		Object.assign(el, Function(`return ${data}`).call(el))
+		const cydon = new Cydon(el)
+		if ((<Element>el).shadowRoot)
+			cydon.bind((<Element>el).shadowRoot!)
+		cydon.bind(el)
 	}
 }
 

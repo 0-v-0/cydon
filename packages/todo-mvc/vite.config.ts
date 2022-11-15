@@ -4,7 +4,8 @@ import emt from 'vite-plugin-ustyle'
 export default defineConfig({
 	root: '.',
 	define: {
-		'globalThis.CYDON_NO_UNBIND': 'true'
+		'globalThis.CYDON_NO_UNBIND': 'true',
+		'globalThis.CYDON_NO_TOGGLE': 'true'
 	},
 	optimizeDeps: {
 		include: ['cydon'],
@@ -14,6 +15,7 @@ export default defineConfig({
 	},
 	build: {
 		assetsDir: '.',
+		modulePreload: false,
 		sourcemap: 'hidden',
 		target: 'esnext'
 	},
