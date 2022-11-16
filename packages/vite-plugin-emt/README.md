@@ -16,6 +16,22 @@ Cydon使用EMT来替代常规的HTML，EMT是一个看起来很像Stylus的标�
 
 emt文件按使用方式可分为页面模板和单文件组件(SFC)
 
+## 页面模板
+页面模板可分为全局模板和一般模板
+
+全局模板是所有网页的模板，通常文件名为page.emt。一个典型的全局模板如下
+```styl
+!
+html
+	head
+		meta[charset=utf-8]
+		meta[name=viewport content="width=device-width,initial-scale=1.0"]
+		title{$doc_title}
+	.
+		{${include(REQUEST_PATH)}}
+```
+一般模板可使用`${include("<filepath>")}`引入
+
 ## SFC
 一个emt文件只能定义一个组件
 
@@ -24,7 +40,7 @@ a.emt:
 ```styl
 div
 	custom-component
-		br
+		b
 ```
 custom-component.emt:
 ```styl
@@ -37,7 +53,7 @@ div
 	custom-component
 		section
 			.foo
-		br
+		b
 ```
 
 ## Build
@@ -98,19 +114,6 @@ div
 | 名称         | 说明                  |
 | ------------ | --------------------- |
 | REQUEST_PATH | 请求的emt文件完整路径 |
-
-### page.emt文件
-作为所有网页的模板。e.g.:
-```styl
-!
-html
-	head
-		meta[charset=utf-8]
-		meta[name=viewport content="width=device-width,initial-scale=1.0"]
-		title{$doc_title}
-	.
-		{${include(REQUEST_PATH)}}
-```
 
 ### 标题
 位于emt文件开头，格式如下：

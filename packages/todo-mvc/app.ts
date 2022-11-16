@@ -1,5 +1,4 @@
-import { customElement, CydonOf } from 'cydon'
-import { ListElement } from '../ui'
+import { customElement, CydonOf, ListElement } from 'cydon'
 
 type Todo = {
 	name: string
@@ -66,7 +65,7 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 }
 
 @customElement('todo-app')
-export class TodoApp extends ListElement<Todo> {
+export class TodoApp extends ListElement<TodoItem> {
 	static itemKeys = ['name', 'done']
 
 	// app initial state
@@ -122,7 +121,7 @@ export class TodoApp extends ListElement<Todo> {
 		this.data.visibility = visibility
 
 		// update subcomponents
-		this.items.forEach(item => (<TodoItem>item).list = this)
+		this.items.forEach(item => item.list = this)
 	}
 
 	// methods that implement data logic.
@@ -130,7 +129,7 @@ export class TodoApp extends ListElement<Todo> {
 
 	addTodo(e: KeyboardEvent) {
 		if (e.key == 'Enter' && this.newTodo) {
-			this.items.push({ name: this.newTodo, done: false })
+			this.items.push(<TodoItem>{ name: this.newTodo, done: false })
 			this.newTodo = ''
 		}
 	}
@@ -143,8 +142,8 @@ export class TodoApp extends ListElement<Todo> {
 		return word + (count == 1 ? '' : 's')
 	}
 
-	override render(el?: TodoItem, item?: Todo) {
-		el = <TodoItem>super.render(el, item)
+	override render(el?: TodoItem, item?: TodoItem) {
+		el = super.render(el, item)
 		if (!el.list)
 			el.list = this
 		return el

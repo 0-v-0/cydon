@@ -1,5 +1,5 @@
-import { customElement, Cydon, CydonElement, CydonOf, Data } from 'cydon'
-import { ListElement, TableElement } from '..'
+import { customElement, Cydon, CydonElement, CydonOf, ListElement } from 'cydon'
+import { TableElement } from '..'
 
 declare global {
 	interface HTMLElementTagNameMap {
@@ -42,8 +42,7 @@ export class STable extends TableElement<{}> {
 	}
 
 	connectedCallback() {
-		super.connectedCallback()
-		this.data.list = [
+		this.list = [
 			{
 				name: 'Frozen Yogurt',
 				calories: 159,
@@ -141,5 +140,6 @@ export class STable extends TableElement<{}> {
 				iron: '6%',
 			},
 		]
+		super.connectedCallback()
 	}
 }

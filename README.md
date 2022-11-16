@@ -2,11 +2,17 @@
 A lightweight library for building fast, reactive web components.
 
 ## 特点
-- 简单易用
-- 轻量小巧
-- 模块间低耦合，大部分模块可单独使用
+- 简单易用：采用模板语法，所见即所得
+- 轻量小巧：Todo MVC构建后js大小约8kb
+- 模块间低耦合：大部分模块可单独使用
 
 # Usage
+
+- 插入变量：`$value`
+- 插入表达式（类似Vue中的computed）：`${n*2}`，`${value()}`
+- 组件和指令（见doc文件夹）
+
+表达式中的this指向表达式所在的元素，`$ctx`指向data对象，在事件绑定的表达式中$evt指向事件对象
 
 ## basic
 ```html
@@ -16,10 +22,8 @@ A lightweight library for building fast, reactive web components.
     import { Cydon } from 'cydon'
 
     const app = new Cydon({
-        data: {
-            msg: 'Hello world',
-            css_class: 'bold red'
-        }
+        msg: 'Hello world',
+        css_class: 'bold red'
     })
     app.bind(document.body)
     let { data } = app
@@ -38,31 +42,24 @@ my-counter[value=1]
 my-counter.emt:
 ```styl
 template[shadowroot=open]
-    style[lang=styl]{
-        button
-            padding 0.3em
-        .wrapper
-            display flex
-            align-items center
-    }
-    .wrapper
-        {$value}
-        slot[name=increase]
-            button[@click=value++]{+1}
-        slot[name=decrease]
-            button[@click=value--]{-1}
+	style[lang=styl]{
+		button
+			padding 0.3em
+		.wrapper
+			display flex
+			align-items center
+	}
+	.wrapper
+		{$value}
+        button[@click=value++]{+1}
+        button[@click=value--]{-1}
 script[type=module]{
-    import { bind, customElement } from 'cydon'
+	import { CydonElement, customElement } from 'cydon'
 
-    @customElement('my-counter')
-    class MyCounter extends HTMLElement {
-        value = +this.getAttribute('value')!
-
-        constructor() {
-            super()
-            bind(this)
-        }
-    }
+	@customElement('my-counter')
+	class MyCounter extends CydonElement {
+		value = +this.getAttribute('value')!
+	}
 }
 ```
 equivalent HTML:
@@ -80,12 +77,8 @@ equivalent HTML:
         </style>
         <div class="wrapper">
             $value
-            <slot name="increase">
-                <button @click="value++">+1</button>
-            </slot>
-            <slot name="decrease">
-                <button @click="value--">-1</button>
-            </slot>
+            <button @click="value++">+1</button>
+            <button @click="value--">-1</button>
         </div>
     </template>
     <script type="module">

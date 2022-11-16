@@ -7,4 +7,5 @@ import './directives'
 
 export * from './core'
 export * from './events'
+export * from './list'
 export * from './util'

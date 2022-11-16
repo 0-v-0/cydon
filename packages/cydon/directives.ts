@@ -95,20 +95,36 @@ directives.push(function ({ name, value, ownerElement: el }): true | void {
 	}
 })
 
-directives.push(function ({ name, value, ownerElement: el }): true | void {
+directives.push(function (attr): true | void {
+	let { name, value, ownerElement: el } = attr
 	if (name[0] == '$') {
 		name = name.slice(1)
 		let attrName = this.data[name]
 		el.setAttribute(attrName, value)
-		const node = el.attributes[<any>name]
 		this.add(({
-			node, deps: new Set([name]), vals: [[() => {
+			node: attr, deps: new Set([name]), vals: [[() => {
 				const newName = this.data[name]
 				if (newName != attrName) {
 					el.removeAttribute(attrName)
 					if (newName)
 						el.setAttribute(newName, value)
 				}
+				return ''
+			}
+			]]
+		}))
+		return true
+	}
+})
+
+directives.push(function (attr): true | void {
+	let { name, value, ownerElement: el } = attr
+	if (name == 'c-show') {
+		const deps = new Set<string>(),
+			func = this.getFunc(value, el, deps)
+		this.add(({
+			node: attr, deps, vals: [[() => {
+				(<HTMLElement>el).style.display = func() ? '' : 'none'
 				return ''
 			}
 			]]
