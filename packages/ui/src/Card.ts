@@ -1,7 +1,7 @@
-import { customElement, CydonElement } from 'cydon'
+import { define, CydonElement } from 'cydon'
 import { getSlotElementNodes, querySlot, isTargetElement } from '../util'
 
-@customElement('c-card')
+@define('c-card')
 export class Card extends HTMLElement {
 	constructor() {
 		super()
@@ -51,7 +51,7 @@ const isFlushListGroupElement = (el: Node) =>
 	((<Element>el).localName == 'c-list-group-flush'
 		|| (<Element>el).localName == 'c-list-group-action-flush')
 
-@customElement('c-card-body')
+@define('c-card-body')
 export class CardBody extends HTMLElement {
 	constructor() {
 		super()
@@ -79,7 +79,7 @@ export class CardBody extends HTMLElement {
 	}
 }
 
-@customElement('c-card-link')
+@define('c-card-link')
 export class CardLink extends CydonElement {
 	label
 	target
@@ -91,7 +91,7 @@ export class CardLink extends CydonElement {
 	}
 }
 
-@customElement('c-card-links')
+@define('c-card-links')
 export class CardLinks extends HTMLElement {
 	constructor() {
 		super()

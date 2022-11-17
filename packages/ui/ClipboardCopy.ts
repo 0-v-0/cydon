@@ -1,4 +1,4 @@
-import { customElement } from "cydon"
+import { define } from "cydon"
 
 // From https://github.com/github/clipboard-copy-element
 export const copyNode = (node: Element) => navigator.clipboard.writeText(node.textContent || '')
@@ -43,7 +43,7 @@ function keydown(event: KeyboardEvent) {
 	}
 }
 
-@customElement('clipboard-copy')
+@define('clipboard-copy')
 export class ClipboardCopy extends HTMLElement {
 	constructor() {
 		super()

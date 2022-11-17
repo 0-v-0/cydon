@@ -1,6 +1,6 @@
-import { customElement } from 'cydon'
+import { define } from 'cydon'
 
-@customElement('c-modal')
+@define('c-modal')
 export default class Modal extends HTMLElement {
 	constructor() {
 		super()

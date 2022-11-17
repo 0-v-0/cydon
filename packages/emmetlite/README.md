@@ -20,9 +20,6 @@ Emmet implementation in javascript
 import emmet from 'emmetlite'
 ```
 
-# Syntax
-[here](./Syntax.md)
-
 # Usage
 ```js
 emmet(input: string, intent?: string, styleProc?: StyleProcFunc) => string

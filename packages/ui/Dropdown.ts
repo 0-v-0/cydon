@@ -1,7 +1,7 @@
-import { customElement } from 'cydon'
+import { define } from 'cydon'
 import Modal from './Modal'
 
-@customElement('c-dropdown')
+@define('c-dropdown')
 export default class Dropdown extends Modal {
 	get open() {
 		return this.ariaExpanded == 'true'

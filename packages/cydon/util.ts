@@ -16,8 +16,8 @@ export type Constructor<T> = new (...args: any[]) => T
  * @category Decorator
  * @param tagName The name of the custom element to define.
  */
-export const customElement = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
-	(target: Function) => customElements.define(tagName, <Constructor<HTMLElement>>target, options)
+export const define = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
+	(target: Function) => customElements.define(tagName, <CustomElementConstructor>target, options)
 
 export interface ReactiveElement extends HTMLElement {
 	readonly data: Data

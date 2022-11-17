@@ -10,52 +10,6 @@ Emmet with indentations ─► Standard Emmet
                 HTML ◄──── HTML Template
 ```
 
-Cydon使用EMT来替代常规的HTML，EMT是一个看起来很像Stylus的标记语言，EMT不是必须的，但它有以下优点：
-- 比HTML更简洁
-- 支持组件化开发
-
-emt文件按使用方式可分为页面模板和单文件组件(SFC)
-
-## 页面模板
-页面模板可分为全局模板和一般模板
-
-全局模板是所有网页的模板，通常文件名为page.emt。一个典型的全局模板如下
-```styl
-!
-html
-	head
-		meta[charset=utf-8]
-		meta[name=viewport content="width=device-width,initial-scale=1.0"]
-		title{$doc_title}
-	.
-		{${include(REQUEST_PATH)}}
-```
-一般模板可使用`${include("<filepath>")}`引入
-
-## SFC
-一个emt文件只能定义一个组件
-
-### 例子
-a.emt:
-```styl
-div
-	custom-component
-		b
-```
-custom-component.emt:
-```styl
-section
-	.foo
-```
-等价于：
-```styl
-div
-	custom-component
-		section
-			.foo
-		b
-```
-
 ## Build
 ```sh
 pnpm build
@@ -86,28 +40,6 @@ export default {
 | paths        | string[]                 | 除`root`外的include搜索路径                 |
 | templated    | boolean                  | 为true时每个emt元素模板至多展开一次         |
 | tplFile      | string                   | 自定义模板文件                              |
-
-## emt缩进格式
-缩进与非缩进格式可以混用，例如：
-
-```styl
-div
-	.a>.b
-	.c+.d
-	(.e>.f)*2
-```
-等价于：
-```styl
-div
-	.a
-		.b
-	.c
-	.d
-	.e
-		.f
-	.e
-		.f
-```
 
 ### emt环境变量
 环境变量类型均为string

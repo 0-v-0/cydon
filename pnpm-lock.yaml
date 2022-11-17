@@ -7,12 +7,12 @@ importers:
       '@cydon/ui': workspace:^0.0.1
       cydon: workspace:^0.0.1
       emmetlite: workspace:^0.0.1
-      vite: ^3.2.2
+      vite: ^3.2.4
     devDependencies:
       '@cydon/ui': link:packages/ui
       cydon: link:packages/cydon
       emmetlite: link:packages/emmetlite
-      vite: registry.npmmirror.com/vite/3.2.2
+      vite: registry.npmmirror.com/vite/3.2.4
 
   packages/css:
     specifiers:
@@ -66,7 +66,7 @@ importers:
       cydon: workspace:0.0.1
       todomvc-app-css: ^2.4.2
       todomvc-common: ^1.0.5
-      vite: ^3.2.3
+      vite: ^3.2.4
       vite-plugin-ustyle: workspace:0.0.1
     dependencies:
       cydon: link:../cydon
@@ -74,7 +74,7 @@ importers:
       todomvc-common: registry.npmmirror.com/todomvc-common/1.0.5
       vite-plugin-ustyle: link:../vite-plugin-ustyle
     devDependencies:
-      vite: registry.npmmirror.com/vite/3.2.3
+      vite: registry.npmmirror.com/vite/3.2.4
 
   packages/ui:
     specifiers:
@@ -3092,6 +3092,7 @@ packages:
       nanoid: registry.npmmirror.com/nanoid/3.3.4
       picocolors: registry.npmmirror.com/picocolors/1.0.0
       source-map-js: registry.npmmirror.com/source-map-js/1.0.2
+    dev: false
 
   registry.npmmirror.com/postcss/8.4.19:
     resolution: {integrity: sha512-h+pbPsyhlYj6N2ozBmHhHrs9DzGmbaarbLvWipMRO7RLS+v4onj26MPFXA5OBYFxyqYhUJK456SwDcY9H2/zsA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/postcss/-/postcss-8.4.19.tgz}
@@ -4017,38 +4018,6 @@ packages:
       progress: registry.npmmirror.com/progress/2.0.3
       rd: registry.npmmirror.com/rd/2.0.1
       vite: registry.npmmirror.com/vite/3.2.4_hlwyyva6a7vbzfbixyxzi4ssrm
-    dev: true
-
-  registry.npmmirror.com/vite/3.2.2:
-    resolution: {integrity: sha512-pLrhatFFOWO9kS19bQ658CnRYzv0WLbsPih6R+iFeEEhDOuYgYCX2rztUViMz/uy/V8cLCJvLFeiOK7RJEzHcw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vite/-/vite-3.2.2.tgz}
-    name: vite
-    version: 3.2.2
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: registry.npmmirror.com/esbuild/0.15.13
-      postcss: registry.npmmirror.com/postcss/8.4.18
-      resolve: registry.npmmirror.com/resolve/1.22.1
-      rollup: registry.npmmirror.com/rollup/2.79.1
-    optionalDependencies:
-      fsevents: registry.npmmirror.com/fsevents/2.3.2
     dev: true
 
   registry.npmmirror.com/vite/3.2.3:

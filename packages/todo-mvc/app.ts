@@ -1,4 +1,4 @@
-import { customElement, CydonOf, ListElement } from 'cydon'
+import { define, CydonOf, ListElement } from 'cydon'
 
 type Todo = {
 	name: string
@@ -14,7 +14,7 @@ const storage = {
 	}
 }
 
-@customElement('todo-item', { extends: 'li' })
+@define('todo-item', { extends: 'li' })
 class TodoItem extends CydonOf(HTMLLIElement) {
 	name = ''
 	done = false
@@ -64,7 +64,7 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 	}
 }
 
-@customElement('todo-app')
+@define('todo-app')
 export class TodoApp extends ListElement<TodoItem> {
 	static itemKeys = ['name', 'done']
 

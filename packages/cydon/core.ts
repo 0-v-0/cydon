@@ -81,7 +81,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		 */
 		onUpdate?(prop: string): void
 
-		constructor(data?: Data, ...args: any[]) {
+		constructor(data?: Data, ...args: ConstructorParameters<Constructor<T>>) {
 			super(...args)
 			//this.cydon = new Cydon({ data: data || this, methods: <any>this })
 			this.data = new Proxy(this.$data = data || this, {

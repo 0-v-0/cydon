@@ -1,4 +1,4 @@
-import { customElement, Cydon, CydonElement, CydonOf, ListElement } from 'cydon'
+import { define, Cydon, CydonElement, CydonOf, ListElement } from 'cydon'
 import { TableElement } from '..'
 
 declare global {
@@ -10,7 +10,7 @@ declare global {
 	}
 }
 
-@customElement('s-list')
+@define('s-list')
 export class SList extends ListElement<{}> {
 	constructor() {
 		super()
@@ -25,16 +25,16 @@ export class SList extends ListElement<{}> {
 	}
 }
 
-@customElement('s-item')
+@define('s-item')
 export class SItem extends CydonElement {
 	name = ''
 }
 
-@customElement('s-row', { extends: 'tr' })
+@define('s-row', { extends: 'tr' })
 export class SRow extends CydonOf(HTMLTableRowElement) {
 }
 
-@customElement('s-table')
+@define('s-table')
 export class STable extends TableElement<{}> {
 	static itemKeys = ['name', 'calories', 'fat', 'carbs', 'protein', 'iron']
 	constructor() {

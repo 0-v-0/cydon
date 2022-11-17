@@ -8,12 +8,6 @@ A lightweight library for building fast, reactive web components.
 
 # Usage
 
-- 插入变量：`$value`
-- 插入表达式（类似Vue中的computed）：`${n*2}`，`${value()}`
-- 组件和指令（见doc文件夹）
-
-表达式中的this指向表达式所在的元素，`$ctx`指向data对象，在事件绑定的表达式中$evt指向事件对象
-
 ## basic
 ```html
 <div class="card">$msg</div>
@@ -54,9 +48,9 @@ template[shadowroot=open]
         button[@click=value++]{+1}
         button[@click=value--]{-1}
 script[type=module]{
-	import { CydonElement, customElement } from 'cydon'
+	import { CydonElement, define } from 'cydon'
 
-	@customElement('my-counter')
+	@define('my-counter')
 	class MyCounter extends CydonElement {
 		value = +this.getAttribute('value')!
 	}
