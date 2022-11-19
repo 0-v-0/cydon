@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@7.16.0",
+  "packageManager": "pnpm@7.16.1",
   "browserslist": [
     "last 4 version",
     "Chrome >= 84",

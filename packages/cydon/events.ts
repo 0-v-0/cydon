@@ -54,12 +54,10 @@ export default function Events<T, Events extends Record<EventType, unknown>>(
 	return obj
 }
 
-export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) => {
-	const E = class extends (<Ctor<Object>>base) {
+export const EventOf = <T extends Object, Events extends Record<EventType, unknown>>(base: Ctor<T>) =>
+	<Ctor<T & Emitter<Events>>>class extends (<Ctor<Object>>base) {
 		constructor(...args: any[]) {
 			super(...args)
 			Events(this)
 		}
 	}
-	return <Ctor<T & Emitter<Events>>>E
-}

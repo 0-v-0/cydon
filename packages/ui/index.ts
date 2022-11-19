@@ -1,10 +1,11 @@
-import { Data, directives, ListElement, query } from 'cydon'
+import { CydonElement, Data, directives } from 'cydon'
 import { isDisabled, toggle } from './util'
 
 export * from './util'
 
-export class TableElement<T extends {}> extends ListElement<T> {
+export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
+	items: T[] = []
 	private _list: T[] = []
 	private _perPage = 10
 	private _pageNum = 0
@@ -31,15 +32,11 @@ export class TableElement<T extends {}> extends ListElement<T> {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		super.items = data.slice(i * n, i * n + n)
+		this.items = data.slice(i * n, i * n + n)
 	}
 
-	constructor(selector = '[slot=row]', data?: Data) {
-		super(selector, data)
-		const tbody = query(this, 'tbody')
-		if (!tbody)
-			throw new Error('Missing table element')
-		this.root = tbody
+	constructor(data?: Data) {
+		super(data)
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {

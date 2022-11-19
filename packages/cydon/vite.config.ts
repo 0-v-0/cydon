@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
 	build: {
 		lib: {
-			entry: 'cydon.ts',
+			entry: 'index.ts',
 			formats: ['es'],
 			fileName: 'index'
 		},

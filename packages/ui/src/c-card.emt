@@ -1,5 +1,5 @@
 template[shadowroot=open]
-	style{
+	style[lang=styl]{
 		:host
 			position relative
 			display flex

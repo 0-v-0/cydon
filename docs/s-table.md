@@ -1,6 +1,4 @@
-# 列表
-Cydon并没有与Vue中的`v-for`类似的指令，取而代之的是封装好的列表组件
-
+# 翻页表格组件
 以实现一个简单的翻页表格组件为例
 
 index.emt
@@ -30,7 +28,7 @@ template[shadowroot=open]
 					th{Name}
 					th{Age}
 			tbody
-				tr[is=s-row hidden]
+				tr[is=s-row c-for="name,age;items" hidden]
 					td{$name}
 					td{$age}
 		select[c-model=perPage]
@@ -44,10 +42,11 @@ template[shadowroot=open]
 
 s-table.ts
 ```ts
-import { CydonOf, Data, ListElement, query } from 'cydon'
+import { define, CydonOf, Data } from 'cydon'
 
-class TableElement<T extends {}> extends ListElement<T> {
+export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
+	items: T[] = []
 	private _list: T[] = []
 	private _perPage = 10
 	private _pageNum = 0
@@ -77,15 +76,11 @@ class TableElement<T extends {}> extends ListElement<T> {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		super.items = data.slice(i * n, i * n + n)
+		this.items = data.slice(i * n, i * n + n)
 	}
 
-	constructor(selector = 'tbody>tr', data?: Data) {
-		super(selector, data)
-		const tbody = query(this, 'tbody')
-		if (!tbody)
-			throw new Error('Missing table element')
-		this.root = tbody
+	constructor(data?: Data) {
+		super(data)
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
@@ -101,9 +96,8 @@ class SRow extends CydonOf(HTMLTableRowElement) {
 
 @define('s-table')
 class STable extends TableElement<{}> {
-	static itemKeys = ['name', 'age'] // 在这写出表格数据的所有键
-
 	connectedCallback() {
+		// 填充数据
 		this.list = [
 			{
 				name: 'Alice',

@@ -30,6 +30,21 @@ importers:
   packages/emmetlite:
     specifiers: {}
 
+  packages/examples:
+    specifiers:
+      cydon: workspace:0.0.1
+      todomvc-app-css: ^2.4.2
+      todomvc-common: ^1.0.5
+      vite: ^3.2.4
+      vite-plugin-ustyle: workspace:0.0.1
+    dependencies:
+      cydon: link:../cydon
+      todomvc-app-css: registry.npmmirror.com/todomvc-app-css/2.4.2
+      todomvc-common: registry.npmmirror.com/todomvc-common/1.0.5
+      vite-plugin-ustyle: link:../vite-plugin-ustyle
+    devDependencies:
+      vite: registry.npmmirror.com/vite/3.2.4
+
   packages/pjam:
     specifiers:
       '@cydon/sw': workspace:0.0.1
@@ -58,21 +73,6 @@ importers:
       vite: ^3.2.4
     dependencies:
       '@ygoe/msgpack': registry.npmmirror.com/@ygoe/msgpack/1.0.3
-    devDependencies:
-      vite: registry.npmmirror.com/vite/3.2.4
-
-  packages/todo-mvc:
-    specifiers:
-      cydon: workspace:0.0.1
-      todomvc-app-css: ^2.4.2
-      todomvc-common: ^1.0.5
-      vite: ^3.2.4
-      vite-plugin-ustyle: workspace:0.0.1
-    dependencies:
-      cydon: link:../cydon
-      todomvc-app-css: registry.npmmirror.com/todomvc-app-css/2.4.2
-      todomvc-common: registry.npmmirror.com/todomvc-common/1.0.5
-      vite-plugin-ustyle: link:../vite-plugin-ustyle
     devDependencies:
       vite: registry.npmmirror.com/vite/3.2.4
 

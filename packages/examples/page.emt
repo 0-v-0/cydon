@@ -1,11 +1,8 @@
 !
-html[l=zh]
+html[lang=en]
 	head
 		meta[charset=utf-8]
 		meta[name=viewport content="width=device-width,initial-scale=1.0"]
 		title{$doc_title}
-		scr[t=module]{
-			import 'virtual:unocss-devtools'
-		}
 	.
 		{${include(REQUEST_PATH)}}

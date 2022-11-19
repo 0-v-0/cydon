@@ -22,7 +22,7 @@ template[shadowroot=open]
 					th{Protein (g)}
 					th{Iron (%)}
 			tbody
-				tr[is=s-row hidden]
+				tr[is=s-row c-for="name,calories,fat,carbs,protein,iron;items" hidden]
 					td{$name}
 					td{$calories}
 					td{$fat}

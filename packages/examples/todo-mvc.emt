@@ -15,17 +15,20 @@ html[lang=en]
 			header.header
 				h1{todos}
 				input.new-todo[autofocus autocomplete=off placeholder="What needs to be done?" c-model.lazy=newTodo @keyup=addTodo]
-			section.main[:class="hidden: !items.length"]
+			section.main[c-show=items.length]
 				input#toggle-all.toggle-all[type=checkbox c-model=allDone]
 				label[for=toggle-all]{Mark all as complete}
 				ul.todo-list
-					li.todo[is=todo-item :class="completed: done; editing: editing; hidden: list.filter != null && done != list.filter"]
+					li.todo[is=todo-item
+						:class="completed: done; editing; hidden: list.filter != null && done != list.filter"
+						c-for="name, done; items"
+						c-pass=list]
 						.view
 							input.toggle[type=checkbox c-model=done title=done]
 							label[@dblclick=editTodo]{$name}
 							button.destroy[@click=removeTodo]
-						input.edit[c-model=name @blur=doneEdit c-init="${editing && this.focus(), ''}" @keyup=keyup]
-			footer.footer[:class="hidden: !items.length"]
+						input.edit[c-model=name @blur=doneEdit :="editing && this.focus()" @keyup=keyup]
+			footer.footer[c-show=items.length]
 				span.todo-count
 					strong{${remaining()}}
 					{ ${pluralize('item', remaining)} left}
@@ -36,7 +39,7 @@ html[lang=en]
 						a[href=#/active :class="selected: visibility == 'active'"]{Active}
 					li
 						a[href=#/completed :class="selected: visibility == 'completed'"]{Completed}
-				button.clear-completed[@click=removeCompleted :class="hidden: items.length == remaining()"]{Clear completed}
+				button.clear-completed[@click=removeCompleted c-show="items.length > remaining()"]{Clear completed}
 		footer.info
 			p{Double-click to edit a todo}
 			p{Written by }

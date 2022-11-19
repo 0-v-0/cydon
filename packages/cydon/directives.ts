@@ -1,9 +1,10 @@
-import { directives, TargetValue } from './core'
+import { directives, Part } from './core'
 
 directives.push(function (node): true | void {
 	let { name, value, ownerElement: el } = node
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		const isCheckbox = (<HTMLInputElement>el).type == 'checkbox'
+		const isRadio = (<HTMLInputElement>el).type == 'radio'
 		const isSelect = el.tagName == 'SELECT'
 		const event = name != 'c-model' || isSelect || isCheckbox ? 'change' : 'input'
 		el.addEventListener(event, () => {
@@ -16,16 +17,16 @@ directives.push(function (node): true | void {
 		})
 		// Two-way binding
 		const deps = new Set([value])
-		this.add(({
-			node, deps, vals: [[() => {
-				const val = this.getDeps(value, deps)
-				if (isCheckbox)
-					(<HTMLInputElement>el).checked = val
-				else
-					(<HTMLInputElement>el).value = val
-				return ''
-			}]]
-		}))
+		this.add(node, deps, [[() => {
+			const val = this.getDeps(value, deps)
+			if (isRadio)
+				(<HTMLInputElement>el).checked = val == (<HTMLInputElement>el).value
+			else if (isCheckbox)
+				(<HTMLInputElement>el).checked = val
+			else
+				(<HTMLInputElement>el).value = val
+			return ''
+		}]])
 		if (isCheckbox)
 			(<HTMLInputElement>el).checked = this.getDeps(value, deps)
 		return true
@@ -72,24 +73,34 @@ directives.push(function ({ name, value, ownerElement: el }): true | void {
  *
  * NOTE: This differs from Vue
  */
-directives.push(function ({ name, value, ownerElement: el }): true | void {
+directives.push(function (attr): true | void {
+	let { name, value, ownerElement: el } = attr
 	if (name[0] == ':') {
 		name = name.substring(1)
-		if (!el.hasAttribute(name))
-			el.setAttribute(name, '')
-		const node = el.attributes[<any>name]
-		let data = this.targets.get(node)
-		if (!data)
-			this.add(data = { node, deps: new Set<string>(), vals: [node.value] })
-		for (const cls of value.split(';')) {
-			const p = cls.indexOf(':')
-			if (~p) {
-				const part: TargetValue = [,
-					`${cls.substring(p + 1)}?'${(data.vals.length ? ' ' : '') +
-					cls.substring(0, p)}':''`]
-				this.addPart(part, el, data.deps);
-				(<TargetValue[]>data.vals).push(part)
+		if (name) {
+			if (!el.hasAttribute(name))
+				el.setAttribute(name, '')
+			const node = el.attributes[<any>name]
+			let data = this.targets.get(node)
+			if (!data) {
+				this.add(node, new Set<string>(), [node.value])
+				data = this.targets.get(node)!
 			}
+			for (const cls of value.split(';')) {
+				let key = cls,
+					val = cls
+				const p = cls.indexOf(':')
+				if (~p) {
+					key = cls.substring(0, p)
+					val = cls.substring(p + 1)
+				}
+				const part: Part = [, `${val}?'${(data.vals.length ? ' ' : '') + key.trim()}':''`]
+				this.addPart(part, el, data.deps);
+				(<Part[]>data.vals).push(part)
+			}
+		} else {
+			const deps = new Set<string>()
+			this.add(attr, deps, [[this.getFunc(value, el, deps)]])
 		}
 		return true
 	}
@@ -101,18 +112,15 @@ directives.push(function (attr): true | void {
 		name = name.slice(1)
 		let attrName = this.data[name]
 		el.setAttribute(attrName, value)
-		this.add(({
-			node: attr, deps: new Set([name]), vals: [[() => {
-				const newName = this.data[name]
-				if (newName != attrName) {
-					el.removeAttribute(attrName)
-					if (newName)
-						el.setAttribute(newName, value)
-				}
-				return ''
+		this.add(attr, new Set([name]), [[() => {
+			const newName = this.data[name]
+			if (newName != attrName) {
+				el.removeAttribute(attrName)
+				if (newName)
+					el.setAttribute(newName, value)
 			}
-			]]
-		}))
+			return ''
+		}]])
 		return true
 	}
 })
@@ -121,14 +129,12 @@ directives.push(function (attr): true | void {
 	let { name, value, ownerElement: el } = attr
 	if (name == 'c-show') {
 		const deps = new Set<string>(),
-			func = this.getFunc(value, el, deps)
-		this.add(({
-			node: attr, deps, vals: [[() => {
-				(<HTMLElement>el).style.display = func() ? '' : 'none'
-				return ''
-			}
-			]]
-		}))
+			func = this.getFunc('return ' + value, el, deps),
+			initialValue = (<HTMLElement>el).style.display
+		this.add(attr, deps, [[() => {
+			(<HTMLElement>el).style.display = func() ? initialValue : 'none'
+			return ''
+		}]])
 		return true
 	}
 })

@@ -3,16 +3,19 @@
  * https://github.com/0-v-0/cydon
  */
 
-import { Constructor } from './util'
+import { cloneWithShadowRoots, Constructor, ReactiveElement } from './util'
 
-const ToString = (value: string | Node | Function): string =>
-	typeof value == 'object' ? value?.textContent || '' :
-		typeof value == 'function' ? ToString(value()) :
-			value
+type Value = string | Function
 
-function extractParts(s: string): (string | TargetValue)[] {
+type AttrValue = string | [Value]
+
+const ToString = (value: Value): string =>
+	typeof value == 'function' ? ToString(value()) :
+		value
+
+function extractParts(s: string): (string | Part)[] {
 	const re = /\$\{([\S\s]+?)}|\$([_a-z]\w*)/gi,
-		parts: (string | TargetValue)[] = []
+		parts: (string | Part)[] = []
 	let a: string[] | null, lastIndex!: number
 	for (; a = re.exec(s); lastIndex = re.lastIndex) {
 		const [match, expr, prop] = a,
@@ -30,17 +33,13 @@ export type Data = Record<string, any>
 
 export type Methods = Record<string, (this: Data, $evt: Event) => any>
 
-type Value = string | Function
-
-type AttrValue = string | [Value]
-
-export type TargetData = {
-	node: Node
+export type Target = {
+	node: { nodeValue: string | null }
 	deps: Set<string>
 	vals: Value | AttrValue[]
 }
 
-export type TargetValue = [string] | [Function | undefined, string]
+export type Part = [string] | [Function | undefined, string]
 
 type DOMAttr = Attr & {
 	ownerElement: Element
@@ -65,12 +64,12 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		/**
 		 * render queue
 		 */
-		queue = new Set<TargetData>()
+		queue = new Set<Target>()
 
 		/**
 		 * bound nodes
 		 */
-		targets = new Map<Node, TargetData>()
+		targets = new Map<Node, Target>()
 
 
 		methods: Methods
@@ -83,7 +82,6 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 
 		constructor(data?: Data, ...args: ConstructorParameters<Constructor<T>>) {
 			super(...args)
-			//this.cydon = new Cydon({ data: data || this, methods: <any>this })
 			this.data = new Proxy(this.$data = data || this, {
 				get: (obj, prop: string) =>
 					prop in obj ? obj[prop] : '$' + prop,
@@ -110,12 +108,37 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		}
 
 		bind(el: Element | ShadowRoot = <any>this, extract = extractParts) {
-			const walker = document.createTreeWalker(
-				el,
-				5 /* NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT */)
-			for (let n: Node | null = el; n;) {
-				// text node
-				if (n.nodeType == 3) {
+			// Find pattern in attributes
+			const attrs = (<Element>el).attributes
+			if (attrs) {
+				if (attrs[<any>'c-pre'])
+					return
+				const exp = attrs[<any>'c-for']
+				if (exp)
+					return this._for(<Element>el, exp)
+				next: for (let i = 0; i < attrs.length;) {
+					const node = <DOMAttr>attrs[i]
+					for (const handler of directives)
+						if (handler.call(this, node)) {
+							(<Element>el).removeAttribute(node.name)
+							continue next
+						}
+					const vals = extract(node.value)
+					if (vals.length) {
+						const deps = new Set<string>()
+						for (const p of vals) {
+							if (typeof p == 'object')
+								this.addPart(p, el, deps)
+						}
+						this.add(node, deps, <AttrValue[]>vals)
+					}
+					++i
+				}
+			}
+			for (const n of el.childNodes) {
+				if (n.nodeType == 1)
+					this.bind(<Element>n, extract)
+				if (n.nodeType == 3) { // text node
 					let node = <Text>n
 					const parts = extract(node.data)
 					for (let i = 0; i < parts.length;) {
@@ -125,41 +148,16 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 							len = vals[len - 1]!.length + (vals[1] ? 3 : 1)
 							const deps = new Set<string>()
 							this.addPart(vals, n.parentNode!, deps)
-							this.add({ node, deps, vals: vals[0]! })
+							this.add(node, deps, vals[0]!)
 						}
-						if (parts[i]) {
+						if (parts[i])
 							node = node.splitText(len)
-							walker.nextNode()
-						}
-					}
-				} else {
-					// Find pattern in attributes
-					const attrs = (<Element>n).attributes
-					next: for (let i = 0; i < attrs?.length;) {
-						const node = <DOMAttr>attrs[i]
-						for (const handler of directives)
-							if (handler.call(this, node)) {
-								(<Element>n).removeAttribute(node.name)
-								continue next
-							}
-						const vals = extract(node.value)
-						if (vals.length) {
-							const deps = new Set<string>()
-							for (const p of vals) {
-								if (typeof p == 'object')
-									this.addPart(p, n, deps)
-							}
-							this.add({ node, deps, vals: <AttrValue[]>vals })
-						}
-						++i
 					}
 				}
-				n = walker.nextNode()
 			}
-			this.nextTick()
 		}
 
-		addPart(part: TargetValue, node: Node, deps: Set<string>) {
+		addPart(part: Part, node: Node, deps: Set<string>) {
 			if (part[1]) {
 				part[0] = this.getFunc('return ' + part[1], node, deps)
 				part.length = 1
@@ -167,8 +165,10 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 				deps.add(<string>part[0])
 		}
 
-		add(data: TargetData) {
-			this.targets.set(data.node, data)
+		add(node: Node, deps: Set<string>, vals: Value | AttrValue[]) {
+			const data = { node, deps, vals }
+
+			this.targets.set(node, data)
 			this.queue.add(data)
 		}
 
@@ -182,23 +182,17 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		 * update a node
 		 * @param data target
 		 */
-		update(data: TargetData) {
-			const getValue = (prop: Value) => typeof prop != 'string' ? prop : this.data[prop]
+		update({ node, vals }: Target) {
+			const getValue = (prop: Value) =>
+				ToString(typeof prop == 'string' ? this.data[prop] : prop)
 
-			const { node } = data
-			if (node instanceof Attr) {
-				let val = ''
-				for (const p of <AttrValue[]>data.vals)
-					val += typeof p == 'object' ? ToString(getValue(p[0])) : p
-				node.value = val
-			} else {
-				let newVal = getValue(<Value>data.vals)
-				newVal = newVal?.cloneNode?.(true) || new Text(ToString(newVal))
-				this.targets.delete(node);
-				(<ChildNode>node).replaceWith(newVal)
-				data.node = newVal
-				this.targets.set(newVal, data)
-			}
+			let val = ''
+			if (typeof vals == 'object')
+				for (const p of vals)
+					val += typeof p == 'object' ? getValue(p[0]) : p
+			else
+				val = getValue(vals)
+			node.nodeValue = val
 		}
 
 		/**
@@ -207,7 +201,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		 */
 		updateValue(prop: string) {
 			if (this.queue.size == 0)
-				requestAnimationFrame(() => this.nextTick())
+				requestAnimationFrame(() => this.flush())
 			for (const [, data] of this.targets)
 				if (data.deps.has(prop))
 					this.queue.add(data)
@@ -217,7 +211,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		/**
 		 * update queued nodes immediately and clear queue
 		 */
-		nextTick() {
+		flush() {
 			for (const node of this.queue)
 				this.update(node)
 			this.queue.clear()
@@ -236,7 +230,8 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		depsWalker(deps: Set<string>) {
 			return new Proxy(this.$data, {
 				get: (obj, prop: string) => {
-					deps.add(prop)
+					if (typeof prop == 'string')
+						deps.add(prop)
 					return obj[prop] ?? '$' + prop.toString()
 				}
 			})
@@ -247,7 +242,99 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 				if (this.shadowRoot)
 					this.bind(this.shadowRoot)
 				this.bind()
+				this.flush()
 			}
+		}
+
+		/**
+		 * render target element with the item
+		 *
+		 * @param el target element, return a new element if it is undefined
+		 * @param item item to render
+		 * @param keys keys of a item
+		 * @returns element
+		 */
+		render(el: ReactiveElement, item?: {}, keys: string[] = []) {
+			// if item is undefined, hide the element
+			el.data.hidden = item == void 0
+
+			// update data
+			if (item) {
+				for (const key of keys)
+					el.data[key] = (<Data>item)[key]
+			}
+			let exp = el.getAttribute('c-pass')
+			if (exp) {
+				for (const s of exp.split(',')) {
+					let p = s.indexOf(':'),
+						key = s,
+						val = s
+					if (~p) {
+						key = s.substring(0, p)
+						val = s.substring(p + 1)
+					}
+					(<Data>el)[val.trim()] = this.$data[key.trim()]
+				}
+				el.removeAttribute('c-pass')
+			}
+			return el
+		}
+
+		_for(el: Element, attr: Attr) {
+			const exp = attr.value,
+				parent = el.parentElement!
+			let [keyexpr, value] = exp.split(';'),
+				val = this.$data[value = value.trim()]
+			if (!Array.isArray(val)) {
+				import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
+				return
+			}
+			const keys = keyexpr.split(/\s*,\s*/),
+				list = parent.children
+			const proxy = new Proxy(val, {
+				get: (obj, prop: any) => {
+					const val = obj[prop]
+					return (val && (<ReactiveElement>list[prop])?.data) ?? val
+				},
+				set: (obj: any, prop, val) => {
+					if (prop == 'length') {
+						const n = obj.length = +val
+						if (n > list.length) {
+							let d = list.length
+							for (; d < n; d++)
+								parent.append(this.render(<ReactiveElement>cloneWithShadowRoots(el)))
+							for (; d-- > n;)
+								list[d].remove()
+						}
+						for (let d = list.length; d-- > n;)
+							this.render(<ReactiveElement>list[d], void 0, keys)
+					} else {
+						if (typeof prop == 'string' && <any>prop == parseInt(prop)) {
+							const old = list[<any>prop],
+								node = this.render(<ReactiveElement>old || cloneWithShadowRoots(el), val, keys)
+							if (old) {
+								if (old != node)
+									old.replaceWith(node)
+							} else
+								parent.append(node)
+							obj[prop] = node
+						} else
+							obj[prop] = val
+					}
+					this.updateValue(value)
+					return true
+				}
+			})
+			Object.defineProperty(this.$data, value, {
+				get: () => proxy,
+				set(items) {
+					if (items != proxy)
+						Object.assign(proxy, items).length = items.length
+				}
+			})
+			el.remove()
+			el.removeAttribute('c-for')
+			Object.assign(proxy, val)
 		}
 	}
 	return <Constructor<T & Mixin>>Mixin

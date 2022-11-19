@@ -44,13 +44,3 @@ export function cloneWithShadowRoots(node: Element) {
 	walk(node, <Element>clone)
 	return clone
 }
-
-/**
- * query an element in its shadow root (if exists) or its descendants
- * @param el element
- * @param selector
- * @returns element that matches selector
- */
-export const query = (el: Element, selector: string) =>
-	el.shadowRoot?.querySelector<HTMLElement>(selector) ||
-	el.querySelector<HTMLElement>(selector)

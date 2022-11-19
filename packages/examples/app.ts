@@ -1,16 +1,12 @@
-import { define, CydonOf, ListElement } from 'cydon'
+import { define, CydonOf, CydonElement } from 'cydon'
 
-type Todo = {
-	name: string
-	done?: boolean
-}
-
-const STORAGE_KEY = 'todos-cydon'
+const STORAGE_KEY = 'todos-cydon',
+	ITEM_KEYS = ['name', 'done']
 
 const storage = {
 	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
-	save(todos: Todo[]) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, TodoApp.itemKeys))
+	save(todos: TodoItem[]) {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, ITEM_KEYS))
 	}
 }
 
@@ -26,7 +22,7 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 	connectedCallback() {
 		if (this.list) {
 			this.onUpdate = prop => this.list.updateValue(prop)
-			this.bind()
+			super.connectedCallback()
 		}
 	}
 
@@ -65,16 +61,17 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 }
 
 @define('todo-app')
-export class TodoApp extends ListElement<TodoItem> {
-	static itemKeys = ['name', 'done']
-
+class TodoApp extends CydonElement {
 	// app initial state
 	newTodo = ''
 	visibility = 'all'
 	filter: boolean | null = null
 
+	items: TodoItem[] = []
 	// HACK
 	done: undefined
+
+	list = this
 
 	// computed
 	get allDone() {
@@ -99,18 +96,13 @@ export class TodoApp extends ListElement<TodoItem> {
 	}
 
 	// init
-	constructor() {
-		super('.todo')
-		this.root = this.querySelector('.todo-list')!
-
-		// simple router
-		addEventListener('hashchange', () => this.updateFilter())
-	}
-
 	connectedCallback() {
 		this.items = storage.load()
-		this.bind()
+		// simple router
+		addEventListener('hashchange', () => this.updateFilter())
+
 		this.updateFilter()
+		super.connectedCallback()
 	}
 
 	updateFilter() {
@@ -118,7 +110,7 @@ export class TodoApp extends ListElement<TodoItem> {
 
 		this.filter = visibility == 'active' ? false :
 			visibility == 'completed' ? true : null
-		this.data.visibility = visibility
+		this.data.visibility = this.filter == null ? 'all' : visibility
 
 		// update subcomponents
 		this.items.forEach(item => item.list = this)
@@ -140,13 +132,6 @@ export class TodoApp extends ListElement<TodoItem> {
 
 	pluralize(word: string, count: number) {
 		return word + (count == 1 ? '' : 's')
-	}
-
-	override render(el?: TodoItem, item?: TodoItem) {
-		el = super.render(el, item)
-		if (!el.list)
-			el.list = this
-		return el
 	}
 }
 

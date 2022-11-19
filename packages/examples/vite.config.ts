@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import emt from 'vite-plugin-ustyle'
+import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
 
 export default defineConfig({
 	root: '.',
@@ -20,6 +20,8 @@ export default defineConfig({
 		target: 'esnext'
 	},
 	plugins: [
-		emt()
+		emt(),
+		inlineStylus(),
+		inlineTS()
 	]
 })

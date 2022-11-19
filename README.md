@@ -3,7 +3,8 @@ A lightweight library for building fast, reactive web components.
 
 ## 特点
 - 简单易用：采用模板语法，所见即所得
-- 轻量小巧：Todo MVC构建后js大小约8kb
+- 组件即元素：无虚拟DOM
+- 轻量小巧：~3kb gzipped
 - 模块间低耦合：大部分模块可单独使用
 
 # Usage

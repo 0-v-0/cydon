@@ -1,33 +1,11 @@
-import { define, Cydon, CydonElement, CydonOf, ListElement } from 'cydon'
-import { TableElement } from '..'
+import { define, CydonOf } from 'cydon'
+import { TableElement } from '../ui'
 
 declare global {
 	interface HTMLElementTagNameMap {
-		's-list': SList
-		's-item': SItem
 		's-table': STable
 		's-row': SRow
 	}
-}
-
-@define('s-list')
-export class SList extends ListElement<{}> {
-	constructor() {
-		super()
-		new Cydon({ data: this, methods: <any>this }).bind(this.shadowRoot!)
-	}
-
-	add() {
-		this.items.push(<any>{ name: 'foo' }, <any>{ name: 'bar' })
-	}
-	pop() {
-		this.items.pop()
-	}
-}
-
-@define('s-item')
-export class SItem extends CydonElement {
-	name = ''
 }
 
 @define('s-row', { extends: 'tr' })
@@ -36,11 +14,6 @@ export class SRow extends CydonOf(HTMLTableRowElement) {
 
 @define('s-table')
 export class STable extends TableElement<{}> {
-	static itemKeys = ['name', 'calories', 'fat', 'carbs', 'protein', 'iron']
-	constructor() {
-		super('tbody>tr')
-	}
-
 	connectedCallback() {
 		this.list = [
 			{
