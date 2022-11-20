@@ -10,8 +10,7 @@ type Value = string | Function
 type AttrValue = string | [Value]
 
 const ToString = (value: Value): string =>
-	typeof value == 'function' ? ToString(value()) :
-		value
+	typeof value == 'function' ? ToString(value()) : value
 
 function extractParts(s: string): (string | Part)[] {
 	const re = /\$\{([\S\s]+?)}|\$([_a-z]\w*)/gi,
@@ -33,13 +32,13 @@ export type Data = Record<string, any>
 
 export type Methods = Record<string, (this: Data, $evt: Event) => any>
 
+export type Part = [string] | [Function | undefined, string]
+
 export type Target = {
 	node: { nodeValue: string | null }
 	deps: Set<string>
 	vals: Value | AttrValue[]
 }
-
-export type Part = [string] | [Function | undefined, string]
 
 type DOMAttr = Attr & {
 	ownerElement: Element
@@ -144,7 +143,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 					for (let i = 0; i < parts.length;) {
 						const vals = parts[i++]
 						let len = vals.length
-						if (typeof vals != 'string') {
+						if (typeof vals == 'object') {
 							len = vals[len - 1]!.length + (vals[1] ? 3 : 1)
 							const deps = new Set<string>()
 							this.addPart(vals, n.parentNode!, deps)
@@ -238,7 +237,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		}
 
 		connectedCallback() {
-			if (this instanceof Element) {
+			if (this instanceof Element && !this.hasAttribute('c-for')) {
 				if (this.shadowRoot)
 					this.bind(this.shadowRoot)
 				this.bind()
@@ -281,10 +280,12 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		}
 
 		_for(el: Element, attr: Attr) {
-			const exp = attr.value,
-				parent = el.parentElement!
-			let [keyexpr, value] = exp.split(';'),
-				val = this.$data[value = value.trim()]
+			const parent = el.parentElement!
+			let [keyexpr, value] = attr.value.split(';')
+			if (import.meta.env.DEV && !value)
+				console.warn('invalid v-for expression: ' + attr.value)
+
+			let val = this.$data[value = value.trim()]
 			if (!Array.isArray(val)) {
 				import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 				return
