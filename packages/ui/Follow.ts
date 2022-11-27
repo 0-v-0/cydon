@@ -425,7 +425,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 
 	// z-index自动最高
 	zIndex()
-};
+}
 /*
 [NodeList.prototype, HTMLCollection.prototype].forEach(prop => {
 	prop.follow = function () {

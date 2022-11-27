@@ -8,7 +8,7 @@ export default defineConfig({
 			name: 'sw'
 		},
 		rollupOptions: {
-			output: { sourcemap: 'inline' }
+			output: { sourcemap: 'hidden' }
 		},
 		target: 'esnext'
 	}

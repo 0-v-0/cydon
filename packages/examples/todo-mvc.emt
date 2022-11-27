@@ -20,9 +20,8 @@ html[lang=en]
 				label[for=toggle-all]{Mark all as complete}
 				ul.todo-list
 					li.todo[is=todo-item
-						:class="completed: done; editing; hidden: list.filter != null && done != list.filter"
-						c-for="name, done; items"
-						c-pass=list]
+						:class="completed: done; editing; hidden: $p.filter != null && done != $p.filter"
+						c-for="name, done; items"]
 						.view
 							input.toggle[type=checkbox c-model=done title=done]
 							label[@dblclick=editTodo]{$name}

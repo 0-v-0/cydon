@@ -50,17 +50,17 @@
 			c = s[i][0]
 			str +=
 				c == '(' ?
-				(f.push(deep), t ? shift[deep] + t : '') :
-				c == ')' ?
-				(deep = f.pop(), t ? shift[deep] + t : '') :
-				c == '>' ?
-				o ? (o = !1, s[i]) :
-					(deep++, t ? shift[deep] + t : '') :
-				c == '+' ?
-				t ? shift[deep] + t : '' :
-				c == '^' ? (deep--,
-				t ? shift[deep] + t : '') :
-				(o = c == '<', s[i])
+					(f.push(deep), t ? shift[deep] + t : '') :
+					c == ')' ?
+						(deep = f.pop(), t ? shift[deep] + t : '') :
+						c == '>' ?
+							o ? (o = !1, s[i]) :
+								(deep++, t ? shift[deep] + t : '') :
+							c == '+' ?
+								t ? shift[deep] + t : '' :
+								c == '^' ? (deep--,
+									t ? shift[deep] + t : '') :
+									(o = c == '<', s[i])
 		}
 		return str[0] == '\n' ? str.slice(1) : str
 	}
@@ -93,7 +93,7 @@
 				val = attr.value
 				if (val)
 					str += /\s/.test(val) ? '="' + val + '"'
-						: '=' + val;
+						: '=' + val
 			}
 		}
 
@@ -152,108 +152,108 @@
 		return indent ? tabize(e, indent) : e
 	}
 }(self,
-{// tagname abbreviations
-	'!': '!DOCTYPE html',
-	ab: 'abbr',
-	adr: 'address',
-	ar: 'area',
-	arti: 'article',
-	asd: 'aside',
-	bq: 'blockquote',
-	btn: 'button',
-	colg: 'colgroup',
-	cap: 'caption',
-	cmd: 'command',
-	cv: 'canvas',
-	dat: 'data',
-	datg: 'datagrid',
-	datl: 'datalist',
-	det: 'details',
-	dlg: 'dialog',
-	emb: 'embed',
-	fig: 'figure',
-	figc: 'figcaption',
-	fm: 'form',
-	fset: 'fieldset',
-	ftr: 'footer',
-	hdr: 'header',
-	ifr: 'iframe',
-	inp: 'input',
-	lab: 'label',
-	leg: 'legend',
-	mk: 'mark',
-	obj: 'object',
-	opt: 'option',
-	optg: 'optgroup',
-	out: 'output',
-	pic: 'picture',
-	pr: 'pre',
-	prog: 'progress',
-	scr: 'script',
-	sect: 'section',
-	sel: 'select',
-	sm: 'samp',
-	summ: 'summary',
-	sp: 'span',
-	src: 'source',
-	str: 'strong',
-	sty: 'style',
-	tab: 'table',
-	tbd: 'tbody',
-	tft: 'tfoot',
-	thd: 'thead',
-	tpl: 'template',
-	trk: 'track',
-	txa: 'textarea',
-	vid: 'video',
-	wb: 'wbr'
-},
-{// attribute abbreviations
-	a: 'alt',
-	ak: 'accesskey',
-	autocap: 'autocapitalize',
-	ce: 'contenteditable',
-	d: 'dir',
-	dr: 'draggable',
-	dz: 'dropzone',
-	n: 'name',
-	h: 'height',
-	hid: 'hidden',
-	im: 'inputmode',
-	l: 'lang',
-	s: 'style',
-	sc: 'spellcheck',
-	tt: 'title',
-	ti: 'tabindex',
-	t: 'type',
-	v: 'value',
-	w: 'width'
-},
-{// default elements
-	audio: 'source',
-	colgroup: 'col',
-	datalist: 'option',
-	details: 'summary',
-	dl: 'dt',
-	em: 'span',
-	fieldset: 'legend',
-	figure: 'figcaption',
-	frameset: 'frame',
-	html: 'body',
-	input: 'input',
-	label: 'input',
-	map: 'area',
-	menu: 'menuitem',
-	menuitem: 'menuitem',
-	ul: 'li',
-	ol: 'li',
-	picture: 'img',
-	optgroup: 'option',
-	select: 'option',
-	table: 'tr',
-	tbody: 'tr',
-	thead: 'tr',
-	tfoot: 'tr',
-	tr: 'td',
-	video: 'source',
-})
+	{// tagname abbreviations
+		'!': '!DOCTYPE html',
+		/*ab: 'abbr',
+		adr: 'address',
+		ar: 'area',
+		arti: 'article',
+		asd: 'aside',
+		bq: 'blockquote',
+		btn: 'button',
+		colg: 'colgroup',
+		cap: 'caption',
+		cmd: 'command',
+		cv: 'canvas',
+		dat: 'data',
+		datg: 'datagrid',
+		datl: 'datalist',
+		det: 'details',
+		dlg: 'dialog',
+		emb: 'embed',
+		fig: 'figure',
+		figc: 'figcaption',
+		fm: 'form',
+		fset: 'fieldset',
+		ftr: 'footer',
+		hdr: 'header',
+		ifr: 'iframe',
+		inp: 'input',
+		lab: 'label',
+		leg: 'legend',
+		mk: 'mark',
+		obj: 'object',
+		opt: 'option',
+		optg: 'optgroup',
+		out: 'output',
+		pic: 'picture',
+		pr: 'pre',
+		prog: 'progress',
+		scr: 'script',
+		sect: 'section',
+		sel: 'select',
+		sm: 'samp',
+		summ: 'summary',
+		sp: 'span',
+		src: 'source',
+		str: 'strong',
+		sty: 'style',
+		tab: 'table',
+		tbd: 'tbody',
+		tft: 'tfoot',
+		thd: 'thead',
+		tpl: 'template',
+		trk: 'track',
+		txa: 'textarea',
+		vid: 'video',
+		wb: 'wbr'*/
+	},
+	{// attribute abbreviations
+		/*a: 'alt',
+		ak: 'accesskey',
+		autocap: 'autocapitalize',
+		ce: 'contenteditable',
+		d: 'dir',
+		dr: 'draggable',
+		dz: 'dropzone',
+		n: 'name',
+		h: 'height',
+		hid: 'hidden',
+		im: 'inputmode',
+		l: 'lang',
+		s: 'style',
+		sc: 'spellcheck',
+		tt: 'title',
+		ti: 'tabindex',
+		t: 'type',
+		v: 'value',
+		w: 'width'*/
+	},
+	{// default elements
+		audio: 'source',
+		colgroup: 'col',
+		datalist: 'option',
+		details: 'summary',
+		dl: 'dt',
+		em: 'span',
+		fieldset: 'legend',
+		figure: 'figcaption',
+		frameset: 'frame',
+		html: 'body',
+		input: 'input',
+		label: 'input',
+		map: 'area',
+		menu: 'menuitem',
+		menuitem: 'menuitem',
+		ul: 'li',
+		ol: 'li',
+		picture: 'img',
+		optgroup: 'option',
+		select: 'option',
+		table: 'tr',
+		tbody: 'tr',
+		thead: 'tr',
+		tfoot: 'tr',
+		tr: 'td',
+		video: 'source',
+	})

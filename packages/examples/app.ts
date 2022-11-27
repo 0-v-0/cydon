@@ -16,14 +16,12 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 	done = false
 	editing = false
 
-	list!: TodoApp
+	$p!: TodoApp
 	private beforeEditCache?: string
 
 	connectedCallback() {
-		if (this.list) {
-			this.onUpdate = prop => this.list.updateValue(prop)
-			super.connectedCallback()
-		}
+		this.onUpdate = prop => this.$p.updateValue(prop)
+		super.connectedCallback()
 	}
 
 	keyup(e: KeyboardEvent) {
@@ -44,7 +42,7 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 				this.removeTodo()
 
 			// save data
-			queueMicrotask(() => storage.save(this.list.items))
+			queueMicrotask(() => storage.save(this.$p.items))
 		}
 	}
 
@@ -54,7 +52,7 @@ class TodoItem extends CydonOf(HTMLLIElement) {
 	}
 
 	removeTodo() {
-		const { items } = this.list
+		const { items } = this.$p
 		const index = items.findIndex(todo => todo == this)
 		items.splice(index, 1)
 	}
@@ -70,8 +68,6 @@ class TodoApp extends CydonElement {
 	items: TodoItem[] = []
 	// HACK
 	done: undefined
-
-	list = this
 
 	// computed
 	get allDone() {
@@ -113,7 +109,7 @@ class TodoApp extends CydonElement {
 		this.data.visibility = this.filter == null ? 'all' : visibility
 
 		// update subcomponents
-		this.items.forEach(item => item.list = this)
+		this.items.forEach(item => item.$p = this)
 	}
 
 	// methods that implement data logic.

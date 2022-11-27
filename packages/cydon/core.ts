@@ -3,7 +3,7 @@
  * https://github.com/0-v-0/cydon
  */
 
-import { cloneWithShadowRoots, Constructor, ReactiveElement } from './util'
+import { cloneNode, Constructor as Ctor, ReactiveElement } from './util'
 
 type Value = string | Function
 
@@ -48,8 +48,10 @@ export type DirectiveHandler = (this: Cydon, attr: DOMAttr) => boolean | void
 
 export const directives: DirectiveHandler[] = []
 
-export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
-	class Mixin extends (<Constructor<Object>>base) {
+const task = Promise.resolve()
+
+export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
+	class Mixin extends (<Ctor<Object>>base) {
 		/**
 		 * raw data object
 		 */
@@ -63,7 +65,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		/**
 		 * render queue
 		 */
-		queue = new Set<Target>()
+		queue = new Set<Target | string>()
 
 		/**
 		 * bound nodes
@@ -79,7 +81,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		 */
 		onUpdate?(prop: string): void
 
-		constructor(data?: Data, ...args: ConstructorParameters<Constructor<T>>) {
+		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
 			this.data = new Proxy(this.$data = data || this, {
 				get: (obj, prop: string) =>
@@ -200,19 +202,24 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 		 */
 		updateValue(prop: string) {
 			if (this.queue.size == 0)
-				requestAnimationFrame(() => this.flush())
-			for (const [, data] of this.targets)
-				if (data.deps.has(prop))
-					this.queue.add(data)
-			this.onUpdate?.(prop)
+				task.then(() => this.flush())
+			this.queue.add(prop)
 		}
 
 		/**
 		 * update queued nodes immediately and clear queue
 		 */
 		flush() {
-			for (const node of this.queue)
-				this.update(node)
+			for (const node of this.queue) {
+				if (typeof node == 'string') {
+					for (const [, data] of this.targets)
+						if (data.deps.has(node))
+							this.queue.add(data)
+					if ('onUpdate' in this)
+						this.onUpdate!(node)
+				} else
+					this.update(node)
+			}
 			this.queue.clear()
 		}
 
@@ -262,20 +269,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 				for (const key of keys)
 					el.data[key] = (<Data>item)[key]
 			}
-			let exp = el.getAttribute('c-pass')
-			if (exp) {
-				for (const s of exp.split(',')) {
-					let p = s.indexOf(':'),
-						key = s,
-						val = s
-					if (~p) {
-						key = s.substring(0, p)
-						val = s.substring(p + 1)
-					}
-					(<Data>el)[val.trim()] = this.$data[key.trim()]
-				}
-				el.removeAttribute('c-pass')
-			}
+			el.data.$p = this
 			return el
 		}
 
@@ -292,6 +286,20 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 			}
 			const keys = keyexpr.split(/\s*,\s*/),
 				list = parent.children
+			const setCapacity = (n: number) => {
+				let d = list.length,
+					df!: DocumentFragment
+
+				if (d < n)
+					df = new DocumentFragment()
+				for (; d < n; d++)
+					df.append(this.render(<ReactiveElement>cloneNode(el)))
+				for (; d-- > n;)
+					list[d].remove()
+				if (df)
+					parent.appendChild(df)
+			}
+			//let handle = 0
 			const proxy = new Proxy(val, {
 				get: (obj, prop: any) => {
 					const val = obj[prop]
@@ -300,24 +308,23 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 				set: (obj: any, prop, val) => {
 					if (prop == 'length') {
 						const n = obj.length = +val
-						if (n > list.length) {
-							let d = list.length
-							for (; d < n; d++)
-								parent.append(this.render(<ReactiveElement>cloneWithShadowRoots(el)))
-							for (; d-- > n;)
-								list[d].remove()
-						}
+						if (n > list.length)
+							setCapacity(n)
 						for (let d = list.length; d-- > n;)
 							this.render(<ReactiveElement>list[d], void 0, keys)
+
+						//if (handle)
+						//	cancelIdleCallback(handle)
+						//handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 5000 })
 					} else {
-						if (typeof prop == 'string' && <any>prop == parseInt(prop)) {
+						if (typeof prop == 'string' && isFinite(<any>prop)) {
 							const old = list[<any>prop],
-								node = this.render(<ReactiveElement>old || cloneWithShadowRoots(el), val, keys)
+								node = this.render(<ReactiveElement>old || cloneNode(el), val, keys)
 							if (old) {
 								if (old != node)
 									old.replaceWith(node)
 							} else
-								parent.append(node)
+								parent.appendChild(node)
 							obj[prop] = node
 						} else
 							obj[prop] = val
@@ -338,7 +345,7 @@ export const CydonOf = <T extends {}>(base: Constructor<T> = <any>Object) => {
 			Object.assign(proxy, val)
 		}
 	}
-	return <Constructor<T & Mixin>>Mixin
+	return <Ctor<T & Mixin>>Mixin
 }
 
 /**

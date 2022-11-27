@@ -29,18 +29,19 @@ function walk(node: Element, clone: Element) {
 	if (nodes) {
 		const shadow = clone.attachShadow({ mode: 'open' })
 		nodes.childNodes.forEach(c => shadow.append(c.nodeType == 1/*Node.ELEMENT_NODE*/ ?
-			cloneWithShadowRoots(<Element>c) : c.cloneNode(true)))
+			cloneNode(<Element>c) : c.cloneNode(true)))
 	}
 	for (let i = 0; i < node.children.length; i++)
 		walk(node.children[i], clone.children[i])
 }
 
 /**
- * cloneNode(true), but also clones shadow roots.
+ * cloneNode(true), with shadow roots optionally.
  * @param node
  */
-export function cloneWithShadowRoots(node: Element) {
+export function cloneNode(node: Element, withShadowRoots = true) {
 	const clone = node.cloneNode(true)
-	walk(node, <Element>clone)
+	if (withShadowRoots)
+		walk(node, <Element>clone)
 	return clone
 }
