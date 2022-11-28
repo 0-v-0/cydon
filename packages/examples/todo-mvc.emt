@@ -19,14 +19,13 @@ html[lang=en]
 				input#toggle-all.toggle-all[type=checkbox c-model=allDone]
 				label[for=toggle-all]{Mark all as complete}
 				ul.todo-list
-					li.todo[is=todo-item
-						:class="completed: done; editing; hidden: $p.filter != null && done != $p.filter"
-						c-for="name, done; items"]
+					li.todo[:class="completed: todo.done; editing: editing == data; hidden: filter != null && todo.done != filter"
+						c-for="todo; items"]
 						.view
-							input.toggle[type=checkbox c-model=done title=done]
-							label[@dblclick=editTodo]{$name}
+							input.toggle[type=checkbox c-model=todo.done title=done]
+							label[@dblclick=editTodo]{${todo.name}}
 							button.destroy[@click=removeTodo]
-						input.edit[c-model=name @blur=doneEdit :="editing && this.focus()" @keyup=keyup]
+						input.edit[c-model=todo.name @blur=doneEdit :="editing == data && this.focus()" @keyup=keyup]
 			footer.footer[c-show=items.length]
 				span.todo-count
 					strong{${remaining()}}

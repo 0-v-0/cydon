@@ -1,5 +1,3 @@
-import { Data } from '.'
-
 // polyfill from https://github.com/mfreed7/declarative-shadow-dom#feature-detection-and-polyfilling
 if (!HTMLTemplateElement.prototype.hasOwnProperty('shadowRoot'))
 	document.querySelectorAll<HTMLTemplateElement>('template[shadowroot]').forEach(tpl => {
@@ -18,10 +16,6 @@ export type Constructor<T> = new (...args: any[]) => T
  */
 export const define = (tagName: string, options?: ElementDefinitionOptions): ClassDecorator =>
 	(target: Function) => customElements.define(tagName, <CustomElementConstructor>target, options)
-
-export interface ReactiveElement extends HTMLElement {
-	readonly data: Data
-}
 
 // From https://gist.github.com/zalelion/df185578a456eb855e43f959af71059d
 function walk(node: Element, clone: Element) {

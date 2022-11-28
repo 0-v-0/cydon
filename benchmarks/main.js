@@ -20,36 +20,31 @@ function _random(max) {
 	return Math.round(Math.random() * 1000) % max
 }
 
-import { CydonElement, CydonOf } from '../packages/cydon';
-
-class BenchmarkRow extends CydonOf(HTMLTableRowElement) {
-}
-customElements.define('benchmark-row', BenchmarkRow, { extends: 'tr' })
+import { CydonElement } from '../packages/cydon';
 
 class MainApp extends CydonElement {
 	items = []
-	_selected = null
+
+	app = this
 
 	get selected() {
-		return this._selected
+		return this.app._selected
 	}
 	set selected(value) {
-		this._selected = value
-		this.items.forEach(item => item.updateValue('list'))
+		this.app._selected = value
 	}
 
-	list = this
-
-	deleteOne(id) {
+	deleteOne() {
+		const id = this.item.id
 		console.time('delete1')
 		const index = this.items.findIndex(item => item.id == id)
 		this.items.splice(index, 1)
 		console.timeEnd('delete1')
 	}
 
-	selectOne(id) {
+	selectOne() {
 		console.time('select1')
-		this.selected = id
+		this.selected = this.item.id
 		console.timeEnd('select1')
 	}
 

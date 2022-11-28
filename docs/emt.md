@@ -20,6 +20,8 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 - **\$** : 数量语法糖                ex: `div#t_$$*3`   => `<div id="t_01"></div><div id="t_02"></div><div id="t_03"></div>`
 - **@** : 数量起始位置和递减选项      ex: `span{$@-5}*3` => `<span>5</span><span>4</span><span>3</span>`
 
+推荐顺序：元素名+id+类+属性+内容+数量，如：`tag-name#id.class[attr=value]{content}*2`
+
 与Emmet官方语法区别：
 1. 属性以空格间隔，不支持一个标签带多个[]
 ex: `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]` => `<tag class="classes separated by dots and" id="id" attributes="sepearated by" spaces></tag>`

@@ -1,60 +1,17 @@
-import { define, CydonOf, CydonElement } from 'cydon'
+import { define, CydonElement, Data } from 'cydon'
+
+type Todo = {
+	name: string
+	done: boolean
+}
 
 const STORAGE_KEY = 'todos-cydon',
 	ITEM_KEYS = ['name', 'done']
 
 const storage = {
 	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
-	save(todos: TodoItem[]) {
+	save(todos: any[]) {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, ITEM_KEYS))
-	}
-}
-
-@define('todo-item', { extends: 'li' })
-class TodoItem extends CydonOf(HTMLLIElement) {
-	name = ''
-	done = false
-	editing = false
-
-	$p!: TodoApp
-	private beforeEditCache?: string
-
-	connectedCallback() {
-		this.onUpdate = prop => this.$p.updateValue(prop)
-		super.connectedCallback()
-	}
-
-	keyup(e: KeyboardEvent) {
-		if (e.key == 'Enter')
-			this.doneEdit()
-
-		if (e.key == 'Escape') {
-			this.editing = false
-			this.name = this.beforeEditCache!
-		}
-	}
-
-	doneEdit() {
-		if (this.editing) {
-			this.editing = false
-			this.name = this.name?.trim()
-			if (!this.name)
-				this.removeTodo()
-
-			// save data
-			queueMicrotask(() => storage.save(this.$p.items))
-		}
-	}
-
-	editTodo() {
-		this.beforeEditCache = this.name
-		this.editing = true
-	}
-
-	removeTodo() {
-		const { items } = this.$p
-		const index = items.findIndex(todo => todo == this)
-		items.splice(index, 1)
 	}
 }
 
@@ -65,9 +22,12 @@ class TodoApp extends CydonElement {
 	visibility = 'all'
 	filter: boolean | null = null
 
-	items: TodoItem[] = []
-	// HACK
-	done: undefined
+	items: Todo[] = []
+
+	todo!: Todo
+
+	editing: Data | null = null
+	private beforeEditCache?: string
 
 	// computed
 	get allDone() {
@@ -83,8 +43,6 @@ class TodoApp extends CydonElement {
 			if (!todo.done)
 				count++
 		}
-		// HACK: update subcomponents
-		this.done
 
 		// save data
 		queueMicrotask(() => storage.save(this.items))
@@ -104,12 +62,9 @@ class TodoApp extends CydonElement {
 	updateFilter() {
 		let visibility = location.hash.substring(2)
 
-		this.filter = visibility == 'active' ? false :
+		this.data.filter = visibility == 'active' ? false :
 			visibility == 'completed' ? true : null
 		this.data.visibility = this.filter == null ? 'all' : visibility
-
-		// update subcomponents
-		this.items.forEach(item => item.$p = this)
 	}
 
 	// methods that implement data logic.
@@ -117,9 +72,42 @@ class TodoApp extends CydonElement {
 
 	addTodo(e: KeyboardEvent) {
 		if (e.key == 'Enter' && this.newTodo) {
-			this.items.push(<TodoItem>{ name: this.newTodo, done: false })
+			this.items.push({ name: this.newTodo, done: false })
 			this.newTodo = ''
 		}
+	}
+
+	keyup(e: KeyboardEvent) {
+		if (e.key == 'Enter')
+			this.doneEdit()
+
+		if (e.key == 'Escape') {
+			this.editing = null
+			this.todo.name = this.beforeEditCache!
+		}
+	}
+
+	doneEdit() {
+		if (this.editing) {
+			this.editing = null
+			this.todo.name = this.todo.name?.trim()
+			if (!this.todo.name)
+				this.removeTodo()
+
+			// save data
+			queueMicrotask(() => storage.save(this.items))
+		}
+	}
+
+	editTodo() {
+		this.beforeEditCache = this.todo.name
+		this.editing = this.data
+	}
+
+	removeTodo() {
+		const { items } = this
+		const index = items.findIndex(todo => todo == this.todo)
+		items.splice(index, 1)
 	}
 
 	removeCompleted() {
@@ -134,6 +122,5 @@ class TodoApp extends CydonElement {
 declare global {
 	interface HTMLElementTagNameMap {
 		'todo-app': TodoApp
-		'todo-item': TodoItem
 	}
 }

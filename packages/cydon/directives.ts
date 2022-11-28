@@ -1,24 +1,179 @@
-import { directives, Part } from './core'
+import { Cydon, Data, directives, Part } from './core'
+import { cloneNode } from './util'
+
+interface ReactiveElement extends HTMLElement {
+	cydon: Cydon
+}
+
+export function _if(cydon: Cydon, el: Element, attr: Attr) {
+	if (import.meta.env.DEV && !cydon.unbind)
+		console.warn('unbind function is undefined')
+
+	const parent = el.parentElement!
+	const anchor = new Text()
+	parent.insertBefore(anchor, el)
+	const { value } = attr
+	const deps = new Set<string>(),
+		func = cydon.getFunc('return ' + value, el, deps)
+	let lastValue = true
+	const effect = () => {
+		const val = func()
+		if (val != lastValue) {
+			lastValue = val
+			if (val) {
+				cydon.bind(el)
+				if (!el.isConnected)
+					parent.insertBefore(el, anchor)
+			} else {
+				cydon.unbind!(el)
+				el.remove()
+			}
+		}
+		return ''
+	}
+	cydon.add(attr, deps, [[effect]])
+	effect()
+}
+
+export function _for(cydon: Cydon, el: Element, exp: string) {
+	if (!exp)
+		return
+
+	const parent = el.parentElement!
+	let [keys, value] = exp.split(';')
+	if (import.meta.env.DEV && !value)
+		console.warn('invalid v-for expression: ' + exp)
+
+	let val = cydon.$data[value = value.trim()]
+	if (!Array.isArray(val)) {
+		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
+		return
+	}
+	const list = <HTMLCollectionOf<ReactiveElement>>parent.children
+	const setCapacity = (n: number) => {
+		let d = list.length
+
+		for (; d < n; d++)
+			render(d)
+		for (; d-- > n;)
+			list[d].remove()
+	}
+
+	const [key, index] = keys.split(/\s*,\s*/)
+	const deps = new Set<string>()
+
+	const onUpdate = (prop: string) => cydon.updateValue(prop)
+
+	const render = (i: number) => {
+		let target = list[i],
+			item = val[i]
+		if (!target) {
+			target = <ReactiveElement>cloneNode(el)
+			if (cydon != cydon.$data) {
+				if (import.meta.env.DEV)
+					console.warn('cydon: $data object must set to this')
+				return
+			}
+
+			const c: Cydon & Data = Object.create(cydon)
+			c.queue = new Set()
+			c.targets = new Map()
+			c.deps = deps
+			c.onUpdate = onUpdate
+			c.setData(c)
+			if (index)
+				c[index] = i
+			c[key] = val[i] = new Proxy(item || {}, {
+				set: (obj, p: string, val) => {
+					obj[p] = val
+					c.updateValue(key)
+					c.updateValue(value)
+					return true
+				}
+			})
+			target.cydon = c
+			c.bind(target)
+			if (item)
+				c.flush()
+			parent.appendChild(target)
+		}
+
+		// if item is undefined, hide the element
+		target.hidden = item == void 0
+
+		// update data
+		if (item)
+			Object.assign(target.cydon.data[key], item)
+	}
+
+	//let handle = 0
+	const items = new Proxy(val, {
+		get: (obj: any, p) => typeof p == 'string' && isFinite(<any>p) ?
+			list[<any>p]?.cydon.data[key] ?? obj[p] : obj[p],
+		set: (obj: any, p, val) => {
+			if (p == 'length') {
+				const n = obj.length = +val
+				if (n > list.length)
+					setCapacity(n)
+				for (let d = list.length; d-- > n;)
+					render(d)
+
+				//if (handle)
+				//	cancelIdleCallback(handle)
+				//handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 5000 })
+			} else {
+				obj[p] = val
+				if (typeof p == 'string' && isFinite(<any>p))
+					render(<any>p)
+			}
+			cydon.updateValue(value)
+			return true
+		}
+	})
+	Object.defineProperty(cydon.$data, value, {
+		get: () => items,
+		set(v) {
+			if (v != items)
+				Object.assign(items, v).length = v.length
+		}
+	})
+	if (!cydon.onUpdate)
+		cydon.onUpdate = (prop: string) => {
+			if (deps.has(prop))
+				for (const { cydon } of list) {
+					cydon.onUpdate = void 0
+					cydon.updateValue(prop)
+					cydon.onUpdate = onUpdate
+				}
+		}
+
+	el.remove()
+	el.removeAttribute('c-for')
+	Object.assign(items, val)
+}
 
 directives.push(function (node): true | void {
 	let { name, value, ownerElement: el } = node
 	if (name == 'c-model' || name == 'c-model.lazy') {
+		value = value.trim()
 		const isCheckbox = (<HTMLInputElement>el).type == 'checkbox'
 		const isRadio = (<HTMLInputElement>el).type == 'radio'
 		const isSelect = el.tagName == 'SELECT'
 		const event = name != 'c-model' || isSelect || isCheckbox ? 'change' : 'input'
+		const setter = Function('$val', `with(this)${value}=$val`)
 		el.addEventListener(event, () => {
 			const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
 				[...(<HTMLSelectElement>el).selectedOptions].map(option => option.value || option.text) :
 				isCheckbox ?
 					(<HTMLInputElement>el).checked :
 					(<HTMLInputElement>el).value
-			this.data[value] = newVal
+			setter.call(this.data, newVal)
 		})
 		// Two-way binding
-		const deps = new Set([value])
-		this.add(node, deps, [[() => {
-			const val = this.getDeps(value, deps)
+		const deps = new Set<string>()
+		const getter = this.getFunc('return ' + value, el, deps)
+		const modify = () => {
+			const val = getter()
 			if (isRadio)
 				(<HTMLInputElement>el).checked = val == (<HTMLInputElement>el).value
 			else if (isCheckbox)
@@ -26,9 +181,9 @@ directives.push(function (node): true | void {
 			else
 				(<HTMLInputElement>el).value = val
 			return ''
-		}]])
-		if (isCheckbox)
-			(<HTMLInputElement>el).checked = this.getDeps(value, deps)
+		}
+		modify()
+		this.add(node, deps, [[modify]])
 		return true
 	}
 	// bind event

@@ -71,15 +71,15 @@
 				</div>
 			</div>
 			<table class="table table-hover table-striped test-data">
-				<tbody id="tbody">
-					<tr is="benchmark-row" c-for="id, label; items" class="${id == $p.selected ? 'danger' : ''}">
-						<td class="col-md-1">$id</td>
+				<tbody>
+					<tr c-for="item; items" :class="danger: item.id == selected">
+						<td class="col-md-1">${item.id}</td>
 						<td class="col-md-4">
-							<a role="select" @click="$p.selectOne(id)">$label</a>
+							<a role="select" @click="selectOne">${item.label}</a>
 						</td>
 						<td class="col-md-1">
 							<a>
-								<span role="delete" @click="$p.deleteOne(id)" class="glyphicon glyphicon-remove"
+								<span role="delete" @click="deleteOne" class="glyphicon glyphicon-remove"
 									aria-hidden="true"></span>
 							</a>
 						</td>

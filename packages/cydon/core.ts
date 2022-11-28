@@ -3,7 +3,8 @@
  * https://github.com/0-v-0/cydon
  */
 
-import { cloneNode, Constructor as Ctor, ReactiveElement } from './util'
+import { _for, _if } from './directives'
+import { Constructor as Ctor } from './util'
 
 type Value = string | Function
 
@@ -30,7 +31,7 @@ function extractParts(s: string): (string | Part)[] {
 
 export type Data = Record<string, any>
 
-export type Methods = Record<string, (this: Data, $evt: Event) => any>
+export type Methods = Record<string, (this: Data, $e: Event) => any>
 
 export type Part = [string] | [Function | undefined, string]
 
@@ -48,19 +49,17 @@ export type DirectiveHandler = (this: Cydon, attr: DOMAttr) => boolean | void
 
 export const directives: DirectiveHandler[] = []
 
-const task = Promise.resolve()
-
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 	class Mixin extends (<Ctor<Object>>base) {
 		/**
 		 * raw data object
 		 */
-		$data: Data
+		$data!: Data
 
 		/**
 		 * reactive data object
 		 */
-		data: Data
+		data!: Data
 
 		/**
 		 * render queue
@@ -73,7 +72,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		targets = new Map<Node, Target>()
 
 
-		methods: Methods
+		methods: Methods = <any>this
+
+		deps?: Set<string>
 
 		/**
 		 * update callback
@@ -83,16 +84,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
-			this.data = new Proxy(this.$data = data || this, {
-				get: (obj, prop: string) =>
-					prop in obj ? obj[prop] : '$' + prop,
-				set: (obj, prop: string, value) => {
-					obj[prop] = value
-					this.updateValue(prop)
-					return true
-				}
-			})
-			this.methods = <any>this
+			this.setData(data || this)
 			if (!globalThis.CYDON_NO_UNBIND)
 				this.unbind = (el: Element, searchChildren = true) => {
 					for (const [node] of this.targets) {
@@ -108,15 +100,28 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				}
 		}
 
-		bind(el: Element | ShadowRoot = <any>this, extract = extractParts) {
+		setData(data: Data) {
+			this.data = new Proxy(this.$data = data, {
+				get: (obj, p: string) =>
+					p in obj ? obj[p] : '$' + p.toString(),
+				set: (obj, p: string, value) => {
+					obj[p] = value
+					this.updateValue(p)
+					return true
+				}
+			})
+		}
+
+		bind(el: Element | ShadowRoot = <any>this, extract = extractParts): void {
 			// Find pattern in attributes
 			const attrs = (<Element>el).attributes
 			if (attrs) {
-				if (attrs[<any>'c-pre'])
-					return
-				const exp = attrs[<any>'c-for']
+				let exp = attrs[<any>'c-if']
 				if (exp)
-					return this._for(<Element>el, exp)
+					return _if(this, <Element>el, exp)
+				exp = attrs[<any>'c-for']
+				if (exp)
+					return _for(this, <Element>el, exp.value)
 				next: for (let i = 0; i < attrs.length;) {
 					const node = <DOMAttr>attrs[i]
 					for (const handler of directives)
@@ -202,45 +207,45 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		updateValue(prop: string) {
 			if (this.queue.size == 0)
-				task.then(() => this.flush())
+				queueMicrotask(() => this.flush())
 			this.queue.add(prop)
+			this.onUpdate?.(prop)
 		}
 
 		/**
 		 * update queued nodes immediately and clear queue
 		 */
 		flush() {
-			for (const node of this.queue) {
-				if (typeof node == 'string') {
-					for (const [, data] of this.targets)
-						if (data.deps.has(node))
-							this.queue.add(data)
-					if ('onUpdate' in this)
-						this.onUpdate!(node)
-				} else
-					this.update(node)
+			for (const [, data] of this.targets) {
+				if (this.queue.has(data))
+					this.update(data)
+				else
+					for (const node of this.queue) {
+						if (typeof node == 'string' && data.deps.has(node)) {
+							this.update(data)
+							break
+						}
+					}
 			}
 			this.queue.clear()
 		}
 
-		getDeps(prop: string, deps: Set<string>) {
-			const val = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(this.$data), prop)?.get
-			return val ? val.call(this.depsWalker(deps)) : this.$data[prop]
-		}
-
 		getFunc(value: string, el?: Node, deps?: Set<string>): Function {
-			return Function('$ctx', '$evt', `with($ctx){${value}}`).bind(el,
-				deps ? this.depsWalker(deps) : this.data)
-		}
-
-		depsWalker(deps: Set<string>) {
-			return new Proxy(this.$data, {
-				get: (obj, prop: string) => {
-					if (typeof prop == 'string')
-						deps.add(prop)
-					return obj[prop] ?? '$' + prop.toString()
-				}
-			})
+			const depsWalker = (obj: Data & Object) => {
+				const proto = Object.getPrototypeOf(obj)
+				return new Proxy(obj, {
+					get: (obj, p: string) => {
+						if (typeof p == 'string') {
+							if (this.deps && p in proto)
+								this.deps.add(p)
+							deps!.add(p)
+						}
+						return p in obj ? obj[p] : '$' + p.toString()
+					}
+				})
+			}
+			return Function('$ctx', '$e', `with($ctx){${value}}`).bind(el,
+				deps ? depsWalker(this.$data) : this.data)
 		}
 
 		connectedCallback() {
@@ -250,99 +255,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				this.bind()
 				this.flush()
 			}
-		}
-
-		/**
-		 * render target element with the item
-		 *
-		 * @param el target element, return a new element if it is undefined
-		 * @param item item to render
-		 * @param keys keys of a item
-		 * @returns element
-		 */
-		render(el: ReactiveElement, item?: {}, keys: string[] = []) {
-			// if item is undefined, hide the element
-			el.data.hidden = item == void 0
-
-			// update data
-			if (item) {
-				for (const key of keys)
-					el.data[key] = (<Data>item)[key]
-			}
-			el.data.$p = this
-			return el
-		}
-
-		_for(el: Element, attr: Attr) {
-			const parent = el.parentElement!
-			let [keyexpr, value] = attr.value.split(';')
-			if (import.meta.env.DEV && !value)
-				console.warn('invalid v-for expression: ' + attr.value)
-
-			let val = this.$data[value = value.trim()]
-			if (!Array.isArray(val)) {
-				import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
-				return
-			}
-			const keys = keyexpr.split(/\s*,\s*/),
-				list = parent.children
-			const setCapacity = (n: number) => {
-				let d = list.length,
-					df!: DocumentFragment
-
-				if (d < n)
-					df = new DocumentFragment()
-				for (; d < n; d++)
-					df.append(this.render(<ReactiveElement>cloneNode(el)))
-				for (; d-- > n;)
-					list[d].remove()
-				if (df)
-					parent.appendChild(df)
-			}
-			//let handle = 0
-			const proxy = new Proxy(val, {
-				get: (obj, prop: any) => {
-					const val = obj[prop]
-					return (val && (<ReactiveElement>list[prop])?.data) ?? val
-				},
-				set: (obj: any, prop, val) => {
-					if (prop == 'length') {
-						const n = obj.length = +val
-						if (n > list.length)
-							setCapacity(n)
-						for (let d = list.length; d-- > n;)
-							this.render(<ReactiveElement>list[d], void 0, keys)
-
-						//if (handle)
-						//	cancelIdleCallback(handle)
-						//handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 5000 })
-					} else {
-						if (typeof prop == 'string' && isFinite(<any>prop)) {
-							const old = list[<any>prop],
-								node = this.render(<ReactiveElement>old || cloneNode(el), val, keys)
-							if (old) {
-								if (old != node)
-									old.replaceWith(node)
-							} else
-								parent.appendChild(node)
-							obj[prop] = node
-						} else
-							obj[prop] = val
-					}
-					this.updateValue(value)
-					return true
-				}
-			})
-			Object.defineProperty(this.$data, value, {
-				get: () => proxy,
-				set(items) {
-					if (items != proxy)
-						Object.assign(proxy, items).length = items.length
-				}
-			})
-			el.remove()
-			el.removeAttribute('c-for')
-			Object.assign(proxy, val)
 		}
 	}
 	return <Ctor<T & Mixin>>Mixin
