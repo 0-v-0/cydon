@@ -18,7 +18,7 @@
         msg: 'Hello world',
         css_class: 'bold red'
     })
-    app.bind(document.body)
+    app.mount(document.body)
     let { data } = app
     data.msg = 'foo'
     data.css_class = 'bar'
@@ -37,27 +37,38 @@
 - `data`：数据对象
 - `args`：传给基类的参数
 
-### bind(el: Element | ShadowRoot = this, extract = extractParts)
-将Cydon实例绑定到一个元素或ShadowRoot上
+### mount(el: Element | ShadowRoot = this)
+将Cydon实例挂载到一个元素或ShadowRoot上
 
 参数：
 - `el`：目标元素或ShadowRoot
-- `extract`：插值提取函数
 
-### unbind(el: Element, searchChildren = true)
+### unmount(el: Element | ShadowRoot)
 将Cydon实例从目标元素上解绑
 
 参数：
-- `el`：目标元素
-- `searchChildren`：是否包含子节点
+- `el`：目标元素或Shadow Root
 
-### add(node: Node, deps: Set, vals: Value | AttrValue[])
+### compile(results: Results, el: Element | ShadowRoot)
+编译一个元素或Shadow Root下的所有模板
+
+参数：
+- `results`：编译结果
+- `el`：目标元素或Shadow Root
+
+### bind(results: Results, el: Element | ShadowRoot = this)
+将模板编译结果绑定到一个元素或Shadow Root
+
+参数：
+- `results`：编译结果
+- `el`：目标元素或Shadow Root
+
+### add(node: Element | Attr | Text, part: Part)
 添加目标节点并加入到更新队列中
 
 参数：
 - `node`：目标节点
-- `deps`：依赖项
-- `vals`：表达式
+- `part`：表达式
 
 ### update(target: Target)
 更新目标节点

@@ -1,15 +1,10 @@
-import { define, CydonOf } from 'cydon'
+import { define } from 'cydon'
 import { TableElement } from '../ui'
 
 declare global {
 	interface HTMLElementTagNameMap {
 		's-table': STable
-		's-row': SRow
 	}
-}
-
-@define('s-row', { extends: 'tr' })
-export class SRow extends CydonOf(HTMLTableRowElement) {
 }
 
 @define('s-table')

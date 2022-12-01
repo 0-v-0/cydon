@@ -8,8 +8,8 @@ function walk(el: Element) {
 		Object.assign(el, Function(`return ${data}`).call(el))
 		const cydon = new Cydon(el)
 		if ((<Element>el).shadowRoot)
-			cydon.bind((<Element>el).shadowRoot!)
-		cydon.bind(el)
+			cydon.mount((<Element>el).shadowRoot!)
+		cydon.mount(el)
 	}
 }
 

@@ -31,13 +31,13 @@ class TodoApp extends CydonElement {
 
 	// computed
 	get allDone() {
-		return !this.remaining()
+		return !this.remaining
 	}
 	set allDone(value) {
 		this.items.forEach(todo => todo.done = value)
 	}
 
-	remaining() {
+	get remaining() {
 		let count = 0
 		for (const todo of this.items) {
 			if (!todo.done)
@@ -101,7 +101,7 @@ class TodoApp extends CydonElement {
 
 	editTodo() {
 		this.beforeEditCache = this.todo.name
-		this.editing = this.data
+		this.editing = this
 	}
 
 	removeTodo() {

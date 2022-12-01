@@ -1,41 +1,41 @@
-import { Cydon, Data, directives, Part } from './core'
+import { Cydon, Data, Directive, directives, getFunc } from './core'
 import { cloneNode } from './util'
 
 interface ReactiveElement extends HTMLElement {
 	cydon: Cydon
 }
 
-export function _if(cydon: Cydon, el: Element, attr: Attr) {
-	if (import.meta.env.DEV && !cydon.unbind)
-		console.warn('unbind function is undefined')
-
-	const parent = el.parentElement!
-	const anchor = new Text()
-	parent.insertBefore(anchor, el)
-	const { value } = attr
-	const deps = new Set<string>(),
-		func = cydon.getFunc('return ' + value, el, deps)
-	let lastValue = true
-	const effect = () => {
-		const val = func()
-		if (val != lastValue) {
-			lastValue = val
-			if (val) {
-				cydon.bind(el)
-				if (!el.isConnected)
-					parent.insertBefore(el, anchor)
-			} else {
-				cydon.unbind!(el)
-				el.remove()
+directives.push(function ({ name, value }): Directive | void {
+	if (name == 'c-if') {
+		const func = getFunc('return ' + value)
+		const data: Directive = {
+			vals(el) {
+				const parent = el.parentElement!
+				const anchor = new Text()
+				parent.insertBefore(anchor, el)
+				let lastValue: boolean
+				data.deps = new Set()
+				data.vals = function (el) {
+					const val = func.call(this, el)
+					if (val != lastValue) {
+						lastValue = val
+						if (val) {
+							this.mount(el)
+							if (!el.isConnected)
+								parent.insertBefore(el, anchor)
+						} else {
+							this.unmount(el)
+							el.remove()
+						}
+					}
+				}
 			}
 		}
-		return ''
+		return data
 	}
-	cydon.add(attr, deps, [[effect]])
-	effect()
-}
+})
 
-export function _for(cydon: Cydon, el: Element, exp: string) {
+export function for_(cydon: Cydon, el: Element, exp: string) {
 	if (!exp)
 		return
 
@@ -49,6 +49,8 @@ export function _for(cydon: Cydon, el: Element, exp: string) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
+	el.remove()
+	el.removeAttribute('c-for')
 	const list = <HTMLCollectionOf<ReactiveElement>>parent.children
 	const setCapacity = (n: number) => {
 		let d = list.length
@@ -63,6 +65,9 @@ export function _for(cydon: Cydon, el: Element, exp: string) {
 	const deps = new Set<string>()
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
+	const c = new Cydon
+	const results = new Map
+	c.compile(results, el)
 
 	const render = (i: number) => {
 		let target = list[i],
@@ -92,7 +97,7 @@ export function _for(cydon: Cydon, el: Element, exp: string) {
 				}
 			})
 			target.cydon = c
-			c.bind(target)
+			c.bind(results, target)
 			if (item)
 				c.flush()
 			parent.appendChild(target)
@@ -147,75 +152,82 @@ export function _for(cydon: Cydon, el: Element, exp: string) {
 				}
 		}
 
-	el.remove()
-	el.removeAttribute('c-for')
 	Object.assign(items, val)
 }
 
-directives.push(function (node): true | void {
-	let { name, value, ownerElement: el } = node
+directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
 		const isCheckbox = (<HTMLInputElement>el).type == 'checkbox'
 		const isRadio = (<HTMLInputElement>el).type == 'radio'
 		const isSelect = el.tagName == 'SELECT'
 		const event = name != 'c-model' || isSelect || isCheckbox ? 'change' : 'input'
-		const setter = Function('$val', `with(this)${value}=$val`)
-		el.addEventListener(event, () => {
-			const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
-				[...(<HTMLSelectElement>el).selectedOptions].map(option => option.value || option.text) :
-				isCheckbox ?
-					(<HTMLInputElement>el).checked :
-					(<HTMLInputElement>el).value
-			setter.call(this.data, newVal)
-		})
-		// Two-way binding
-		const deps = new Set<string>()
-		const getter = this.getFunc('return ' + value, el, deps)
-		const modify = () => {
-			const val = getter()
-			if (isRadio)
-				(<HTMLInputElement>el).checked = val == (<HTMLInputElement>el).value
-			else if (isCheckbox)
-				(<HTMLInputElement>el).checked = val
-			else
-				(<HTMLInputElement>el).value = val
-			return ''
+		const getter = getFunc('return ' + value)
+		const setter = Function('$e', '$val', `with(this)${value}=$val`)
+		return {
+			deps: new Set(),
+			vals(el: Element & Data) {
+				if (!el['$cydon_bind_' + event]) {
+					el.addEventListener(event, () => {
+						const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
+							[...(<HTMLSelectElement>el).selectedOptions].map(
+								option => option.value || option.text) :
+							isCheckbox ?
+								(<HTMLInputElement>el).checked :
+								(<HTMLInputElement>el).value
+						setter.call(this, el, newVal)
+					})
+					el['$cydon_bind_' + event] = true
+				}
+				// Two-way binding
+				const val = getter.call(this, el)
+				if (isRadio)
+					(<HTMLInputElement>el).checked = val == (<HTMLInputElement>el).value
+				else if (isCheckbox)
+					(<HTMLInputElement>el).checked = val
+				else
+					(<HTMLInputElement>el).value = val
+			}
 		}
-		modify()
-		this.add(node, deps, [[modify]])
-		return true
 	}
 	// bind event
 	if (name[0] == '@') {
 		name = name.slice(1)
 		// dynamic event name
-		el.addEventListener(name[0] == '$' ? this.data[name.slice(1)] : name,
-			this.methods[value]?.bind(this.data) ?? this.getFunc(value, el))
-		return true
+		return {
+			vals(el) {
+				el.addEventListener(name[0] == '$' ? this[name.slice(1)] : name,
+					this[value].bind?.(this) ?? getFunc(value).bind(this, el))
+			}
+		}
 	}
 })
 
-directives.unshift(function ({ name, value, ownerElement: el }): true | void {
+directives.unshift(function ({ name, value }): Directive | void {
 	if (name == '@click.away') {
-		const func = this.getFunc(value, el)
-		el.addEventListener('click', e => {
-			if (e.target != el && !el.contains(<Node>e.target))
-				func(e)
-		})
-		return true
+		const func: Function = getFunc(value)
+		return {
+			vals(el) {
+				el.addEventListener('click', e => {
+					if (e.target != el && !el.contains(<Node>e.target))
+						func.call(this, e)
+				})
+			}
+		}
 	}
 })
 
-directives.push(function ({ name, value, ownerElement: el }): true | void {
+directives.push(function ({ name, value }): Directive | void {
 	if (name == 'ref') {
-		if (import.meta.env.DEV && value in this.$data)
-			console.warn(`The ref "${value}" has already defined on`, this.$data)
-		this.$data[value] = el
-		return true
+		return {
+			vals(el) {
+				if (import.meta.env.DEV && value in this.$data)
+					console.warn(`The ref "${value}" has already defined on`, this.$data)
+				this.$data[value] = el
+			}
+		}
 	}
 })
-
 
 /**
  * A simple utility for conditionally joining attributes like classNames together
@@ -228,73 +240,80 @@ directives.push(function ({ name, value, ownerElement: el }): true | void {
  *
  * NOTE: This differs from Vue
  */
-directives.push(function (attr): true | void {
-	let { name, value, ownerElement: el } = attr
+directives.push(function ({ name, value, ownerElement: el }, map): Directive | void {
 	if (name[0] == ':') {
 		name = name.substring(1)
-		if (name) {
-			if (!el.hasAttribute(name))
-				el.setAttribute(name, '')
-			const node = el.attributes[<any>name]
-			let data = this.targets.get(node)
-			if (!data) {
-				this.add(node, new Set<string>(), [node.value])
-				data = this.targets.get(node)!
+		if (!name)
+			return {
+				deps: new Set(),
+				vals: getFunc(value)
 			}
-			for (const cls of value.split(';')) {
-				let key = cls,
-					val = cls
-				const p = cls.indexOf(':')
-				if (~p) {
-					key = cls.substring(0, p)
-					val = cls.substring(p + 1)
-				}
-				const part: Part = [, `${val}?'${(data.vals.length ? ' ' : '') + key.trim()}':''`]
-				this.addPart(part, el, data.deps);
-				(<Part[]>data.vals).push(part)
+
+		if (!el.hasAttribute(name))
+			el.setAttribute(name, '')
+		const attrs = el.attributes
+		const node = attrs[<any>name]
+		if (!map.get(name))
+			map.set(name, { deps: new Set(), vals: [node.value] })
+		el.removeAttribute(':' + name)
+		let vals = map.get(name)!.vals
+		let code = 'let $c="";'
+		for (const cls of value.split(';')) {
+			let key = cls,
+				val = cls
+			const p = cls.indexOf(':')
+			if (~p) {
+				key = cls.substring(0, p)
+				val = cls.substring(p + 1)
 			}
-		} else {
-			const deps = new Set<string>()
-			this.add(attr, deps, [[this.getFunc(value, el, deps)]])
+			code += `if(${val})$c+=" ${key.trim()}";`
 		}
-		return true
+		vals.push(getFunc(code + `return $c`))
 	}
 })
 
-directives.push(function (attr): true | void {
-	let { name, value, ownerElement: el } = attr
+directives.push(function ({ name, value }): Directive | void {
 	if (name[0] == '$') {
 		name = name.slice(1)
-		let attrName = this.data[name]
-		el.setAttribute(attrName, value)
-		this.add(attr, new Set([name]), [[() => {
-			const newName = this.data[name]
-			if (newName != attrName) {
-				el.removeAttribute(attrName)
-				if (newName)
-					el.setAttribute(newName, value)
+		let attrName: string
+		return {
+			deps: new Set([name]),
+			vals(el) {
+				if (attrName) {
+					const newName = this.data[name]
+					if (newName != attrName) {
+						el.removeAttribute(attrName)
+						if (newName)
+							el.setAttribute(newName, value)
+					}
+				} else {
+					attrName = this.data[name]
+					el.setAttribute(attrName, value)
+				}
 			}
-			return ''
-		}]])
-		return true
+		}
 	}
 })
 
-directives.push(function (attr): true | void {
-	let { name, value, ownerElement: el } = attr
+directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 	if (name == 'c-show') {
-		const deps = new Set<string>(),
-			func = this.getFunc('return ' + value, el, deps),
+		const func = getFunc('return ' + value),
 			initialValue = (<HTMLElement>el).style.display
-		this.add(attr, deps, [[() => {
-			(<HTMLElement>el).style.display = func() ? initialValue : 'none'
-			return ''
-		}]])
-		return true
+		return {
+			deps: new Set(),
+			vals(el) {
+				(<HTMLElement>el).style.display = func.call(this, el) ? initialValue : 'none'
+			}
+		}
 	}
 })
 
-directives.push(attr => {
-	if (attr.name == 'c-cloak')
-		queueMicrotask(() => attr.ownerElement.removeAttribute(attr.name))
+directives.push(({ name }): Directive | void => {
+	if (name == 'c-cloak')
+		return {
+			keep: true,
+			vals(el) {
+				el.removeAttribute(name)
+			}
+		}
 })

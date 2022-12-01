@@ -25,10 +25,10 @@ html[lang=en]
 							input.toggle[type=checkbox c-model=todo.done title=done]
 							label[@dblclick=editTodo]{${todo.name}}
 							button.destroy[@click=removeTodo]
-						input.edit[c-model=todo.name @blur=doneEdit :="editing == data && this.focus()" @keyup=keyup]
+						input.edit[c-model=todo.name @blur=doneEdit :="editing == data && $e.focus()" @keyup=keyup]
 			footer.footer[c-show=items.length]
 				span.todo-count
-					strong{${remaining()}}
+					strong{${remaining}}
 					{ ${pluralize('item', remaining)} left}
 				ul.filters
 					li
@@ -37,7 +37,7 @@ html[lang=en]
 						a[href=#/active :class="selected: visibility == 'active'"]{Active}
 					li
 						a[href=#/completed :class="selected: visibility == 'completed'"]{Completed}
-				button.clear-completed[@click=removeCompleted c-show="items.length > remaining()"]{Clear completed}
+				button.clear-completed[@click=removeCompleted c-show="items.length > remaining"]{Clear completed}
 		footer.info
 			p{Double-click to edit a todo}
 			p{Written by }

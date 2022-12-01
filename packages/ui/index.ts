@@ -1,7 +1,17 @@
-import { CydonElement, Data, directives } from 'cydon'
+import { CydonElement, Data, Directive, directives } from 'cydon'
 import { isDisabled, toggle } from './util'
 
 export * from './util'
+
+function deepClone(obj: Data) {
+	let result: Data = Array.isArray(obj) ? [] : {}
+	if (typeof obj == 'object')
+		for (let key in obj) {
+			result[key] = obj[key] && typeof obj[key] == 'object' ?
+				deepClone(obj[key]) : obj[key]
+		}
+	return result
+}
 
 export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
@@ -32,11 +42,8 @@ export class TableElement<T extends {}> extends CydonElement {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		this.items = data.slice(i * n, i * n + n)
-	}
-
-	constructor(data?: Data) {
-		super(data)
+		// BUG: must deep clone
+		this.items = <T[]>deepClone(data.slice(i * n, i * n + n))
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
@@ -46,21 +53,24 @@ export class TableElement<T extends {}> extends CydonElement {
 }
 
 if (!globalThis.CYDON_NO_TOGGLE)
-	directives.push(function ({ name, value, ownerElement: el }): true | void {
+	directives.push(function ({ name, value }): Directive | void {
 		if (name == 'c-toggle') {
-			el.addEventListener('click', e => {
-				const el = <HTMLElement>e.currentTarget
-				if (el.tagName == 'A' || el.tagName == 'AREA')
-					e.preventDefault()
-				if (!isDisabled(el)) {
-					e.stopPropagation()
-					if (this.$data[value])
-						toggle(this.$data[value])
-					else
-						document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
+			return {
+				vals(el) {
+					el.addEventListener('click', e => {
+						const el = <HTMLElement>e.currentTarget
+						if (el.tagName == 'A' || el.tagName == 'AREA')
+							e.preventDefault()
+						if (!isDisabled(el)) {
+							e.stopPropagation()
+							if (this.$data[value])
+								toggle(this.$data[value])
+							else
+								document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
+						}
+					})
 				}
-			})
-			return true
+			}
 		}
 	})
 
