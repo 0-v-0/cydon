@@ -25,8 +25,14 @@ function walk(node: Element, clone: Element) {
 		nodes.childNodes.forEach(c => shadow.append(c.nodeType == 1/*Node.ELEMENT_NODE*/ ?
 			cloneNode(<Element>c) : c.cloneNode(true)))
 	}
-	for (let i = 0; i < node.children.length; i++)
-		walk(node.children[i], clone.children[i])
+	let n1 = node.firstElementChild!, n2!: Element
+	if (n1)
+		n2 = clone.firstElementChild!
+	while (n1) {
+		walk(n1, n2)
+		n1 = n1.nextElementSibling!
+		n2 = n2.nextElementSibling!
+	}
 }
 
 /**

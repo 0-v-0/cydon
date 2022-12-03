@@ -1,4 +1,4 @@
-import { Cydon, Data, Directive, directives, getFunc } from './core'
+import { Cydon, Data, Directive, directives, getFunc, Part, Results } from './core'
 import { cloneNode } from './util'
 
 interface ReactiveElement extends HTMLElement {
@@ -9,13 +9,13 @@ directives.push(function ({ name, value }): Directive | void {
 	if (name == 'c-if') {
 		const func = getFunc('return ' + value)
 		const data: Directive = {
-			vals(el) {
+			deps: new Set(),
+			func(el) {
 				const parent = el.parentElement!
 				const anchor = new Text()
 				parent.insertBefore(anchor, el)
 				let lastValue: boolean
-				data.deps = new Set()
-				data.vals = function (el) {
+				data.func = function (el) {
 					const val = func.call(this, el)
 					if (val != lastValue) {
 						lastValue = val
@@ -66,7 +66,7 @@ export function for_(cydon: Cydon, el: Element, exp: string) {
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
 	const c = new Cydon
-	const results = new Map
+	const results: Results = []
 	c.compile(results, el)
 
 	const render = (i: number) => {
@@ -82,7 +82,7 @@ export function for_(cydon: Cydon, el: Element, exp: string) {
 
 			const c: Cydon & Data = Object.create(cydon)
 			c.queue = new Set()
-			c.targets = new Map()
+			c.targets = new Set()
 			c.deps = deps
 			c.onUpdate = onUpdate
 			c.setData(c)
@@ -166,7 +166,7 @@ directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 		const setter = Function('$e', '$val', `with(this)${value}=$val`)
 		return {
 			deps: new Set(),
-			vals(el: Element & Data) {
+			func(el: Element & Data) {
 				if (!el['$cydon_bind_' + event]) {
 					el.addEventListener(event, () => {
 						const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
@@ -195,7 +195,7 @@ directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 		name = name.slice(1)
 		// dynamic event name
 		return {
-			vals(el) {
+			func(el) {
 				el.addEventListener(name[0] == '$' ? this[name.slice(1)] : name,
 					this[value].bind?.(this) ?? getFunc(value).bind(this, el))
 			}
@@ -207,7 +207,7 @@ directives.unshift(function ({ name, value }): Directive | void {
 	if (name == '@click.away') {
 		const func: Function = getFunc(value)
 		return {
-			vals(el) {
+			func(el) {
 				el.addEventListener('click', e => {
 					if (e.target != el && !el.contains(<Node>e.target))
 						func.call(this, e)
@@ -220,7 +220,7 @@ directives.unshift(function ({ name, value }): Directive | void {
 directives.push(function ({ name, value }): Directive | void {
 	if (name == 'ref') {
 		return {
-			vals(el) {
+			func(el) {
 				if (import.meta.env.DEV && value in this.$data)
 					console.warn(`The ref "${value}" has already defined on`, this.$data)
 				this.$data[value] = el
@@ -246,7 +246,7 @@ directives.push(function ({ name, value, ownerElement: el }, map): Directive | v
 		if (!name)
 			return {
 				deps: new Set(),
-				vals: getFunc(value)
+				func: getFunc(value)
 			}
 
 		if (!el.hasAttribute(name))
@@ -254,10 +254,10 @@ directives.push(function ({ name, value, ownerElement: el }, map): Directive | v
 		const attrs = el.attributes
 		const node = attrs[<any>name]
 		if (!map.get(name))
-			map.set(name, { deps: new Set(), vals: [node.value] })
+			map.set(name, <Part>{ deps: new Set() })
 		el.removeAttribute(':' + name)
-		let vals = map.get(name)!.vals
-		let code = 'let $c="";'
+		let attr = map.get(name)!
+		let code = `let $v="${node.value}";`
 		for (const cls of value.split(';')) {
 			let key = cls,
 				val = cls
@@ -266,9 +266,9 @@ directives.push(function ({ name, value, ownerElement: el }, map): Directive | v
 				key = cls.substring(0, p)
 				val = cls.substring(p + 1)
 			}
-			code += `if(${val})$c+=" ${key.trim()}";`
+			code += `if(${val})$v+=" ${key.trim()}";`
 		}
-		vals.push(getFunc(code + `return $c`))
+		attr.func = getFunc(code + `if($v!=$e.getAttribute('${name}'))$e.setAttribute('${name}',$v)`)
 	}
 })
 
@@ -278,7 +278,7 @@ directives.push(function ({ name, value }): Directive | void {
 		let attrName: string
 		return {
 			deps: new Set([name]),
-			vals(el) {
+			func(el) {
 				if (attrName) {
 					const newName = this.data[name]
 					if (newName != attrName) {
@@ -301,7 +301,7 @@ directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 			initialValue = (<HTMLElement>el).style.display
 		return {
 			deps: new Set(),
-			vals(el) {
+			func(el) {
 				(<HTMLElement>el).style.display = func.call(this, el) ? initialValue : 'none'
 			}
 		}
@@ -312,7 +312,7 @@ directives.push(({ name }): Directive | void => {
 	if (name == 'c-cloak')
 		return {
 			keep: true,
-			vals(el) {
+			func(el) {
 				el.removeAttribute(name)
 			}
 		}

@@ -6,45 +6,48 @@
 import { for_ } from './directives'
 import { Constructor as Ctor } from './util'
 
-export type Value = string | [string] | Function
-
 export const getFunc = (code: string) => <(this: Data, el: Element) => any>
 	Function('$e', `with(this){${code}}`)
 
 function parse(s: string) {
-	const re = /\$\{([\S\s]+?)}|\$([_a-z]\w*)/gi
+	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
 	let a = re.exec(s), lastIndex!: number
 	if (!a)
 		return null
 
-	const deps = new Set<string>(),
-		vals: Value[] = []
+	const deps = new Set<string>()
+	let vals = ''
 	for (; a; a = re.exec(s)) {
 		const [match, expr, prop] = a,
 			start = re.lastIndex - match.length
 		if (start)
-			vals.push(s.substring(lastIndex, start))
-		vals.push(expr ? getFunc('return ' + expr) : (deps.add(prop), [prop]))
+			vals += s.substring(lastIndex, start).replace(/`/g, '\\`')
+		vals += expr || (deps.add(prop), '${' + prop + '}')
 		lastIndex = re.lastIndex
 	}
 	if (lastIndex < s.length)
-		vals.push(s.substring(lastIndex))
-	return { deps, vals }
+		vals += s.substring(lastIndex).replace(/`/g, '\\`')
+	return {
+		deps, func: getFunc('return `' + vals + '`')
+	}
 }
 
 export type Data = Record<string, any>
 
 export type Part = {
 	deps?: Set<string>
-	vals: Value[]
+	func: Target['func']
 }
 
 export type AttrPart = Part & { keep?: boolean }
 
+export type Func = (this: Data, el: Element) => string
+
 export type Target = {
-	node: Attr | Text | Element
+	node: Text | Element
 	deps?: Set<string>
-	vals: Value[] | ((this: Data, el: Element) => void)
+	data?: Data
+	func: Func | ((this: Data, el: Element) => void)
 }
 
 // template result
@@ -58,7 +61,7 @@ export type DOMAttr = Attr & {
 
 export type Directive = {
 	deps?: Set<string>
-	vals?: Target['vals']
+	func?: Target['func']
 	keep?: boolean
 }
 
@@ -88,7 +91,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		/**
 		 * bound nodes
 		 */
-		targets = new Map<Target, Data | undefined>()
+		targets = new Set<Target>()
 
 		deps?: Set<string>
 
@@ -137,17 +140,22 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						}
 					}
 					const parts = parse(node.value)
-					if (parts)
+					if (parts) {
+						const name = node.name
+						const func = parts.func
+							; (<AttrPart>parts).func = function (this: Data, el: Element) {
+								el.setAttribute(name, func.call(this, el))
+							}
 						map.set(node.name, parts)
+					}
 					++i
 				}
 				if (map.size)
 					results.attrs = map
 			}
-			const nodes = el.childNodes
+			let node = el.firstChild!
 			let r: Results = new Map
-			for (let i = 0; i < nodes.length; ++i) {
-				const node = nodes[i]
+			for (let i = 0; node; ++i) {
 				if (node.nodeType == 1) {
 					this.compile(r, <Element>node)
 					if (r.size || r.attrs) {
@@ -160,18 +168,21 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					if (parts)
 						results.set(i, parts)
 				}
+				node = node.nextSibling!
 			}
 		}
 
 		bind(results: Results, node: Element | ShadowRoot = <any>this): void {
 			const { attrs } = results
 			if (attrs) {
-				for (const [name, part] of attrs)
-					this.add((<Element>node).getAttributeNode(name) ?? <Element>node, part)
+				for (const [, part] of attrs)
+					this.add(<Element>node, part)
 			}
-			for (const [i, children] of results) {
-				let child = node.childNodes[i]
-				if ((<Part>children).vals)
+			let child = node.firstChild!
+			let i = 0
+			for (const [n, children] of results) {
+				for (; i < n; ++i) child = child.nextSibling!
+				if ((<Part>children).func)
 					this.add(<Text>child, <Part>children)
 				else
 					this.bind(<Results>children, <Element>child)
@@ -188,11 +199,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			const target: Target = Object.create(part),
 				deps = part.deps
 			target.node = node
-			let data: Data | undefined
 			if (deps) {
 				const proto = Object.getPrototypeOf(this.$data)
-				data = new Proxy(this.$data, {
-					get: (obj, p: string) => {
+				const data: Data = target.data = new Proxy(this.$data, {
+					get: (obj, p) => {
 						if (typeof p == 'string') {
 							if (this.deps && p in proto)
 								this.deps.add(p)
@@ -203,7 +213,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				})
 			}
 
-			this.targets.set(target, data)
+			this.targets.add(target)
 			this.queue.add(target)
 		}
 
@@ -211,13 +221,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * unmount an element
 		 * @param el target element
 		 */
-		unmount(el: Element | ShadowRoot) {
-			for (const [target] of this.targets) {
+		unmount(el: Element | ShadowRoot = <any>this) {
+			for (const target of this.targets) {
 				const node = target.node
-				if (node.nodeType == 2) { // attr node
-					if ((<Attr>node).ownerElement == el)
-						this.targets.delete(target)
-				} else if (node.nodeType == 3 /* text node */ && el.contains(node))
+				if (el.contains(node))
 					this.targets.delete(target)
 			}
 		}
@@ -226,23 +233,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * update a node
 		 * @param target
 		 */
-		update(target: Target, data?: Data) {
-			const { node, vals } = target
+		update(target: Target) {
+			const { node, data = this.data, func: vals } = target
 
-			if (!data)
-				data = this.data
-			if (typeof vals == 'object') {
-				let val = ''
-				for (let p of vals) {
-					if (typeof p == 'object')
-						p = this.data[p[0]]
-					val += typeof p == 'function' ? p.call(data, node) : p
-				}
-				node.nodeValue = val
-			} else
-				vals.call(data, node.nodeType == 1 ? <Element>node :
-					node.nodeType == 2 ? (<Attr>node).ownerElement! :
-						<Element>node?.parentNode)
+			if (node.nodeType == 3)
+				(<Text>node).data = (<Func>vals).call(data, <Element>node.parentNode)
+			else
+				(<Func>vals).call(data, <Element>(node.nodeType == 1 ? node : node.parentNode))
 		}
 
 		/**
@@ -260,15 +257,15 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * update queued nodes immediately and clear queue
 		 */
 		flush() {
-			for (const [target, data] of this.targets) {
+			for (const target of this.targets) {
 				if (this.queue.has(target)) {
-					this.update(target, data)
+					this.update(target)
 					if (!target.deps)
 						this.targets.delete(target)
 				} else
 					for (const node of this.queue) {
 						if (typeof node == 'string' && target.deps?.has(node)) {
-							this.update(target, data)
+							this.update(target)
 							break
 						}
 					}

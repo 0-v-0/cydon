@@ -56,7 +56,7 @@ if (!globalThis.CYDON_NO_TOGGLE)
 	directives.push(function ({ name, value }): Directive | void {
 		if (name == 'c-toggle') {
 			return {
-				vals(el) {
+				func(el) {
 					el.addEventListener('click', e => {
 						const el = <HTMLElement>e.currentTarget
 						if (el.tagName == 'A' || el.tagName == 'AREA')
