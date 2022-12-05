@@ -7,7 +7,7 @@
 	},
 	"devDependencies": {
 		"@cydon/stylelint-config": "workspace:^0.0.1",
-		"stylelint": "^14.15.0",
+		"stylelint": "^14.16.0",
 		"stylelint-stylus": "^0.17.0"
 	},
 	"stylelint": {

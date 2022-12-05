@@ -9,7 +9,7 @@ import { Constructor as Ctor } from './util'
 export const getFunc = (code: string) => <(this: Data, el: Element) => any>
 	Function('$e', `with(this){${code}}`)
 
-function parse(s: string) {
+function parse(s: string, attr = '') {
 	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
 	let a = re.exec(s), lastIndex!: number
 	if (!a)
@@ -28,7 +28,9 @@ function parse(s: string) {
 	if (lastIndex < s.length)
 		vals += s.substring(lastIndex).replace(/`/g, '\\`')
 	return {
-		deps, func: getFunc('return `' + vals + '`')
+		deps, func: getFunc(attr ? 'let $v=`' + vals +
+			`\`;if($v!=$e.getAttribute('${attr}'))$e.setAttribute('${attr}',$v)` :
+			'return `' + vals + '`')
 	}
 }
 
@@ -51,9 +53,14 @@ export type Target = {
 }
 
 // template result
-export type Results = Map<number, Results | Part> & {
+
+export type Result = Partial<Part> & {
 	attrs?: Map<string, AttrPart>
+	level: number
+	i: number
 }
+
+export type Results = Result[]
 
 export type DOMAttr = Attr & {
 	ownerElement: Element
@@ -118,86 +125,93 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			})
 		}
 
-		compile(results: Results, el: Element | ShadowRoot): void {
-			// Find pattern in attributes
+		compile(results: Results, el: Element | ShadowRoot, level = 0, i = 0): void {
+			let result: Result | undefined
+			let map = new Map<string, AttrPart>()
 			const attrs = (<Element>el).attributes
+			// Find pattern in attributes
 			if (attrs) {
-				const map = new Map<string, AttrPart>()
 				const exp = attrs[<any>'c-for']
 				if (exp)
 					return for_(this, <Element>el, exp.value)
 				next: for (let i = 0; i < attrs.length;) {
-					const node = <DOMAttr>attrs[i]
+					const attr = <DOMAttr>attrs[i]
+					const name = attr.name
 					for (const handler of directives) {
-						const data = handler.call(this, node, map)
+						const data = handler.call(this, attr, map)
 						if (data) {
-							map.set(node.name, <AttrPart>data)
+							map.set(name, <AttrPart>data)
 							if (data.keep)
 								++i
 							else
-								(<Element>el).removeAttribute(node.name)
+								(<Element>el).removeAttribute(name)
 							continue next
 						}
 					}
-					const parts = parse(node.value)
-					if (parts) {
-						const name = node.name
-						const func = parts.func
-							; (<AttrPart>parts).func = function (this: Data, el: Element) {
-								el.setAttribute(name, func.call(this, el))
-							}
-						map.set(node.name, parts)
-					}
+					const parts = parse(attr.value, name)
+					if (parts)
+						map.set(name, parts)
 					++i
 				}
 				if (map.size)
-					results.attrs = map
+					results.push(result = { attrs: map, level, i })
 			}
-			let node = el.firstChild!
-			let r: Results = new Map
-			for (let i = 0; node; ++i) {
-				if (node.nodeType == 1) {
-					this.compile(r, <Element>node)
-					if (r.size || r.attrs) {
-						results.set(i, r)
-						r = new Map
+			let node: Node | null = el.firstChild
+			if (!result)
+				results.push({ level, i })
+			for (let i = 0; node; node = node.nextSibling) {
+				if (node.nodeType == 1)
+					this.compile(results, <Element>node, level + 1, i)
+				if (node.nodeType == 3) { // text node
+					const parts = <Result>parse((<Text>node).data)
+					if (parts) {
+						parts.level = level + 1
+						parts.i = i
+						results.push(parts)
 					}
 				}
-				if (node.nodeType == 3) { // text node
-					const parts = parse((<Text>node).data)
-					if (parts)
-						results.set(i, parts)
-				}
-				node = node.nextSibling!
+				i++
 			}
 		}
 
-		bind(results: Results, node: Element | ShadowRoot = <any>this): void {
-			const { attrs } = results
-			if (attrs) {
-				for (const [, part] of attrs)
-					this.add(<Element>node, part)
-			}
-			let child = node.firstChild!
-			let i = 0
-			for (const [n, children] of results) {
-				for (; i < n; ++i) child = child.nextSibling!
-				if ((<Part>children).func)
-					this.add(<Text>child, <Part>children)
-				else
-					this.bind(<Results>children, <Element>child)
+		bind(results: Results, el: Element | ShadowRoot = <any>this): void {
+			let node: Node = el
+			let l = 0, n = 0, stack = []
+			for (let i = 0; i < results.length; ++i) {
+				const result = results[i]
+				let { attrs, level, i: index } = result
+				if (i) {
+					if (level > l) {
+						stack.push(n)
+						n = 0
+						node = node.firstChild!
+						l = level
+					} else {
+						for (; level < l; l--) {
+							node = node.parentNode!
+							n = stack.pop()!
+						}
+					}
+					for (; n < index; n++) node = node.nextSibling!
+				}
+				if (result.func)
+					this.add(<Text>node, <Part>result)
+				else if (attrs) {
+					for (const part of attrs.values())
+						this.add(<Element>node, part)
+				}
 			}
 		}
 
 		mount(el: Element | ShadowRoot = <any>this) {
-			const results = new Map
+			const results: Results = []
 			this.compile(results, el)
 			this.bind(results, el)
 		}
 
 		add(node: Target['node'], part: Part) {
-			const target: Target = Object.create(part),
-				deps = part.deps
+			const target: Target = Object.create(part)
+			const deps = part.deps
 			target.node = node
 			if (deps) {
 				const proto = Object.getPrototypeOf(this.$data)
@@ -211,8 +225,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						return p in obj ? Reflect.get(obj, p, data) : '$' + p.toString()
 					}
 				})
-			}
-
+			} else
+				target.data = void 0
 			this.targets.add(target)
 			this.queue.add(target)
 		}
@@ -233,13 +247,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * update a node
 		 * @param target
 		 */
-		update(target: Target) {
-			const { node, data = this.data, func: vals } = target
-
+		update({ node, data = this.data, func: vals }: Target) {
 			if (node.nodeType == 3)
 				(<Text>node).data = (<Func>vals).call(data, <Element>node.parentNode)
 			else
-				(<Func>vals).call(data, <Element>(node.nodeType == 1 ? node : node.parentNode))
+				(<Func>vals).call(data, <Element>node)
 		}
 
 		/**
