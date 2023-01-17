@@ -15,7 +15,7 @@
 	"keywords": [
 		"cydon"
 	],
-	"packageManager": "pnpm@7.17.1",
+	"packageManager": "pnpm@7.25.0",
 	"scripts": {
 		"build": "vite build"
 	},

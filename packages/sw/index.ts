@@ -49,7 +49,7 @@ const connect = async (): Promise<Event | void> => {
 }
 
 self.addEventListener('message', e => {
-	if (e.data == 'close') {// 关闭连接
+	if (e.data == 'close') { // 关闭连接
 		ws?.close()
 		ws = void 0
 	} else {

@@ -64,14 +64,14 @@ export default (config: Option = {}): Plugin => {
 		return fullPath
 	}, resolveAll = (url: string, throwOnErr = true) => {
 		let resolved
-		for (let path of paths) {
+		for (const path of paths) {
 			resolved = resolve(url, path, false)
 			if (resolved) break
 		}
 		return resolved || resolve(url, root, throwOnErr)
 	}, include = globalThis.include = (url: string) => {
 		url = resolveAll(url)
-		let content = readFileSync(url, 'utf8')
+		const content = readFileSync(url, 'utf8')
 		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
 	}
 	tagProcs.push(prop => {
@@ -104,7 +104,7 @@ export default (config: Option = {}): Plugin => {
 			const titles: TitleCache = {}
 			server.middlewares.use(async (req, res, next) => {
 				// if not emt, next it.
-				let url = req.originalUrl?.substring(1) || 'index.emt'
+				const url = req.originalUrl?.substring(1) || 'index.emt'
 				if (!url.endsWith('.emt'))
 					return next()
 
@@ -136,8 +136,8 @@ export default (config: Option = {}): Plugin => {
 					await events.once(rl, 'close')
 				}
 				const content = 'doc_title' in data ?
-					await server.transformIndexHtml?.(
-						req.originalUrl!, rend(include(tplFile), data), req.originalUrl) :
+					await server.transformIndexHtml?.(req.originalUrl!,
+						rend(include(tplFile), data), req.originalUrl) :
 					rend(include(resolved), data)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)

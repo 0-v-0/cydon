@@ -1,13 +1,13 @@
 {
 	"name": "@cydon/monorepo",
 	"private": true,
-	"packageManager": "pnpm@7.17.1",
+	"packageManager": "pnpm@7.25.0",
 	"version": "0.0.1",
 	"devDependencies": {
 		"@cydon/ui": "workspace:^0.0.1",
 		"cydon": "workspace:^0.0.1",
 		"emmetlite": "workspace:^0.0.1",
-		"vite": "^3.2.5"
+		"vite": "^4.0.4"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build&&cd ../vite-plugin-ustyle&&pnpm build"
