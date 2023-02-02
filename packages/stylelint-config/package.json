@@ -5,10 +5,10 @@
 		"lint": "stylelint 'src/*.styl'"
 	},
 	"dependencies": {
-		"stylelint-config-recess-order": "^3.0.0",
-		"stylelint-stylus": "^0.17.0"
+		"stylelint-config-recess-order": "^3.1.0",
+		"stylelint-stylus": "^0.17.1"
 	},
 	"devDependencies": {
-		"stylelint": "^14.14.1"
+		"stylelint": "^14.16.1"
 	}
 }
