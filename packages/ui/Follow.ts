@@ -200,13 +200,12 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	let arrSafeArea = (this.dataset.safeArea || getComputedStyle(eleTarget).getPropertyValue('--safe-area'))?.trim()
 		.split(/(?:,\s*|\s+)/).map(val => parseFloat(val) || 0) || params.safeArea
 	// 数量的处理
-	if (arrSafeArea.length == 1) {
+	if (arrSafeArea.length == 1)
 		arrSafeArea = arrSafeArea.concat(arrSafeArea[0], arrSafeArea[0], arrSafeArea[0])
-	} else if (arrSafeArea.length == 2) {
+	else if (arrSafeArea.length == 2)
 		arrSafeArea.push(arrSafeArea[0], arrSafeArea[1])
-	} else if (arrSafeArea.length == 3) {
+	else if (arrSafeArea.length == 3)
 		arrSafeArea.push(arrSafeArea[1])
-	}
 
 	// 是否超出边界的判断
 	// 只考虑在视区的情况，页面的滚动距离不处理

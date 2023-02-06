@@ -20,7 +20,7 @@ function _random(max) {
 	return Math.round(Math.random() * 1000) % max
 }
 
-import { CydonElement } from '../packages/cydon';
+import { CydonElement } from '../packages/cydon'
 
 class MainApp extends CydonElement {
 	items = []
@@ -101,9 +101,7 @@ class MainApp extends CydonElement {
 		this.items = buildData(10000)
 		this.selected = null
 		performance.mark('create10kend')
-		console.log(
-			performance.measure('create10k', 'create10kstart', 'create10kend')
-		)
+		console.log(performance.measure('create10k', 'create10kstart', 'create10kend'))
 	}
 
 	swap() {

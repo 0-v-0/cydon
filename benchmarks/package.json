@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "devDependencies": {
+    "vite": "^4.1.1"
+  },
+  "scripts": {
+    "preview": "vite preview",
+    "dev": "vite"
+  },
+  "type": "module"
+}

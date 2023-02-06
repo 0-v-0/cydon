@@ -4,9 +4,9 @@ import { isDisabled, toggle } from './util'
 export * from './util'
 
 function deepClone(obj: Data) {
-	let result: Data = Array.isArray(obj) ? [] : {}
+	const result = obj.constructor()
 	if (typeof obj == 'object')
-		for (let key in obj) {
+		for (const key in obj) {
 			result[key] = obj[key] && typeof obj[key] == 'object' ?
 				deepClone(obj[key]) : obj[key]
 		}
