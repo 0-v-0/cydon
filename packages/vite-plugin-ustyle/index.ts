@@ -26,21 +26,12 @@ export const inlineStylus = (options?: RenderOptions): Plugin => ({
 })
 
 export function inlineTS(options?: EsbuildTransformOptions): Plugin {
-	const tsCode = new Set<string>
 	return {
 		name: 'inline-ts',
 		transform(code, id) {
-			if (id.includes('html-proxy&') && id.endsWith('.js')) {
-				if (tsCode.has(code))
-					return ''
-				tsCode.add(code)
+			if (id.includes('html-proxy&') && id.endsWith('.js'))
 				return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
-			}
 			return
-		},
-		handleHotUpdate({ file }) {
-			if (file.endsWith('.emt'))
-				tsCode.clear()
 		}
 	}
 }

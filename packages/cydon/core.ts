@@ -6,8 +6,10 @@
 import { for_ } from './directives'
 import { Constructor as Ctor } from './util'
 
+const funcCache: Record<string, Function> = Object.create(null)
+
 export const getFunc = (code: string) => <(this: Data, el: Element) => any>
-	Function('$e', `with(this){${code}}`)
+	funcCache[code] || (funcCache[code] = Function('$e', `with(this){${code}}`))
 
 function parse(s: string, attr = '') {
 	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
@@ -56,6 +58,8 @@ export type Target = {
 
 export type Result = Partial<Part> & {
 	attrs?: Map<string, AttrPart>
+	res?: Results
+	exp?: [string, string]
 	level: number
 	i: number
 }
@@ -80,6 +84,8 @@ export const directives: DirectiveHandler[] = []
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 	class Mixin extends (<Ctor<Object>>base) {
+		[s: symbol]: any
+
 		/**
 		 * raw data object
 		 */
@@ -132,8 +138,19 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			// Find pattern in attributes
 			if (attrs) {
 				const exp = attrs[<any>'c-for']
-				if (exp)
-					return for_(this, <Element>el, exp.value)
+				if (exp) {
+					const val = exp.value
+					if (val) {
+						(<Element>el).removeAttribute('c-for')
+						const res: Results = []
+						this.compile(res, el)
+						let [key, value] = val.split(';')
+						if (import.meta.env.DEV && !value)
+							console.warn('invalid v-for expression: ' + val)
+						results.push({ res, exp: [key, value.trim()], level, i })
+					}
+					return
+				}
 				next: for (let i = 0; i < attrs.length;) {
 					const attr = <DOMAttr>attrs[i]
 					const name = attr.name
@@ -179,7 +196,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			let l = 0, n = 0, stack = []
 			for (let i = 0; i < results.length; ++i) {
 				const result = results[i]
-				let { attrs, level, i: index } = result
+				let { attrs, res, level, i: index } = result
 				if (i) {
 					if (level > l) {
 						stack.push(n)
@@ -194,7 +211,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					}
 					for (; n < index; n++) node = node.nextSibling!
 				}
-				if (result.func)
+				if (res) {
+					const p = node.parentNode!
+					for_(this, <Element>node, res, result.exp!)
+					node = p
+					n = stack.pop()!
+					l--
+				} else if (result.func)
 					this.add(<Text>node, <Part>result)
 				else if (attrs) {
 					for (const part of attrs.values())

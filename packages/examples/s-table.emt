@@ -33,6 +33,6 @@ template[shadowroot=open]
 			option[value=5]{5}
 			option[value=10]{10}
 			option[value=20]{20}
-		sp{per page ${pageNum*perPage+1}-${pageNum*perPage+items.length} of ${list.length}}
+		span{per page ${pageNum*perPage+1}-${pageNum*perPage+items.length} of ${list.length}}
 		button[@click=pageNum--]{prev}
 		button[@click=pageNum++]{next}

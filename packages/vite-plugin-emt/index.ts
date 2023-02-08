@@ -45,7 +45,7 @@ export default (config: Option = {}): Plugin => {
 		styleProc,
 		tplFile = 'page.emt',
 		paths = [],
-		templated
+		templated = true
 	} = config
 	const resolve = (p: string, base = root!, throwOnErr = true) => {
 		let i = p.indexOf('?')
@@ -82,16 +82,19 @@ export default (config: Option = {}): Plugin => {
 		else
 			for (let i = 1; i < attr.length;) {
 				const r = /^is="(.+?)"/i.exec(attr[i++])
-				if (r)
+				if (r) {
 					name = r[1]
+					break
+				}
 			}
 		if (name) {
-			if (!(name in tplCache)) {
-				const path = resolveAll(name, false)
-				tplCache[name] = read!(path)
-			}
-			if (!used?.has(name))
-				prop.content = (tplCache[name] || '') + prop.content
+			let content: string
+			if (name in tplCache)
+				content = tplCache[name]
+			else
+				tplCache[name] = content = read!(resolveAll(name, false))
+			prop.content = (!used?.has(name) ? content :
+				content.replace(/<script [^>]*?type="module"[^>]*?>[\S\s]*?<\/script>/gi, '')) + prop.content
 			used?.add(name)
 		}
 	})

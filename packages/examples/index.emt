@@ -1,5 +1,6 @@
 title{Cydon demo}*
 my-counter[value=1]
 	button.px-3[@click=value-- slot=decrease]{- 1}
+my-counter[value=2]
 s-table[per-page=5]
 script[src=./demo.ts type=module]

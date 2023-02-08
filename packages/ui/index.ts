@@ -7,7 +7,7 @@ function deepClone(obj: Data) {
 	const result = obj.constructor()
 	if (typeof obj == 'object')
 		for (const key in obj) {
-			result[key] = obj[key] && typeof obj[key] == 'object' ?
+			result[key] = typeof obj[key] == 'object' ?
 				deepClone(obj[key]) : obj[key]
 		}
 	return result

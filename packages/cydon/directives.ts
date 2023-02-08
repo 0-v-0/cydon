@@ -35,48 +35,36 @@ directives.push(function ({ name, value }): Directive | void {
 	}
 })
 
-export function for_(cydon: Cydon, el: Element, exp: string) {
-	if (!exp)
-		return
-
-	const parent = el.parentElement!
-	let [keys, value] = exp.split(';')
-	if (import.meta.env.DEV && !value)
-		console.warn('invalid v-for expression: ' + exp)
-
-	let val = cydon.$data[value = value.trim()]
+export function for_(cydon: Cydon, el: Element, results: Results, [key_index, value]: [string, string]) {
+	const val = cydon.$data[value]
 	if (!Array.isArray(val)) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
+	const parent = el.parentElement!
 	el.remove()
-	el.removeAttribute('c-for')
 	const list = <HTMLCollectionOf<ReactiveElement>>parent.children
+	let len = 0
 	const setCapacity = (n: number) => {
-		let d = list.length
-
-		for (; d < n; d++)
-			render(d)
-		for (; d-- > n;)
-			list[d].remove()
+		for (; len < n; len++)
+			render(len)
+		for (; len-- > n;)
+			list[len].remove()
 	}
 
-	const [key, index] = keys.split(/\s*,\s*/)
+	const [key, index] = key_index.split(/\s*,\s*/)
 	const deps = new Set<string>()
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
-	const c = new Cydon
-	const results: Results = []
-	c.compile(results, el)
 
 	const render = (i: number) => {
-		let target = list[i],
+		let target = i < len ? list[i] : null,
 			item = val[i]
 		if (!target) {
 			target = <ReactiveElement>cloneNode(el)
 			if (cydon != cydon.$data) {
 				if (import.meta.env.DEV)
-					console.warn('cydon: $data object must set to this')
+					console.warn('cydon: $data object must set to `this`')
 				return
 			}
 
@@ -101,6 +89,7 @@ export function for_(cydon: Cydon, el: Element, exp: string) {
 			if (item)
 				c.flush()
 			parent.appendChild(target)
+			len++
 		}
 
 		// if item is undefined, hide the element
@@ -118,9 +107,10 @@ export function for_(cydon: Cydon, el: Element, exp: string) {
 		set: (obj: any, p, val) => {
 			if (p == 'length') {
 				const n = obj.length = +val
-				if (n > list.length)
+				len = list.length
+				if (n > len)
 					setCapacity(n)
-				for (let d = list.length; d-- > n;)
+				for (let d = len; d-- > n;)
 					render(d)
 
 				//if (handle)
