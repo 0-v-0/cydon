@@ -1,11 +1,6 @@
 import { Cydon, Data, Directive, directives, getFunc, Part, Results } from './core'
-import { cloneNode } from './util'
 
-interface ReactiveElement extends HTMLElement {
-	cydon: Cydon
-}
-
-directives.push(function ({ name, value }): Directive | void {
+directives.push(({ name, value }): Directive | void => {
 	if (name == 'c-if') {
 		const func = getFunc('return ' + value)
 		const data: Directive = {
@@ -35,47 +30,62 @@ directives.push(function ({ name, value }): Directive | void {
 	}
 })
 
-export function for_(cydon: Cydon, el: Element, results: Results, [key_index, value]: [string, string]) {
-	const val = cydon.$data[value]
+export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Results, [key_index, value]: [string, string]) {
+	if (cydon != cydon.$data) {
+		if (import.meta.env.DEV)
+			console.warn('cydon: $data object must set to `this`')
+		return
+	}
+	const val = cydon[value]
 	if (!Array.isArray(val)) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
 	const parent = el.parentElement!
+	const content = el.content
 	el.remove()
-	const list = <HTMLCollectionOf<ReactiveElement>>parent.children
+	const list = <HTMLCollectionOf<HTMLElement>>parent.children
 	let len = 0
 	const setCapacity = (n: number) => {
-		for (; len < n; len++)
-			render(len)
-		for (; len-- > n;)
-			list[len].remove()
-	}
-
-	const [key, index] = key_index.split(/\s*,\s*/)
-	const deps = new Set<string>()
-
-	const onUpdate = (prop: string) => cydon.updateValue(prop)
-
-	const render = (i: number) => {
-		let target = i < len ? list[i] : null,
-			item = val[i]
-		if (!target) {
-			target = <ReactiveElement>cloneNode(el)
-			if (cydon != cydon.$data) {
-				if (import.meta.env.DEV)
-					console.warn('cydon: $data object must set to `this`')
-				return
-			}
-
-			const c: Cydon & Data = Object.create(cydon)
+		for (; len < n; len++) {
+			const target = <DocumentFragment>content.cloneNode(true)
+			const c: Cydon & Data = ctxs[len] = Object.create(cydon)
 			c.queue = new Set()
 			c.targets = new Set()
 			c.deps = deps
 			c.onUpdate = onUpdate
 			c.setData(c)
 			if (index)
-				c[index] = i
+				c[index] = len
+			c.bind(results, target)
+			parent.appendChild(target)
+			render(len)
+		}
+		for (; len > n;)
+			list[--len].remove()
+		queueMicrotask(() => {
+			for (let i = 0; i < len; i++)
+				ctxs[i].commit()
+		})
+	}
+
+	const [key, index] = key_index.split(/\s*,\s*/)
+	const deps = new Set<string>()
+	const ctxs: (Cydon & Data)[] = []
+
+	const onUpdate = (prop: string) => cydon.updateValue(prop)
+
+	const render = (i: number) => {
+		let item = val[i],
+			c = ctxs[i]
+		if (!c) {
+			setCapacity(i + 1)
+			c = ctxs[i]
+		}
+		if (c[key])
+			// if item is undefined, hide the element
+			list[i].hidden = item == void 0
+		else {
 			c[key] = val[i] = new Proxy(item || {}, {
 				set: (obj, p: string, val) => {
 					obj[p] = val
@@ -84,26 +94,17 @@ export function for_(cydon: Cydon, el: Element, results: Results, [key_index, va
 					return true
 				}
 			})
-			target.cydon = c
-			c.bind(results, target)
-			if (item)
-				c.flush()
-			parent.appendChild(target)
-			len++
 		}
-
-		// if item is undefined, hide the element
-		target.hidden = item == void 0
 
 		// update data
 		if (item)
-			Object.assign(target.cydon.data[key], item)
+			Object.assign(c.data[key], item)
 	}
 
 	//let handle = 0
 	const items = new Proxy(val, {
 		get: (obj: any, p) => typeof p == 'string' && isFinite(<any>p) ?
-			list[<any>p]?.cydon.data[key] ?? obj[p] : obj[p],
+			ctxs[<any>p]?.data[key] ?? obj[p] : obj[p],
 		set: (obj: any, p, val) => {
 			if (p == 'length') {
 				const n = obj.length = +val
@@ -128,24 +129,27 @@ export function for_(cydon: Cydon, el: Element, results: Results, [key_index, va
 	Object.defineProperty(cydon.$data, value, {
 		get: () => items,
 		set(v) {
-			if (v != items)
-				Object.assign(items, v).length = v.length
+			if (v != items) {
+				items.length = v.length
+				Object.assign(items, v)
+			}
 		}
 	})
 	if (!cydon.onUpdate)
 		cydon.onUpdate = (prop: string) => {
 			if (deps.has(prop))
-				for (const { cydon } of list) {
-					cydon.onUpdate = void 0
-					cydon.updateValue(prop)
-					cydon.onUpdate = onUpdate
+				for (const c of ctxs) {
+					c.onUpdate = void 0
+					c.updateValue(prop)
+					c.onUpdate = onUpdate
 				}
 		}
 
+	setCapacity(val.length)
 	Object.assign(items, val)
 }
 
-directives.push(function ({ name, value, ownerElement: el }): Directive | void {
+directives.push(({ name, value, ownerElement: el }): Directive | void => {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
 		const isCheckbox = (<HTMLInputElement>el).type == 'checkbox'
@@ -193,7 +197,7 @@ directives.push(function ({ name, value, ownerElement: el }): Directive | void {
 	}
 })
 
-directives.unshift(function ({ name, value }): Directive | void {
+directives.unshift(({ name, value }): Directive | void => {
 	if (name == '@click.away') {
 		const func: Function = getFunc(value)
 		return {
@@ -207,7 +211,7 @@ directives.unshift(function ({ name, value }): Directive | void {
 	}
 })
 
-directives.push(function ({ name, value }): Directive | void {
+directives.push(({ name, value }): Directive | void => {
 	if (name == 'ref') {
 		return {
 			func(el) {
@@ -230,7 +234,7 @@ directives.push(function ({ name, value }): Directive | void {
  *
  * NOTE: This differs from Vue
  */
-directives.push(function ({ name, value, ownerElement: el }, map): Directive | void {
+directives.push(({ name, value, ownerElement: el }, map): Directive | void => {
 	if (name[0] == ':') {
 		name = name.substring(1)
 		if (!name)
@@ -262,7 +266,7 @@ directives.push(function ({ name, value, ownerElement: el }, map): Directive | v
 	}
 })
 
-directives.push(function ({ name, value }): Directive | void {
+directives.push(({ name, value }): Directive | void => {
 	if (name[0] == '$') {
 		name = name.slice(1)
 		let attrName: string
@@ -285,7 +289,7 @@ directives.push(function ({ name, value }): Directive | void {
 	}
 })
 
-directives.push(function ({ name, value, ownerElement: el }): Directive | void {
+directives.push(({ name, value, ownerElement: el }): Directive | void => {
 	if (name == 'c-show') {
 		const func = getFunc('return ' + value),
 			initialValue = (<HTMLElement>el).style.display

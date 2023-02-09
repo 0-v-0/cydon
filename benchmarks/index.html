@@ -71,20 +71,24 @@
 				</div>
 			</div>
 			<table class="table table-hover table-striped test-data">
-				<tbody @click="clickHandler">
-					<tr c-for="item; items" :class="danger: item.id == selected">
-						<td class="col-md-1">${item.id}</td>
-						<td class="col-md-4">
-							<a role="select">${item.label}</a>
-						</td>
-						<td class="col-md-1">
-							<a>
-								<span role="delete" class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-							</a>
-						</td>
-						<td class="col-md-6"></td>
-					</tr>
+				<tbody>
+					<template c-for="item; items">
+						<tr :class="danger: item.id == selected">
+							<td class="col-md-1">${item.id}</td>
+							<td class="col-md-4">
+								<a role="select" @click="selectOne">${item.label}</a>
+							</td>
+							<td class="col-md-1">
+								<a>
+									<span role="delete" @click="deleteOne" class="glyphicon glyphicon-remove"
+										aria-hidden="true"></span>
+								</a>
+							</td>
+							<td class="col-md-6"></td>
+						</tr>
+					</template>
 				</tbody>
+			</table>
 		</div>
 		<span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
 	</main-app>

@@ -22,13 +22,14 @@ template[shadowroot=open]
 					th{Protein (g)}
 					th{Iron (%)}
 			tbody
-				tr[c-for="item; items" hidden]
-					td{${item.name}}
-					td{${item.calories}}
-					td{${item.fat}}
-					td{${item.carbs}}
-					td{${item.protein}}
-					td{${item.iron}}
+				template[c-for="item; items"]
+					tr
+						td{${item.name}}
+						td{${item.calories}}
+						td{${item.fat}}
+						td{${item.carbs}}
+						td{${item.protein}}
+						td{${item.iron}}
 		select[c-model=perPage]
 			option[value=5]{5}
 			option[value=10]{10}

@@ -53,7 +53,7 @@ export class TableElement<T extends {}> extends CydonElement {
 }
 
 if (!globalThis.CYDON_NO_TOGGLE)
-	directives.push(function ({ name, value }): Directive | void {
+	directives.push(({ name, value }): Directive | void => {
 		if (name == 'c-toggle') {
 			return {
 				func(el) {

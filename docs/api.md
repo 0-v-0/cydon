@@ -76,10 +76,10 @@
 ### updateValue(prop: string)
 将`prop`加入更新队列
 
-### flush()
+### commit()
 强制更新 DOM 的工具方法
 
-与Vue的nextTick类似，Cydon底层通过requestAnimationFrame调用此函数实现异步渲染
+与Vue的nextTick类似
 
 ### connectedCallback()
 当组件被添加到DOM树中时调用，属于Web Components标准中的方法

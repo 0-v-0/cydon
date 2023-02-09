@@ -4,8 +4,9 @@
     "vite": "^4.1.1"
   },
   "scripts": {
-    "preview": "vite preview",
-    "dev": "vite"
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "type": "module"
 }

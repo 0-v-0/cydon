@@ -517,10 +517,10 @@ packages:
     version: 2.0.0
     dev: true
 
-  registry.npmmirror.com/@iconify/utils/2.1.0:
-    resolution: {integrity: sha512-ouXv1hQfOKq4k3wxQ2OJBYQ2gXBMeFoUCIiORmuUVUNlSq9oOTzQBF3jpFRb0+/P0bnV+RIoHcbZKufZTlJ16g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify/utils/-/utils-2.1.0.tgz}
+  registry.npmmirror.com/@iconify/utils/2.1.1:
+    resolution: {integrity: sha512-H8xz74JDzDw8f0qLxwIaxFMnFkbXTZNWEufOk3WxaLFHV4h0A2FjIDgNk5LzC0am4jssnjdeJJdRs3UFu3582Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@iconify/utils/-/utils-2.1.1.tgz}
     name: '@iconify/utils'
-    version: 2.1.0
+    version: 2.1.1
     dependencies:
       '@antfu/install-pkg': registry.npmmirror.com/@antfu/install-pkg/0.1.1
       '@antfu/utils': registry.npmmirror.com/@antfu/utils/0.7.2
@@ -843,7 +843,7 @@ packages:
     name: '@unocss/preset-icons'
     version: 0.49.4
     dependencies:
-      '@iconify/utils': registry.npmmirror.com/@iconify/utils/2.1.0
+      '@iconify/utils': registry.npmmirror.com/@iconify/utils/2.1.1
       '@unocss/core': registry.npmmirror.com/@unocss/core/0.49.4
       ofetch: registry.npmmirror.com/ofetch/0.4.21
     transitivePeerDependencies:
@@ -1113,7 +1113,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: registry.npmmirror.com/browserslist/4.21.5
-      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001450
+      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001451
       fraction.js: registry.npmmirror.com/fraction.js/4.2.0
       normalize-range: registry.npmmirror.com/normalize-range/0.1.2
       picocolors: registry.npmmirror.com/picocolors/1.0.0
@@ -1169,8 +1169,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001450
-      electron-to-chromium: registry.npmmirror.com/electron-to-chromium/1.4.288
+      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001451
+      electron-to-chromium: registry.npmmirror.com/electron-to-chromium/1.4.290
       node-releases: registry.npmmirror.com/node-releases/2.0.10
       update-browserslist-db: registry.npmmirror.com/update-browserslist-db/1.0.10_browserslist@4.21.5
     dev: true
@@ -1219,10 +1219,10 @@ packages:
     version: 5.3.1
     engines: {node: '>=6'}
 
-  registry.npmmirror.com/caniuse-lite/1.0.30001450:
-    resolution: {integrity: sha512-qMBmvmQmFXaSxexkjjfMvD5rnDL0+m+dUMZKoDYsGG8iZN29RuYh9eRoMvKsT6uMAWlyUUGDEQGJJYjzCIO9ew==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001450.tgz}
+  registry.npmmirror.com/caniuse-lite/1.0.30001451:
+    resolution: {integrity: sha512-XY7UbUpGRatZzoRft//5xOa69/1iGJRBlrieH6QYrkKLIFn3m7OVEJ81dSrKoy2BnKsdbX5cLrOispZNYo9v2w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001451.tgz}
     name: caniuse-lite
-    version: 1.0.30001450
+    version: 1.0.30001451
     dev: true
 
   registry.npmmirror.com/chalk/2.4.2:
@@ -1533,10 +1533,10 @@ packages:
     version: 0.1.2
     dev: true
 
-  registry.npmmirror.com/electron-to-chromium/1.4.288:
-    resolution: {integrity: sha512-8s9aJf3YiokIrR+HOQzNOGmEHFXVUQzXM/JaViVvKdCkNUjS+lEa/uT7xw3nDVG/IgfxiIwUGkwJ6AR1pTpYsQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.288.tgz}
+  registry.npmmirror.com/electron-to-chromium/1.4.290:
+    resolution: {integrity: sha512-3uIkNYprKqAixFqANvs7K3zacGz6iVIMcGG1M/7hMn6Gvzxe52Xg//wRUds7GPv2uouF7EZ4Sh51fLDw+aBkHw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.290.tgz}
     name: electron-to-chromium
-    version: 1.4.288
+    version: 1.4.290
     dev: true
 
   registry.npmmirror.com/emoji-regex/8.0.0:
@@ -2215,10 +2215,10 @@ packages:
     name: isexe
     version: 2.0.0
 
-  registry.npmmirror.com/jiti/1.16.2:
-    resolution: {integrity: sha512-OKBOVWmU3FxDt/UH4zSwiKPuc1nihFZiOD722FuJlngvLz2glX1v2/TJIgoA4+mrpnXxHV6dSAoCvPcYQtoG5A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/jiti/-/jiti-1.16.2.tgz}
+  registry.npmmirror.com/jiti/1.17.0:
+    resolution: {integrity: sha512-CByzPgFqYoB9odEeef7GNmQ3S5THIBOtzRYoSCya2Sv27AuQxy2jgoFjQ6VTF53xsq1MXRm+YWNvOoDHUAteOw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/jiti/-/jiti-1.17.0.tgz}
     name: jiti
-    version: 1.16.2
+    version: 1.17.0
     hasBin: true
     dev: true
 
@@ -3519,7 +3519,7 @@ packages:
     dependencies:
       '@antfu/utils': registry.npmmirror.com/@antfu/utils/0.5.2
       defu: registry.npmmirror.com/defu/6.1.2
-      jiti: registry.npmmirror.com/jiti/1.16.2
+      jiti: registry.npmmirror.com/jiti/1.17.0
     dev: true
 
   registry.npmmirror.com/undici/5.18.0:

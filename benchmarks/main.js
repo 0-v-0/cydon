@@ -34,31 +34,17 @@ class MainApp extends CydonElement {
 		this.app._selected = value
 	}
 
-	clickHandler(e) {
-		const getId = (el) => {
-			while (el) {
-				if (el.cydon)
-					return el.cydon.item.id
-				el = el.parentNode
-			}
-		}
-		const role = e.target.getAttribute('role')
-		if (role == 'delete')
-			this.deleteOne(getId(e.target))
-		else if (role == 'select')
-			this.selectOne(getId(e.target))
-	}
-
-	deleteOne(id) {
+	deleteOne() {
+		const id = this.item.id
 		console.time('delete1')
 		const index = this.items.findIndex(item => item.id == id)
 		this.items.splice(index, 1)
 		console.timeEnd('delete1')
 	}
 
-	selectOne(id) {
+	selectOne() {
 		console.time('select1')
-		this.selected = id
+		this.selected = this.item.id
 		console.timeEnd('select1')
 	}
 
