@@ -28,9 +28,10 @@ template[shadowroot=open]
 					th{Name}
 					th{Age}
 			tbody
-				tr[is=s-row c-for="name,age;items" hidden]
-					td{$name}
-					td{$age}
+				template[c-for="item; items"]
+					tr
+						td{${item.name}}
+						td{${item.age}}
 		select[c-model=perPage]
 			option[value=5]{5}
 			option[value=10]{10}
@@ -44,6 +45,16 @@ s-table.ts
 ```ts
 import { define, CydonOf, Data } from 'cydon'
 
+function deepClone(obj: Data) {
+	const result = obj.constructor()
+	if (typeof obj == 'object')
+		for (const key in obj) {
+			result[key] = typeof obj[key] == 'object' ?
+				deepClone(obj[key]) : obj[key]
+		}
+	return result
+}
+
 export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
 	items: T[] = []
@@ -56,7 +67,7 @@ export class TableElement<T extends {}> extends CydonElement {
 		return this._perPage
 	}
 	set perPage(value) {
-		this._perPage = value || 10
+		this._perPage = +value || 10
 		this.list = this._list
 	}
 
@@ -76,7 +87,7 @@ export class TableElement<T extends {}> extends CydonElement {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		this.items = data.slice(i * n, i * n + n)
+		this.items = <T[]>deepClone(data.slice(i * n, i * n + n))
 	}
 
 	constructor(data?: Data) {
@@ -87,11 +98,6 @@ export class TableElement<T extends {}> extends CydonElement {
 		if (name == 'per-page')
 			this.data.perPage = +newVal || 10
 	}
-}
-
-// 子组件必须先于父组件定义
-@define('s-row', { extends: 'tr' })
-class SRow extends CydonOf(HTMLTableRowElement) {
 }
 
 @define('s-table')

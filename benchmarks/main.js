@@ -36,39 +36,29 @@ class MainApp extends CydonElement {
 
 	deleteOne() {
 		const id = this.item.id
-		console.time('delete1')
 		const index = this.items.findIndex(item => item.id == id)
 		this.items.splice(index, 1)
-		console.timeEnd('delete1')
 	}
 
 	selectOne() {
-		console.time('select1')
-		this.selected = this.item.id
-		console.timeEnd('select1')
+		this.selected = this.item
 	}
 
 	create1k() {
-		console.time('create1k')
 		this.items = buildData(1000)
 		this.selected = null
-		console.timeEnd('create1k')
 	}
 
 	append1k() {
-		console.time('append1k')
 		this.items = this.items.concat(buildData(1000))
 		this.selected = null
-		console.timeEnd('append1k')
 	}
 
 	update10() {
-		console.time('update10')
 		for (let i = 0; i < this.items.length; i += 10) {
 			this.items[i].label += ' !!!'
 		}
 		this.selected = null
-		console.timeEnd('update10')
 	}
 
 	clear() {
@@ -77,27 +67,20 @@ class MainApp extends CydonElement {
 	}
 
 	testClear() {
-		console.time('clear')
 		this.clear()
-		console.timeEnd('clear')
 	}
 
 	create10k() {
-		performance.mark('create10kstart')
 		this.items = buildData(10000)
 		this.selected = null
-		performance.mark('create10kend')
-		console.log(performance.measure('create10k', 'create10kstart', 'create10kend'))
 	}
 
 	swap() {
-		console.time('swap')
 		if (this.items.length > 998) {
 			const { id, label } = this.items[1]
 			this.items[1] = this.items[998]
 			this.items[998] = { id, label }
 		}
-		console.timeEnd('swap')
 	}
 }
 

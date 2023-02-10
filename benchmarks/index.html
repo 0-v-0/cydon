@@ -73,7 +73,7 @@
 			<table class="table table-hover table-striped test-data">
 				<tbody>
 					<template c-for="item; items">
-						<tr :class="danger: item.id == selected">
+						<tr :class="danger: item == selected">
 							<td class="col-md-1">${item.id}</td>
 							<td class="col-md-4">
 								<a role="select" @click="selectOne">${item.label}</a>

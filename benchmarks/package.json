@@ -1,5 +1,12 @@
 {
+  "name": "js-framework-benchmark-non-keyed-cydon",
   "private": true,
+  "version": "1.0.0",
+  "description": "Benchmark for cydon.js framework",
+  "js-framework-benchmark": {
+    "frameworkVersion": "",
+    "frameworkHomeURL": ""
+  },
   "devDependencies": {
     "vite": "^4.1.1"
   },

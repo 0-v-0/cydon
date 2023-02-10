@@ -50,7 +50,7 @@ export type Func = (this: Data, el: Element) => string
 export type Target = {
 	node: Text | Element
 	deps?: Set<string>
-	data?: Data
+	data: Data
 	func: Func | ((this: Data, el: Element) => void)
 }
 
@@ -62,9 +62,7 @@ export type Result = Partial<Part> & {
 	sr?: DF
 	res?: Results
 	exp?: [string, string]
-	level: number
-	i: number
-}
+} | number
 
 export type Results = Result[]
 
@@ -78,8 +76,6 @@ export type Directive = {
 	keep?: boolean
 }
 
-const CydonTag = Symbol()
-
 export type DirectiveHandler =
 	(attr: DOMAttr, attrs: Map<string, AttrPart>) => Directive | void
 
@@ -89,8 +85,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 	class Mixin extends (<Ctor<Object>>base) {
 		[s: symbol]: any
-
-		[CydonTag] = true
 
 		/**
 		 * raw data object
@@ -154,7 +148,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						let [key, value] = val.split(';')
 						if (import.meta.env.DEV && !value)
 							console.warn('invalid v-for expression: ' + val)
-						results.push({ res, exp: [key, value.trim()], level, i })
+						results.push(level << 22 | i, { res, exp: [key, value.trim()] })
 					}
 					return
 				}
@@ -178,28 +172,25 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					++i
 				}
 				if (map.size)
-					results.push(result = { attrs: map, level, i })
+					results.push(level << 22 | i, result = { attrs: map })
 			}
 			const sr = (<Element>el).shadowRoot
 			if (sr) {
 				const res: Results = []
 				this.compile(res, sr)
-				results.push(result = { sr, res, level, i })
+				results.push(level << 22 | i, result = { sr, res })
 			}
 			let node: Node | null = el.firstChild
 			if (node && !result)
-				results.push({ level, i })
+				results.push(level << 22 | i)
 			level++
 			for (let i = 0; node; node = node.nextSibling) {
 				if (node.nodeType == 1)
 					this.compile(results, <Element>node, level, i)
 				if (node.nodeType == 3) { // text node
 					const parts = <Result>parse((<Text>node).data)
-					if (parts) {
-						parts.level = level
-						parts.i = i
-						results.push(parts)
-					}
+					if (parts)
+						results.push(level << 22 | i, parts)
 				}
 				i++
 			}
@@ -210,39 +201,41 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			let l = 0, n = 0, stack = []
 			for (let i = 0; i < results.length; ++i) {
 				const result = results[i]
-				let { attrs, res, level, i: index } = result
-				if (i) {
+				if (typeof result == 'object') {
+					let { attrs, res, sr } = result
+					if (sr) {
+						let shadow = (<Element>node).shadowRoot
+						if (!shadow) {
+							shadow = (<Element>node).attachShadow({ mode: 'open' })
+							sr.childNodes.forEach(c => shadow!.append(c.cloneNode(true)))
+						}
+						this.bind(res!, shadow)
+					} else if (res) {
+						const p = node.parentNode!
+						for_(this, <HTMLTemplateElement>node, res, result.exp!)
+						node = p
+						n = stack.pop()!
+						l--
+					} else if (result.func)
+						this.add(<Text>node, <Part>result)
+					else if (attrs) {
+						for (const part of attrs.values())
+							this.add(<Element>node, part)
+					}
+				} else if (i) {
+					let index = result
+					const level = index >>> 22
+					index &= 4194303
 					if (level > l) {
 						stack.push(n)
 						n = 0
 						node = node.firstChild!
 						l = level
-					} else {
-						for (; level < l; l--) {
-							node = node.parentNode!
-							n = stack.pop()!
-						}
+					} else for (; level < l; l--) {
+						node = node.parentNode!
+						n = stack.pop()!
 					}
 					for (; n < index; n++) node = node.nextSibling!
-				}
-				if (result.sr) {
-					let shadow = (<Element>node).shadowRoot
-					if (!shadow) {
-						shadow = (<Element>node).attachShadow({ mode: 'open' })
-						result.sr.childNodes.forEach(c => shadow!.append(c.cloneNode(true)))
-					}
-					this.bind(res!, shadow)
-				} else if (res) {
-					const p = node.parentNode!
-					for_(this, <HTMLTemplateElement>node, res, result.exp!)
-					node = p
-					n = stack.pop()!
-					l--
-				} else if (result.func)
-					this.add(<Text>node, <Part>result)
-				else if (attrs) {
-					for (const part of attrs.values())
-						this.add(<Element>node, part)
 				}
 			}
 		}
@@ -271,7 +264,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					}
 				})
 			} else
-				target.data = void 0
+				target.data = this.data
 			this.targets.add(target)
 			this.queue.add(target)
 		}
@@ -292,11 +285,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * update a node
 		 * @param target
 		 */
-		update({ node, data = this.data, func: vals }: Target) {
+		update({ node, data, func }: Target) {
 			if (node.nodeType == 3)
-				(<Text>node).data = (<Func>vals).call(data, <Element>node.parentNode)
+				(<Text>node).data = (<Func>func).call(data, <Element>node.parentNode)
 			else
-				(<Func>vals).call(data, <Element>node)
+				(<Func>func).call(data, <Element>node)
 		}
 
 		/**
@@ -320,8 +313,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					if (!target.deps)
 						this.targets.delete(target)
 				} else
-					for (const node of this.queue) {
-						if (typeof node == 'string' && target.deps?.has(node)) {
+					for (const prop of this.queue) {
+						if (typeof prop == 'string' && target.deps?.has(prop)) {
 							this.update(target)
 							break
 						}

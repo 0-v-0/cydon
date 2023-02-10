@@ -1,34 +1,6 @@
 import { Cydon, Data, Directive, directives, getFunc, Part, Results } from './core'
 
-directives.push(({ name, value }): Directive | void => {
-	if (name == 'c-if') {
-		const func = getFunc('return ' + value)
-		const data: Directive = {
-			deps: new Set(),
-			func(el) {
-				const parent = el.parentElement!
-				const anchor = new Text()
-				parent.insertBefore(anchor, el)
-				let lastValue: boolean
-				data.func = function (el) {
-					const val = func.call(this, el)
-					if (val != lastValue) {
-						lastValue = val
-						if (val) {
-							this.mount(el)
-							if (!el.isConnected)
-								parent.insertBefore(el, anchor)
-						} else {
-							this.unmount(el)
-							el.remove()
-						}
-					}
-				}
-			}
-		}
-		return data
-	}
-})
+type D = Directive | void
 
 export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Results, [key_index, value]: [string, string]) {
 	if (cydon != cydon.$data) {
@@ -101,7 +73,7 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 			Object.assign(c.data[key], item)
 	}
 
-	//let handle = 0
+	let handle = 0
 	const items = new Proxy(val, {
 		get: (obj: any, p) => typeof p == 'string' && isFinite(<any>p) ?
 			ctxs[<any>p]?.data[key] ?? obj[p] : obj[p],
@@ -114,9 +86,9 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 				for (let d = len; d-- > n;)
 					render(d)
 
-				//if (handle)
-				//	cancelIdleCallback(handle)
-				//handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 5000 })
+				if (handle)
+					cancelIdleCallback(handle)
+				handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 300 })
 			} else {
 				obj[p] = val
 				if (typeof p == 'string' && isFinite(<any>p))
@@ -126,7 +98,7 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 			return true
 		}
 	})
-	Object.defineProperty(cydon.$data, value, {
+	Object.defineProperty(cydon, value, {
 		get: () => items,
 		set(v) {
 			if (v != items) {
@@ -139,9 +111,8 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 		cydon.onUpdate = (prop: string) => {
 			if (deps.has(prop))
 				for (const c of ctxs) {
-					c.onUpdate = void 0
-					c.updateValue(prop)
-					c.onUpdate = onUpdate
+					c.queue.add(prop)
+					c.commit()
 				}
 		}
 
@@ -149,7 +120,35 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 	Object.assign(items, val)
 }
 
-directives.push(({ name, value, ownerElement: el }): Directive | void => {
+directives.push(({ name, value }): D => {
+	if (name == 'c-if') {
+		const func = getFunc('return ' + value)
+		const data: Directive = {
+			deps: new Set(),
+			func(el) {
+				const parent = el.parentElement!
+				const anchor = new Text()
+				parent.insertBefore(anchor, el)
+				let lastValue: boolean
+				data.func = function (el) {
+					const val = func.call(this, el)
+					if (val != lastValue) {
+						lastValue = val
+						if (val) {
+							this.mount(el)
+							if (!el.isConnected)
+								parent.insertBefore(el, anchor)
+						} else {
+							this.unmount(el)
+							el.remove()
+						}
+					}
+				}
+			}
+		}
+		return data
+	}
+}, ({ name, value, ownerElement: el }): D => {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
 		const isCheckbox = (<HTMLInputElement>el).type == 'checkbox'
@@ -195,9 +194,7 @@ directives.push(({ name, value, ownerElement: el }): Directive | void => {
 			}
 		}
 	}
-})
-
-directives.unshift(({ name, value }): Directive | void => {
+}, ({ name, value }): D => {
 	if (name == '@click.away') {
 		const func: Function = getFunc(value)
 		return {
@@ -209,9 +206,7 @@ directives.unshift(({ name, value }): Directive | void => {
 			}
 		}
 	}
-})
-
-directives.push(({ name, value }): Directive | void => {
+}, ({ name, value }): D => {
 	if (name == 'ref') {
 		return {
 			func(el) {
@@ -221,20 +216,19 @@ directives.push(({ name, value }): Directive | void => {
 			}
 		}
 	}
-})
 
-/**
- * A simple utility for conditionally joining attributes like classNames together
- *
- * e.g. :class="a:cond1;b:cond2"
- * cond1 & cond2 is true:	class="a b"
- * cond1 is true:			class="a"
- * cond2 is true:			class="b"
- * neither is true:			class=""
- *
- * NOTE: This differs from Vue
- */
-directives.push(({ name, value, ownerElement: el }, map): Directive | void => {
+	/**
+	 * A simple utility for conditionally joining attributes like classNames together
+	 *
+	 * e.g. :class="a:cond1;b:cond2"
+	 * cond1 & cond2 is true:	class="a b"
+	 * cond1 is true:			class="a"
+	 * cond2 is true:			class="b"
+	 * neither is true:			class=""
+	 *
+	 * NOTE: This differs from Vue
+	 */
+}, ({ name, value, ownerElement: el }, map): D => {
 	if (name[0] == ':') {
 		name = name.substring(1)
 		if (!name)
@@ -245,13 +239,8 @@ directives.push(({ name, value, ownerElement: el }, map): Directive | void => {
 
 		if (!el.hasAttribute(name))
 			el.setAttribute(name, '')
-		const attrs = el.attributes
-		const node = attrs[<any>name]
-		if (!map.get(name))
-			map.set(name, <Part>{ deps: new Set() })
 		el.removeAttribute(':' + name)
-		let attr = map.get(name)!
-		let code = `let $v="${node.value}";`
+		let code = `let $v="${el.getAttribute(name)}";`
 		for (const cls of value.split(';')) {
 			let key = cls,
 				val = cls
@@ -260,13 +249,14 @@ directives.push(({ name, value, ownerElement: el }, map): Directive | void => {
 				key = cls.substring(0, p)
 				val = cls.substring(p + 1)
 			}
-			code += `if(${val})$v+=" ${key.trim()}";`
+			code += `if(${val.trim()})$v+=" ${key.trim()}";`
 		}
+		if (!map.get(name))
+			map.set(name, <Part>{ deps: new Set() })
+		const attr = map.get(name)!
 		attr.func = getFunc(code + `if($v!=$e.getAttribute('${name}'))$e.setAttribute('${name}',$v)`)
 	}
-})
-
-directives.push(({ name, value }): Directive | void => {
+}, ({ name, value }): D => {
 	if (name[0] == '$') {
 		name = name.slice(1)
 		let attrName: string
@@ -287,22 +277,18 @@ directives.push(({ name, value }): Directive | void => {
 			}
 		}
 	}
-})
-
-directives.push(({ name, value, ownerElement: el }): Directive | void => {
+}, ({ name, value, ownerElement: el }): D => {
 	if (name == 'c-show') {
 		const func = getFunc('return ' + value),
-			initialValue = (<HTMLElement>el).style.display
+			initial = (<HTMLElement>el).style.display
 		return {
 			deps: new Set(),
 			func(el) {
-				(<HTMLElement>el).style.display = func.call(this, el) ? initialValue : 'none'
+				(<HTMLElement>el).style.display = func.call(this, el) ? initial : 'none'
 			}
 		}
 	}
-})
-
-directives.push(({ name }): Directive | void => {
+}, ({ name }): D => {
 	if (name == 'c-cloak')
 		return {
 			keep: true,

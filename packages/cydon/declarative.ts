@@ -5,10 +5,8 @@ function walk(el: Element) {
 		walk(child)
 	const data = el.getAttribute('c-data')
 	if (data != null) {
-		Object.assign(el, Function(`return ${data}`).call(el))
+		Object.assign(el, Function('return ' + data).call(el))
 		const cydon = new Cydon(el)
-		if ((<Element>el).shadowRoot)
-			cydon.mount((<Element>el).shadowRoot!)
 		cydon.mount(el)
 	}
 }

@@ -24,7 +24,7 @@ export class TableElement<T extends {}> extends CydonElement {
 		return this._perPage
 	}
 	set perPage(value) {
-		this._perPage = value || 10
+		this._perPage = +value || 10
 		this.list = this._list
 	}
 
