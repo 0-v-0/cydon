@@ -9,6 +9,8 @@ declare global {
 
 @define('s-table')
 export class STable extends TableElement<{}> {
+	keys!: { toString: () => string }[]
+
 	connectedCallback() {
 		this.list = [
 			{
@@ -108,6 +110,7 @@ export class STable extends TableElement<{}> {
 				iron: '6%',
 			},
 		]
+		this.keys = Object.keys(this.list[0]).map(x => ({ toString: () => x }))
 		super.connectedCallback()
 	}
 }

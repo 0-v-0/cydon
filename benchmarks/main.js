@@ -25,14 +25,7 @@ import { CydonElement } from '../packages/cydon'
 class MainApp extends CydonElement {
 	items = []
 
-	app = this
-
-	get selected() {
-		return this.app._selected
-	}
-	set selected(value) {
-		this.app._selected = value
-	}
+	selected = null
 
 	deleteOne() {
 		const id = this.item.id
@@ -55,8 +48,9 @@ class MainApp extends CydonElement {
 	}
 
 	update10() {
-		for (let i = 0; i < this.items.length; i += 10) {
-			this.items[i].label += ' !!!'
+		const arr = this.items
+		for (let i = 0; i < arr.length; i += 10) {
+			arr[i].label += ' !!!'
 		}
 		this.selected = null
 	}
@@ -64,10 +58,6 @@ class MainApp extends CydonElement {
 	clear() {
 		this.items = []
 		this.selected = null
-	}
-
-	testClear() {
-		this.clear()
 	}
 
 	create10k() {

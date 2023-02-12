@@ -101,7 +101,7 @@ class TodoApp extends CydonElement {
 
 	editTodo() {
 		this.beforeEditCache = this.todo.name
-		this.editing = this
+		this.editing = this.todo
 	}
 
 	removeTodo() {

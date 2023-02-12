@@ -20,12 +20,12 @@ html[lang=en]
 				label[for=toggle-all]{Mark all as complete}
 				ul.todo-list
 					template[c-for="todo; items"]
-						li.todo[:class="completed: todo.done; editing: editing == data; hidden: filter != null && todo.done != filter"]
+						li.todo[:class="completed: todo.done; editing: editing == todo; hidden: filter != null && todo.done != filter"]
 							.view
 								input.toggle[type=checkbox c-model=todo.done title=done]
 								label[@dblclick=editTodo]{${todo.name}}
 								button.destroy[@click=removeTodo]
-							input.edit[c-model=todo.name @blur=doneEdit :="editing == data && $e.focus()" @keyup=keyup]
+							input.edit[c-model=todo.name @blur=doneEdit :="editing == todo && $e.focus()" @keyup=keyup]
 			footer.footer[c-show=items.length]
 				span.todo-count
 					strong{${remaining}}

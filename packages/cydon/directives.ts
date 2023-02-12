@@ -2,31 +2,30 @@ import { Cydon, Data, Directive, directives, getFunc, Part, Results } from './co
 
 type D = Directive | void
 
-export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Results, [key_index, value]: [string, string]) {
-	if (cydon != cydon.$data) {
-		if (import.meta.env.DEV)
-			console.warn('cydon: $data object must set to `this`')
-		return
-	}
-	const val = cydon[value]
-	if (!Array.isArray(val)) {
+export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
+	const data = cydon.$data
+	const arr = data[value]
+	if (!Array.isArray(arr)) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
+	const newScope = !cydon.deps
 	const parent = el.parentElement!
 	const content = el.content
 	el.remove()
 	const list = <HTMLCollectionOf<HTMLElement>>parent.children
 	let len = 0
 	const setCapacity = (n: number) => {
+		ctxs.length = n
 		for (; len < n; len++) {
 			const target = <DocumentFragment>content.cloneNode(true)
 			const c: Cydon & Data = ctxs[len] = Object.create(cydon)
-			c.queue = new Set()
-			c.targets = new Set()
-			c.deps = deps
-			c.onUpdate = onUpdate
-			c.setData(c)
+			if (newScope) {
+				c.queue = new Set()
+				c.targets = new Set()
+				c.onUpdate = onUpdate
+			}
+			c.setData(c, data)
 			if (index)
 				c[index] = len
 			c.bind(results, target)
@@ -35,20 +34,19 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 		}
 		for (; len > n;)
 			list[--len].remove()
-		queueMicrotask(() => {
+		queueMicrotask(newScope ? () => {
 			for (let i = 0; i < len; i++)
 				ctxs[i].commit()
-		})
+		} : () => cydon.commit())
 	}
 
-	const [key, index] = key_index.split(/\s*,\s*/)
-	const deps = new Set<string>()
+	const deps = cydon.deps = new Set<string>()
 	const ctxs: (Cydon & Data)[] = []
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
 
 	const render = (i: number) => {
-		let item = val[i],
+		let item = arr[i],
 			c = ctxs[i]
 		if (!c) {
 			setCapacity(i + 1)
@@ -57,8 +55,8 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 		if (c[key])
 			// if item is undefined, hide the element
 			list[i].hidden = item == void 0
-		else {
-			c[key] = val[i] = new Proxy(item || {}, {
+		else
+			c[key] = arr[i] = new Proxy(item || {}, {
 				set: (obj, p: string, val) => {
 					obj[p] = val
 					c.updateValue(key)
@@ -66,17 +64,16 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 					return true
 				}
 			})
-		}
 
 		// update data
 		if (item)
-			Object.assign(c.data[key], item)
+			Object.assign(c[key], item)
 	}
 
 	let handle = 0
-	const items = new Proxy(val, {
-		get: (obj: any, p) => typeof p == 'string' && isFinite(<any>p) ?
-			ctxs[<any>p]?.data[key] ?? obj[p] : obj[p],
+	const items = new Proxy(arr, {
+		get: (obj: any, p) => typeof p == 'string' && +p == <any>p ?
+			ctxs[<any>p]?.[key] ?? obj[p] : obj[p],
 		set: (obj: any, p, val) => {
 			if (p == 'length') {
 				const n = obj.length = +val
@@ -88,11 +85,11 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 
 				if (handle)
 					cancelIdleCallback(handle)
-				handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 300 })
+				handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 500 })
 			} else {
 				obj[p] = val
-				if (typeof p == 'string' && isFinite(<any>p))
-					render(<any>p)
+				if (typeof p == 'string' && +p == <any>p)
+					render(+p)
 			}
 			cydon.updateValue(value)
 			return true
@@ -107,7 +104,7 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 			}
 		}
 	})
-	if (!cydon.onUpdate)
+	if (newScope)
 		cydon.onUpdate = (prop: string) => {
 			if (deps.has(prop))
 				for (const c of ctxs) {
@@ -116,8 +113,8 @@ export function for_(cydon: Cydon & Data, el: HTMLTemplateElement, results: Resu
 				}
 		}
 
-	setCapacity(val.length)
-	Object.assign(items, val)
+	setCapacity(arr.length)
+	Object.assign(items, arr)
 }
 
 directives.push(({ name, value }): D => {

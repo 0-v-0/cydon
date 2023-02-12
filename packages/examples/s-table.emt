@@ -24,12 +24,8 @@ template[shadowroot=open]
 			tbody
 				template[c-for="item; items"]
 					tr
-						td{${item.name}}
-						td{${item.calories}}
-						td{${item.fat}}
-						td{${item.carbs}}
-						td{${item.protein}}
-						td{${item.iron}}
+						template[c-for="key; keys"]
+							td{${item[key]}}
 		select[c-model=perPage]
 			option[value=5]{5}
 			option[value=10]{10}

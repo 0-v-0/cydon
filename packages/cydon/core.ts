@@ -61,7 +61,7 @@ export type Result = Partial<Part> & {
 	attrs?: Map<string, AttrPart>
 	sr?: DF
 	res?: Results
-	exp?: [string, string]
+	exp?: string[]
 } | number
 
 export type Results = Result[]
@@ -116,42 +116,49 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
-			this.setData(data || this)
+			this.setData(data)
 		}
 
-		setData(data: Data) {
+		setData(data: Data = this, parent?: Data) {
 			this.data = new Proxy(this.$data = data, {
-				get: (obj, p: string) =>
-					p in obj ? obj[p] : '$' + p.toString(),
-				set: (obj, p: string, value) => {
-					obj[p] = value
-					this.updateValue(p)
-					return true
+				get: (obj, key: string) =>
+					key in obj ? obj[key] : '$' + key.toString(),
+				set: (obj, key: string, val, receiver): boolean => {
+					// when setting a property that doesn't exist on current scope,
+					// do not create it on the current scope and fallback to parent scope.
+					const r = parent && !obj.hasOwnProperty(key) ?
+						Reflect.set(parent, key, val) : Reflect.set(obj, key, val, receiver)
+					this.updateValue(key)
+					return r
 				}
 			})
 		}
 
-		compile(results: Results, el: Element | DF, level = 0, i = 0): void {
+		compile(results: Results, el: Element | DF, level = 0, i = 0) {
 			let result: Result | undefined
-			let map = new Map<string, AttrPart>()
+			const map = new Map<string, AttrPart>()
 			const attrs = (<Element>el).attributes
 			// Find pattern in attributes
 			if (attrs) {
 				if (!el.isConnected && (<Element>el).tagName.includes('-'))
 					return
+
 				const exp = attrs[<any>'c-for']
 				if (exp) {
 					const val = exp.value
 					if (val) {
+						const [key, value] = val.split(';')
+						if (import.meta.env.DEV && !value) {
+							console.warn('invalid v-for expression: ' + val)
+							return
+						}
 						const res: Results = []
 						this.compile(res, (<HTMLTemplateElement>el).content)
-						let [key, value] = val.split(';')
-						if (import.meta.env.DEV && !value)
-							console.warn('invalid v-for expression: ' + val)
-						results.push(level << 22 | i, { res, exp: [key, value.trim()] })
+						results.push(level << 22 | i, { res, exp: [value.trim(), ...key.split(/\s*,\s*/)] })
 					}
 					return
 				}
+
 				next: for (let i = 0; i < attrs.length;) {
 					const attr = <DOMAttr>attrs[i]
 					const name = attr.name
@@ -185,9 +192,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				results.push(level << 22 | i)
 			level++
 			for (let i = 0; node; node = node.nextSibling) {
-				if (node.nodeType == 1)
+				if (node.nodeType == 1/* Node.ELEMENT_NODE */)
 					this.compile(results, <Element>node, level, i)
-				if (node.nodeType == 3) { // text node
+				if (node.nodeType == 3/* Node.TEXT_NODE */) {
 					const parts = <Result>parse((<Text>node).data)
 					if (parts)
 						results.push(level << 22 | i, parts)
@@ -196,13 +203,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			}
 		}
 
-		bind(results: Results, el: Element | DF = <any>this): void {
+		bind(results: Results, el: Element | DF = <any>this, parent?: Data) {
 			let node: Node = el
 			let l = 0, n = 0, stack = []
 			for (let i = 0; i < results.length; ++i) {
 				const result = results[i]
 				if (typeof result == 'object') {
-					let { attrs, res, sr } = result
+					const { attrs, res, sr } = result
 					if (sr) {
 						let shadow = (<Element>node).shadowRoot
 						if (!shadow) {
@@ -217,11 +224,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						n = stack.pop()!
 						l--
 					} else if (result.func)
-						this.add(<Text>node, <Part>result)
-					else if (attrs) {
+						this.add(<Text>node, <Part>result, parent)
+					else if (attrs)
 						for (const part of attrs.values())
-							this.add(<Element>node, part)
-					}
+							this.add(<Element>node, part, parent)
 				} else if (i) {
 					let index = result
 					const level = index >>> 22
@@ -247,21 +253,23 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			this.commit()
 		}
 
-		add(node: Target['node'], part: Part) {
+		add(node: Target['node'], part: Part, parent?: Data) {
 			const target: Target = Object.create(part)
 			const deps = part.deps
 			target.node = node
 			if (deps) {
 				const proto = Object.getPrototypeOf(this.$data)
 				const data: Data = target.data = new Proxy(this.$data, {
-					get: (obj, p) => {
-						if (typeof p == 'string') {
-							if (this.deps && p in proto)
-								this.deps.add(p)
-							deps.add(p)
+					get: (obj, key) => {
+						if (typeof key == 'string') {
+							if (this.deps && key in proto)
+								this.deps.add(key)
+							deps.add(key)
 						}
-						return p in obj ? Reflect.get(obj, p, data) : '$' + p.toString()
-					}
+						return key in obj ? Reflect.get(obj, key, data) : '$' + key.toString()
+					},
+					set: (obj, key, val, receiver) => parent && !obj.hasOwnProperty(key) ?
+						Reflect.set(parent, key, val) : Reflect.set(obj, key, val, receiver)
 				})
 			} else
 				target.data = this.data
