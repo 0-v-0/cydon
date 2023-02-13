@@ -1,4 +1,5 @@
-import { Cydon, Data, Directive, directives, getFunc, Part, Results } from './core'
+import { Cydon, Directive, directives, Part, Results } from './core'
+import { Data, getFunc } from './util'
 
 type D = Directive | void
 
@@ -17,6 +18,10 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	let len = 0
 	const setCapacity = (n: number) => {
 		ctxs.length = n
+		if (!n) { // clear
+			parent.textContent = ''
+			len = 0
+		}
 		for (; len < n; len++) {
 			const target = <DocumentFragment>content.cloneNode(true)
 			const c: Cydon & Data = ctxs[len] = Object.create(cydon)
@@ -56,7 +61,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 			// if item is undefined, hide the element
 			list[i].hidden = item == void 0
 		else
-			c[key] = arr[i] = new Proxy(item || {}, {
+			c[key] = new Proxy(item || {}, {
 				set: (obj, p: string, val) => {
 					obj[p] = val
 					c.updateValue(key)
@@ -78,7 +83,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 			if (p == 'length') {
 				const n = obj.length = +val
 				len = list.length
-				if (n > len)
+				if (!n || n > len)
 					setCapacity(n)
 				for (let d = len; d-- > n;)
 					render(d)

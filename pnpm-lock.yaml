@@ -14,12 +14,6 @@ importers:
       emmetlite: link:packages/emmetlite
       vite: registry.npmmirror.com/vite/4.1.1
 
-  benchmarks:
-    specifiers:
-      vite: ^4.1.1
-    devDependencies:
-      vite: registry.npmmirror.com/vite/4.1.1
-
   packages/css:
     specifiers:
       '@cydon/stylelint-config': workspace:^0.0.1

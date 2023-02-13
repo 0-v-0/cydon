@@ -4,8 +4,13 @@
   "version": "1.0.0",
   "description": "Benchmark for cydon.js framework",
   "js-framework-benchmark": {
-    "frameworkVersion": "",
-    "frameworkHomeURL": ""
+    "frameworkVersion": "0.0.1",
+    "issues": [
+      1139
+    ]
+  },
+  "dependencies": {
+    "cydon": "workspace:0.0.1"
   },
   "devDependencies": {
     "vite": "^4.1.1"

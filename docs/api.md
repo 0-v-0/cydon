@@ -63,15 +63,12 @@
 - `results`：编译结果
 - `el`：目标元素或Shadow Root
 
-### add(node: Element | Attr | Text, part: Part)
+### addPart(node: Element | Attr | Text, part: Part)
 添加目标节点并加入到更新队列中
 
 参数：
 - `node`：目标节点
 - `part`：表达式
-
-### update(target: Target)
-更新目标节点
 
 ### updateValue(prop: string)
 将`prop`加入更新队列
