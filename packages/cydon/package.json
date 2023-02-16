@@ -1,7 +1,7 @@
 {
 	"name": "cydon",
 	"version": "0.0.1",
-	"description": "Lightweight Frontend Framework",
+	"description": "A lightweight library for building fast, reactive web components.",
 	"author": {
 		"name": "0-v-0",
 		"email": "kduice@qq.com"
@@ -15,7 +15,7 @@
 	"keywords": [
 		"cydon"
 	],
-	"packageManager": "pnpm@7.26.2",
+	"packageManager": "pnpm@7.27.0",
 	"scripts": {
 		"build": "vite build"
 	},

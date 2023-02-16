@@ -77,8 +77,6 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 
 	let handle = 0
 	const items = new Proxy(arr, {
-		get: (obj: any, p) => typeof p == 'string' && +p == <any>p ?
-			ctxs[<any>p]?.[key] ?? obj[p] : obj[p],
 		set: (obj: any, p, val) => {
 			if (p == 'length') {
 				const n = obj.length = +val

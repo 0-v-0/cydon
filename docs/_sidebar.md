@@ -7,5 +7,6 @@
   - [指令](./directives.md)
   - [组件间通信](./components.md)
 - [事件](./events.md)
+- [使用 Cydon 的多种方式](./usage.md)
 - **示例**
   - [翻页表格组件](./s-table.md)

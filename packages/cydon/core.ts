@@ -85,6 +85,8 @@ export type DirectiveHandler =
 
 export const directives: DirectiveHandler[] = []
 
+const proxies = new WeakMap<Set<string>, ProxyHandler<Data>>()
+
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 	class Mixin extends (<Ctor<Object>>base) {
@@ -125,8 +127,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		setData(data: Data = this, parent?: Data) {
 			this.data = new Proxy(this.$data = data, {
-				get: (obj, key: string) =>
-					key in obj ? obj[key] : '$' + key.toString(),
 				set: (obj, key: string, val, receiver): boolean => {
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
@@ -210,7 +210,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		bind(results: Results, el: Element | DF = <any>this) {
 			let node: Node = el
 			let l = 0, n = 0, stack = []
-			for (let i = 0; i < results.length; ++i) {
+			for (let i = 0, len = results.length; i < len; ++i) {
 				const result = results[i]
 				if (typeof result == 'object') {
 					const { a: attrs, r: res, s } = result
@@ -227,7 +227,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						node = p
 						n = stack.pop()!
 						l--
-					} else if (result.func)
+					}
+					if (result.func)
 						this.addPart(<Text>node, <Part>result)
 					else if (attrs)
 						for (const part of attrs.values())
@@ -261,16 +262,24 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			const target: Target = Object.create(part)
 			const deps = part.deps
 			target.node = node
-			target.data = deps ? new Proxy(this.$data, {
-				get: (obj, key, receiver) => {
-					if (typeof key == 'string') {
-						if (this.deps && !obj.hasOwnProperty(key))
-							this.deps.add(key)
-						deps.add(key)
+			let proxy: ProxyHandler<Data> | undefined
+			if (deps) {
+				proxy = proxies.get(deps)
+				if (!proxy) {
+					proxy = {
+						get: (obj, key, receiver) => {
+							if (typeof key == 'string') {
+								if (this.deps && !obj.hasOwnProperty(key))
+									this.deps.add(key)
+								deps.add(key)
+							}
+							return Reflect.get(obj, key, receiver)
+						}
 					}
-					return key in obj ? Reflect.get(obj, key, receiver) : '$' + key.toString()
+					proxies.set(deps, proxy)
 				}
-			}) : this.data
+			}
+			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
 			this.targets.add(target)
 			this.queue.add(target)
 		}

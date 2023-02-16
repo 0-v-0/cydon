@@ -23,14 +23,14 @@ function _random(max) {
 import { CydonElement } from 'cydon'
 
 class MainApp extends CydonElement {
-	items = []
+	rows = []
 
 	selected = null
 
 	delete() {
 		const id = this.item.id
-		const index = this.items.findIndex(item => item.id == id)
-		this.items.splice(index, 1)
+		const index = this.rows.findIndex(item => item.id == id)
+		this.rows.splice(index, 1)
 	}
 
 	select() {
@@ -38,38 +38,40 @@ class MainApp extends CydonElement {
 	}
 
 	run() {
-		this.items = buildData(1000)
+		this.rows = buildData(1000)
 		this.selected = null
 	}
 
 	add() {
-		this.items = this.items.concat(buildData(1000))
+		this.rows = this.rows.concat(buildData(1000))
 		this.selected = null
 	}
 
 	update() {
-		const arr = this.items
+		const arr = this.rows
 		for (let i = 0; i < arr.length; i += 10) {
-			arr[i].label += ' !!!'
+			const item = arr[i]
+			item.label += ' !!!'
+			arr[i] = item
 		}
 		this.selected = null
 	}
 
 	runLots() {
-		this.items = buildData(10000)
+		this.rows = buildData(10000)
 		this.selected = null
 	}
 
 	clear() {
-		this.items = []
+		this.rows = []
 		this.selected = null
 	}
 
 	swap() {
-		if (this.items.length > 998) {
-			const { id, label } = this.items[1]
-			this.items[1] = this.items[998]
-			this.items[998] = { id, label }
+		if (this.rows.length > 998) {
+			const a = this.rows[1]
+			this.rows[1] = this.rows[998]
+			this.rows[998] = a
 		}
 	}
 }

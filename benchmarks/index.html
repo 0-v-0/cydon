@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1.0">
-	<title>Cydon benchmark</title>
+	<title>Cydon</title>
 	<link href="/css/currentStyle.css" rel="stylesheet">
-	<script type="module" src="./main.js"></script>
+	<script type="module" src="./src/main.js"></script>
 </head>
 <body>
 	<main-app>
@@ -47,7 +46,7 @@
 			</div>
 			<table class="table table-hover table-striped test-data">
 				<tbody>
-					<template c-for="item; items">
+					<template c-for="item; rows">
 						<tr :class="danger: item == selected">
 							<td class="col-md-1">${item.id}</td>
 							<td class="col-md-4">

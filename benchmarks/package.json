@@ -1,6 +1,5 @@
 {
   "name": "js-framework-benchmark-non-keyed-cydon",
-  "private": true,
   "version": "1.0.0",
   "description": "Benchmark for cydon.js framework",
   "js-framework-benchmark": {
@@ -9,6 +8,9 @@
       1139
     ]
   },
+  "keywords": [
+    "cydon"
+  ],
   "dependencies": {
     "cydon": "workspace:0.0.1"
   },
@@ -17,8 +19,7 @@
   },
   "scripts": {
     "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview"
+    "dev": "vite"
   },
   "type": "module"
 }

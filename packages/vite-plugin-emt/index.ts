@@ -47,7 +47,7 @@ export default (config: Option = {}): Plugin => {
 		paths = [],
 		templated = true
 	} = config
-	const resolve = (p: string, base = root!, throwOnErr = true) => {
+	const resolve = (p: string, base = root!, throwOnErr = false) => {
 		let i = p.indexOf('?')
 		p = res(process.cwd(), base, i < 0 ? p : p.substring(0, i))
 		let fullPath = p
@@ -65,7 +65,7 @@ export default (config: Option = {}): Plugin => {
 	}, resolveAll = (url: string, throwOnErr = true) => {
 		let resolved
 		for (const path of paths) {
-			resolved = resolve(url, path, false)
+			resolved = resolve(url, path)
 			if (resolved) break
 		}
 		return resolved || resolve(url, root, throwOnErr)
@@ -111,15 +111,18 @@ export default (config: Option = {}): Plugin => {
 				if (!url.endsWith('.emt'))
 					return next()
 
+				const path = resolve(url)
+				if (!path)
+					return next()
+
 				used?.clear()
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
-					resolved = resolve(url),
-					time = (await fs.stat(resolved)).mtime.getTime()
+					time = (await fs.stat(path)).mtime.getTime()
 				if (url in titles && time == titles[url].time)
 					data.doc_title = titles[url].title
 				else {
 					const rl = readline.createInterface({
-						input: createReadStream(resolved),
+						input: createReadStream(path),
 						crlfDelay: Infinity
 					})
 					rl.on('line', line => {
@@ -141,7 +144,7 @@ export default (config: Option = {}): Plugin => {
 				const content = 'doc_title' in data ?
 					await server.transformIndexHtml?.(req.originalUrl!,
 						rend(include(tplFile), data), req.originalUrl) :
-					rend(include(resolved), data)
+					rend(include(path), data)
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end(content)
 			})

@@ -60,7 +60,7 @@ class TodoApp extends CydonElement {
 	}
 
 	updateFilter() {
-		let visibility = location.hash.substring(2)
+		const visibility = location.hash.substring(2)
 
 		this.data.filter = visibility == 'active' ? false :
 			visibility == 'completed' ? true : null
