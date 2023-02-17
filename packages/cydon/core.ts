@@ -26,7 +26,7 @@ function parse(s: string, attr = '') {
 		vals += s.substring(lastIndex).replace(/`/g, '\\`')
 	return {
 		deps, func: getFunc(attr ? 'let $v=`' + vals +
-			`\`;if($v!=$e.getAttribute('${attr}'))$e.setAttribute('${attr}',$v)` :
+			`\`;if($v!=$e.getAttribute("${attr}"))$e.setAttribute("${attr}",$v)` :
 			'return`' + vals + '`')
 	}
 }
@@ -140,50 +140,52 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		compile(results: Results, el: Element | DF, level = 0, i = 0) {
 			let result: Result | undefined
-			const map = new Map<string, AttrPart>()
-			const attrs = (<Element>el).attributes
-			// Find pattern in attributes
-			if (attrs) {
-				if (!el.isConnected && (<Element>el).tagName.includes('-'))
-					return
-
-				const exp = attrs[<any>'c-for']
-				if (exp) {
-					const val = exp.value
-					if (val) {
-						const [key, value] = val.split(';')
-						if (import.meta.env.DEV && !value) {
-							console.warn('invalid v-for expression: ' + val)
-							return
+			if (level) {
+				const map = new Map<string, AttrPart>()
+				const attrs = (<Element>el).attributes
+				// Find pattern in attributes
+				if (attrs) {
+					const exp = attrs[<any>'c-for']
+					if (exp) {
+						const val = exp.value
+						if (val) {
+							const [key, value] = val.split(';')
+							if (import.meta.env.DEV && !value) {
+								console.warn('invalid v-for expression: ' + val)
+								return
+							}
+							const r: Results = []
+							this.compile(r, (<HTMLTemplateElement>el).content)
+							results.push(level << 22 | i,
+								{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
 						}
-						const r: Results = []
-						this.compile(r, (<HTMLTemplateElement>el).content)
-						results.push(level << 22 | i, { r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
+						return
 					}
-					return
-				}
 
-				next: for (let i = 0; i < attrs.length;) {
-					const attr = <DOMAttr>attrs[i]
-					const name = attr.name
-					for (const handler of directives) {
-						const data = handler(attr, map)
-						if (data) {
-							map.set(name, <AttrPart>data)
-							if (data.keep)
-								++i
-							else
-								(<Element>el).removeAttribute(name)
-							continue next
+					next: for (let i = 0; i < attrs.length;) {
+						const attr = <DOMAttr>attrs[i]
+						const name = attr.name
+						for (const handler of directives) {
+							const data = handler(attr, map)
+							if (data) {
+								map.set(name, <AttrPart>data)
+								if (data.keep)
+									++i
+								else
+									(<Element>el).removeAttribute(name)
+								continue next
+							}
 						}
+						const parts = parse(attr.value, name)
+						if (parts)
+							map.set(name, parts)
+						++i
 					}
-					const parts = parse(attr.value, name)
-					if (parts)
-						map.set(name, parts)
-					++i
+					if (map.size)
+						results.push(level << 22 | i, result = { a: map })
+					if ((<Element>el).tagName.includes('-'))
+						return
 				}
-				if (map.size)
-					results.push(level << 22 | i, result = { a: map })
 			}
 			const s = (<Element>el).shadowRoot
 			if (s) {
@@ -327,11 +329,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		}
 
 		connectedCallback() {
-			if (this instanceof Element && !this.hasAttribute('c-for'))
+			if (this instanceof Element)
 				this.mount()
 		}
 	}
-	return <Ctor<T & Mixin>>Mixin
+	return <new (data?: Data, ...args: any[]) => T & Mixin>Mixin
 }
 
 /**

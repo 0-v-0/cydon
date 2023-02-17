@@ -328,11 +328,11 @@ export default class ImageCrop extends HTMLElement {
 		this.toggleAttribute('loaded', val)
 	}
 
-	attributeChangedCallback(attribute: string, oldValue: string, newValue: string) {
+	attributeChangedCallback(attribute: string, oldVal: string, newVal: string) {
 		const { image } = constructedElements.get(this) || {}
 		if (attribute == 'src') {
 			this.loaded = false
-			if (image) image.src = newValue
+			if (image) image.src = newVal
 		}
 	}
 }

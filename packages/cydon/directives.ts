@@ -15,34 +15,38 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const content = el.content
 	el.remove()
 	const list = <HTMLCollectionOf<HTMLElement>>parent.children
-	let len = 0
 	const setCapacity = (n: number) => {
 		ctxs.length = n
-		if (!n) { // clear
-			parent.textContent = ''
-			len = 0
-		}
-		for (; len < n; len++) {
-			const target = <DocumentFragment>content.cloneNode(true)
-			const c: Cydon & Data = ctxs[len] = Object.create(cydon)
-			if (newScope) {
-				c.queue = new Set()
-				c.targets = new Set()
-				c.onUpdate = onUpdate
+		if (n) {
+			let len = list.length
+			const df = new DocumentFragment
+			for (; len < n; len++) {
+				const target = <DocumentFragment>content.cloneNode(true)
+				const c: Cydon & Data = ctxs[len] = Object.create(cydon)
+				if (newScope) {
+					c.queue = new Set()
+					c.targets = new Set()
+					c.onUpdate = onUpdate
+				}
+				c.setData(c, data)
+				if (index)
+					c[index] = len
+				c.bind(results, target)
+				df.appendChild(target)
+				render(len)
 			}
-			c.setData(c, data)
-			if (index)
-				c[index] = len
-			c.bind(results, target)
-			parent.appendChild(target)
-			render(len)
-		}
-		for (; len > n;)
-			list[--len].remove()
-		queueMicrotask(newScope ? () => {
-			for (let i = 0; i < len; i++)
-				ctxs[i].commit()
-		} : () => cydon.commit())
+			for (; len > n;)
+				list[--len].remove()
+			queueMicrotask(() => {
+				if (newScope)
+					for (let i = 0; i < len; i++)
+						ctxs[i].commit()
+				else
+					cydon.commit()
+				parent.appendChild(df)
+			})
+		} else // clear
+			parent.textContent = ''
 	}
 
 	const deps = cydon.deps = new Set<string>()
@@ -50,17 +54,13 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
 
-	const render = (i: number) => {
-		let item = arr[i],
-			c = ctxs[i]
+	const render = (i: number, item = arr[i]) => {
+		let c = ctxs[i]
 		if (!c) {
 			setCapacity(i + 1)
 			c = ctxs[i]
 		}
-		if (c[key])
-			// if item is undefined, hide the element
-			list[i].hidden = item == void 0
-		else
+		if (!c[key])
 			c[key] = new Proxy(item || {}, {
 				set: (obj, p: string, val) => {
 					obj[p] = val
@@ -75,24 +75,14 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 			Object.assign(c[key], item)
 	}
 
-	let handle = 0
 	const items = new Proxy(arr, {
 		set: (obj: any, p, val) => {
-			if (p == 'length') {
-				const n = obj.length = +val
-				len = list.length
-				if (!n || n > len)
-					setCapacity(n)
-				for (let d = len; d-- > n;)
-					render(d)
-
-				if (handle)
-					cancelIdleCallback(handle)
-				handle = requestIdleCallback(() => setCapacity(obj.length), { timeout: 500 })
-			} else {
+			if (p == 'length')
+				setCapacity(obj.length = +val)
+			else {
 				obj[p] = val
 				if (typeof p == 'string' && +p == <any>p)
-					render(+p)
+					render(+p, val)
 			}
 			cydon.updateValue(value)
 			return true
@@ -190,7 +180,7 @@ directives.push(({ name, value }): D => {
 		return {
 			func(el) {
 				el.addEventListener(name[0] == '$' ? this[name.slice(1)] : name,
-					this[value].bind?.(this) ?? getFunc(value).bind(this, el))
+					this[value]?.bind?.(this) ?? getFunc(value).bind(this, el))
 			}
 		}
 	}
@@ -254,7 +244,7 @@ directives.push(({ name, value }): D => {
 		if (!map.get(name))
 			map.set(name, <Part>{ deps: new Set() })
 		const attr = map.get(name)!
-		attr.func = getFunc(code + `if($v!=$e.getAttribute('${name}'))$e.setAttribute('${name}',$v)`)
+		attr.func = getFunc(code + `if($v!=$e.getAttribute("${name}"))$e.setAttribute("${name}",$v)`)
 	}
 }, ({ name, value }): D => {
 	if (name[0] == '$') {
