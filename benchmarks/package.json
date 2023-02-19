@@ -15,7 +15,7 @@
     "cydon": "workspace:0.0.1"
   },
   "devDependencies": {
-    "vite": "^4.1.1"
+    "vite": "^4.1.2"
   },
   "scripts": {
     "build": "vite build",
