@@ -34,7 +34,12 @@ class TodoApp extends CydonElement {
 		return !this.remaining
 	}
 	set allDone(value) {
-		this.items.forEach(todo => todo.done = value)
+		const { items } = this
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i]
+			item.done = value
+			items[i] = item
+		}
 	}
 
 	get remaining() {

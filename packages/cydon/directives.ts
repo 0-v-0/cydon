@@ -13,40 +13,43 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const newScope = !cydon.deps
 	const parent = el.parentElement!
 	const content = el.content
+	const count = content.childElementCount
 	el.remove()
 	const list = <HTMLCollectionOf<HTMLElement>>parent.children
 	const setCapacity = (n: number) => {
-		ctxs.length = n
+		n *= count
 		if (n) {
-			let len = list.length
-			const df = new DocumentFragment
-			for (; len < n; len++) {
+			let len = list.length, i = len / count | 0
+			const start = i
+			for (; len < n; len += count) {
 				const target = <DocumentFragment>content.cloneNode(true)
-				const c: Cydon & Data = ctxs[len] = Object.create(cydon)
+				const c: Cydon & Data = ctxs[i++] = Object.create(cydon)
 				if (newScope) {
 					c.queue = new Set()
 					c.targets = new Set()
 					c.onUpdate = onUpdate
 				}
-				c.setData(c, data)
+				c._parent = data
+				c.setData(c)
 				if (index)
 					c[index] = len
 				c.bind(results, target)
-				df.appendChild(target)
+				parent.appendChild(target)
 				render(len)
 			}
+			const end = i
 			for (; len > n;)
 				list[--len].remove()
 			queueMicrotask(() => {
 				if (newScope)
-					for (let i = 0; i < len; i++)
+					for (let i = start; i < end; i++)
 						ctxs[i].commit()
 				else
 					cydon.commit()
-				parent.appendChild(df)
 			})
 		} else // clear
 			parent.textContent = ''
+		ctxs.length = n
 	}
 
 	const deps = cydon.deps = new Set<string>()
@@ -55,11 +58,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
 
 	const render = (i: number, item = arr[i]) => {
-		let c = ctxs[i]
-		if (!c) {
-			setCapacity(i + 1)
-			c = ctxs[i]
-		}
+		const c = ctxs[i]
 		if (!c[key])
 			c[key] = new Proxy(item || {}, {
 				set: (obj, p: string, val) => {
@@ -81,8 +80,14 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 				setCapacity(obj.length = +val)
 			else {
 				obj[p] = val
-				if (typeof p == 'string' && +p == <any>p)
-					render(+p, val)
+				if (typeof p == 'string') {
+					const n = +p
+					if (n == <any>p) {
+						if (n >= ctxs.length)
+							setCapacity(n + 1)
+						render(n, val)
+					}
+				}
 			}
 			cydon.updateValue(value)
 			return true

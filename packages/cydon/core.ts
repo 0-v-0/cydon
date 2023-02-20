@@ -114,6 +114,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		deps?: Set<string>
 
+		_parent?: Data
+
 		/**
 		 * update callback
 		 * @param prop prop name
@@ -125,13 +127,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			this.setData(data)
 		}
 
-		setData(data: Data = this, parent?: Data) {
+		setData(data: Data = this) {
 			this.data = new Proxy(this.$data = data, {
-				set: (obj, key: string, val, receiver): boolean => {
+				set: (obj, key: string, val, receiver) => {
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
-					const r = parent && !obj.hasOwnProperty(key) ?
-						Reflect.set(parent, key, val) : Reflect.set(obj, key, val, receiver)
+					const r = this._parent && !obj.hasOwnProperty(key) ?
+						Reflect.set(this._parent, key, val) : Reflect.set(obj, key, val, receiver)
 					this.updateValue(key)
 					return r
 				}
@@ -155,6 +157,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 								return
 							}
 							const r: Results = []
+								; (<HTMLElement>el).innerHTML = (<HTMLElement>el).innerHTML.trim()
 							this.compile(r, (<HTMLTemplateElement>el).content)
 							results.push(level << 22 | i,
 								{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
@@ -280,10 +283,12 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					}
 					proxies.set(deps, proxy)
 				}
+				this.targets.add(target)
+				this.queue.add(target)
 			}
 			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
-			this.targets.add(target)
-			this.queue.add(target)
+			if (!deps)
+				update(target)
 		}
 
 		/**
@@ -313,11 +318,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		commit() {
 			for (const target of this.targets) {
-				if (this.queue.has(target)) {
+				if (this.queue.has(target))
 					update(target)
-					if (!target.deps)
-						this.targets.delete(target)
-				} else
+				else
 					for (const prop of this.queue) {
 						if (typeof prop == 'string' && target.deps?.has(prop)) {
 							update(target)
