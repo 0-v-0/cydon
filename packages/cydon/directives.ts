@@ -75,6 +75,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	}
 
 	const items = new Proxy(arr, {
+		get: (obj: any, p) => typeof p == 'string' && +p == <any>p &&
+			ctxs[<any>p]?.[key] || obj[p],
 		set: (obj: any, p, val) => {
 			if (p == 'length')
 				setCapacity(obj.length = +val)

@@ -19,7 +19,7 @@ html[lang=en]
 				input#toggle-all.toggle-all[type=checkbox c-model=allDone]
 				label[for=toggle-all]{Mark all as complete}
 				ul.todo-list
-					template[c-for="todo; items"]
+					template[c-for="todo, i; items"]
 						li.todo[:class="completed: todo.done; editing: editing == todo; hidden: filter != null && todo.done != filter"]
 							.view
 								input.toggle[type=checkbox c-model=todo.done title=done]

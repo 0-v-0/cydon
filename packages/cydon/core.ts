@@ -157,7 +157,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 								return
 							}
 							const r: Results = []
-								; (<HTMLElement>el).innerHTML = (<HTMLElement>el).innerHTML.trim()
 							this.compile(r, (<HTMLTemplateElement>el).content)
 							results.push(level << 22 | i,
 								{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })

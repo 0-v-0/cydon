@@ -23,7 +23,7 @@ function _random(max) {
 import { CydonElement } from 'cydon'
 
 class MainApp extends CydonElement {
-	rows = []
+	rows = this._rows = []
 
 	selected = null
 
@@ -50,9 +50,7 @@ class MainApp extends CydonElement {
 	update() {
 		const arr = this.rows
 		for (let i = 0; i < arr.length; i += 10) {
-			const item = arr[i]
-			item.label += ' !!!'
-			arr[i] = item
+			arr[i].label += ' !!!'
 		}
 		this.selected = null
 	}
@@ -69,8 +67,8 @@ class MainApp extends CydonElement {
 
 	swap() {
 		if (this.rows.length > 998) {
-			const a = this.rows[1]
-			this.rows[1] = this.rows[998]
+			const a = this._rows[1]
+			this.rows[1] = this._rows[998]
 			this.rows[998] = a
 		}
 	}

@@ -5,13 +5,12 @@ type Todo = {
 	done: boolean
 }
 
-const STORAGE_KEY = 'todos-cydon',
-	ITEM_KEYS = ['name', 'done']
+const STORAGE_KEY = 'todos-cydon'
 
 const storage = {
 	load: () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'),
 	save(todos: any[]) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos, ITEM_KEYS))
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
 	}
 }
 
@@ -25,6 +24,7 @@ class TodoApp extends CydonElement {
 	items: Todo[] = []
 
 	todo!: Todo
+	i!: number
 
 	editing: Data | null = null
 	private beforeEditCache?: string
@@ -34,12 +34,7 @@ class TodoApp extends CydonElement {
 		return !this.remaining
 	}
 	set allDone(value) {
-		const { items } = this
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i]
-			item.done = value
-			items[i] = item
-		}
+		this.items.forEach(todo => todo.done = value)
 	}
 
 	get remaining() {
@@ -110,9 +105,7 @@ class TodoApp extends CydonElement {
 	}
 
 	removeTodo() {
-		const { items } = this
-		const index = items.findIndex(todo => todo == this.todo)
-		items.splice(index, 1)
+		this.items.splice(this.i, 1)
 	}
 
 	removeCompleted() {
