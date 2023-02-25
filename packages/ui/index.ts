@@ -1,17 +1,9 @@
-import { CydonElement, Data, Directive, directives } from 'cydon'
+import { CydonElement, Directive, directives } from 'cydon'
 import { isDisabled, toggle } from './util'
 
 export * from './util'
 
-function deepClone(obj: Data) {
-	const result = obj.constructor()
-	if (typeof obj == 'object')
-		for (const key in obj) {
-			result[key] = typeof obj[key] == 'object' ?
-				deepClone(obj[key]) : obj[key]
-		}
-	return result
-}
+const cloneArray = <T extends {}>(arr: T[]) => arr.map(obj => ({ ...obj }))
 
 export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
@@ -43,7 +35,7 @@ export class TableElement<T extends {}> extends CydonElement {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
 		// BUG: must deep clone
-		this.items = <T[]>deepClone(data.slice(i * n, i * n + n))
+		this.items = <T[]>cloneArray(data.slice(i * n, i * n + n))
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {

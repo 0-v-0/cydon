@@ -7,10 +7,11 @@
 		"@cydon/ui": "workspace:^0.0.1",
 		"cydon": "workspace:^0.0.1",
 		"emmetlite": "workspace:^0.0.1",
-		"vite": "^4.1.3"
+		"vite": "^4.1.4"
 	},
 	"scripts": {
-		"build": "cd packages/vite-plugin-emt&&pnpm build&&cd ../vite-plugin-ustyle&&pnpm build"
+		"build": "cd packages/vite-plugin-emt&&pnpm build&&cd ../vite-plugin-ustyle&&pnpm build",
+		"update-deps": "pnpm update&&cd benchmarks&&pnpm update&&cd ../packages/css&&pnpm update&&cd ../examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
 	},
 	"type": "module"
 }

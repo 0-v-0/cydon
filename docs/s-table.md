@@ -45,15 +45,7 @@ s-table.ts
 ```ts
 import { define, CydonOf, Data } from 'cydon'
 
-function deepClone(obj: Data) {
-	const result = obj.constructor()
-	if (typeof obj == 'object')
-		for (const key in obj) {
-			result[key] = typeof obj[key] == 'object' ?
-				deepClone(obj[key]) : obj[key]
-		}
-	return result
-}
+const cloneArray = <T extends {}>(arr: T[]) => arr.map(obj => ({ ...obj }))
 
 export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
@@ -87,7 +79,7 @@ export class TableElement<T extends {}> extends CydonElement {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		this.items = <T[]>deepClone(data.slice(i * n, i * n + n))
+		this.items = <T[]>cloneArray(data.slice(i * n, i * n + n))
 	}
 
 	constructor(data?: Data) {
