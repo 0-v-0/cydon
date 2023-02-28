@@ -3,8 +3,9 @@
  * https://github.com/0-v-0/cydon
  */
 
-import { for_ } from './directives'
-import { Constructor as Ctor, Data, getFunc } from './util'
+import { directives, for_ } from './directives'
+import { Constructor as Ctor, Data, DOMAttr, Part, Result, Target } from './type'
+import { getFunc } from './util'
 
 function parse(s: string, attr = '') {
 	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
@@ -37,53 +38,12 @@ function parse(s: string, attr = '') {
  */
 function update({ node, data, func }: Target) {
 	if (node.nodeType == 3)
-		(<Text>node).data = (<Func>func).call(data, <Element>node.parentNode)
+		(<Text>node).data = func.call(data, <Element>node.parentNode)
 	else
-		(<Func>func).call(data, <Element>node)
-}
-
-export type Part = {
-	deps?: Set<string>
-	func: Target['func']
-}
-
-export type AttrPart = Part & { keep?: boolean }
-
-export type Func = (this: Data, el: Element) => string
-
-export type Target = {
-	node: Text | Element
-	deps?: Set<string>
-	data: Data
-	func: Func | ((this: Data, el: Element) => void)
+		func.call(data, <Element>node)
 }
 
 type DF = DocumentFragment
-
-/** template result */
-export type Result = Partial<Part> & {
-	a?: Map<string, AttrPart> // attributes
-	r?: Results
-	s?: DF // shadow root
-	e?: string[] // [value, key, index]
-} | number
-
-export type Results = Result[]
-
-export type DOMAttr = Attr & {
-	ownerElement: Element
-}
-
-export type Directive = {
-	deps?: Set<string>
-	func?: Target['func']
-	keep?: boolean
-}
-
-export type DirectiveHandler =
-	(attr: DOMAttr, attrs: Map<string, AttrPart>) => Directive | void
-
-export const directives: DirectiveHandler[] = []
 
 const proxies = new WeakMap<Set<string>, ProxyHandler<Data>>()
 
@@ -140,10 +100,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			})
 		}
 
-		compile(results: Results, el: Element | DF, level = 0, i = 0) {
-			let result: Result | undefined
+		compile(results: Result[], el: Element | DF, level = 0, i = 0) {
+			let result
 			if (level) {
-				const map = new Map<string, AttrPart>()
+				const map = new Map<string, Part>()
 				const attrs = (<Element>el).attributes
 				// Find pattern in attributes
 				if (attrs) {
@@ -156,7 +116,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 								console.warn('invalid v-for expression: ' + val)
 								return
 							}
-							const r: Results = []
+							const r: Result[] = []
 							this.compile(r, (<HTMLTemplateElement>el).content)
 							results.push(level << 22 | i,
 								{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
@@ -170,7 +130,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						for (const handler of directives) {
 							const data = handler(attr, map)
 							if (data) {
-								map.set(name, <AttrPart>data)
+								map.set(name, <Part>data)
 								if (data.keep)
 									++i
 								else
@@ -191,7 +151,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			}
 			const s = (<Element>el).shadowRoot
 			if (s) {
-				const r: Results = []
+				const r: Result[] = []
 				this.compile(r, s)
 				results.push(level << 22 | i, result = { r, s })
 			}
@@ -211,7 +171,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			}
 		}
 
-		bind(results: Results, el: Element | DF = <any>this) {
+		bind(results: Result[], el: Element | DF = <any>this) {
 			let node: Node = el
 			let l = 0, n = 0, stack = []
 			for (let i = 0, len = results.length; i < len; ++i) {
@@ -256,7 +216,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		}
 
 		mount(el: Element | DF = <any>this) {
-			const results: Results = []
+			const results: Result[] = []
 			this.compile(results, el)
 			this.bind(results, el)
 			this.commit()

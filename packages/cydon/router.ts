@@ -1,4 +1,4 @@
-import { Constructor as Ctor } from '.'
+import { Constructor as Ctor, DOM } from '.'
 
 export type Callback = (url: string, fnb?: boolean, data?: any) => void
 
@@ -86,7 +86,7 @@ export const Router = <T extends HTMLElement>(base: Ctor<T>) => {
 				for (const el of this.root.children) {
 					const path = el.getAttribute('c-path') || el.getAttribute('src')
 					if (path)
-						(<HTMLElement>el).style.display = url == path ? '' : 'none'
+						(<DOM>el).style.display = url == path ? '' : 'none'
 				}
 				if (!fnb)
 					history.pushState('', '', url)

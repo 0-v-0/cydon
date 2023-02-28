@@ -1,6 +1,4 @@
-export type Data = Record<string, any>
-
-export type Constructor<T> = new (...args: any[]) => T
+import { Data } from "./type"
 
 const funcCache: Record<string, Function> = Object.create(null)
 
