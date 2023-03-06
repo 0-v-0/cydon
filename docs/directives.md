@@ -94,20 +94,9 @@ directives.push(({ name, ownerElement: el }) => {
 ```
 
 ### 局部指令
-Cydon并没有没有特定的局部指令写法，这里给出两种注册方式：
-1. 原生方法
-	```js
-	class CustomElement extends HTMLElement {
-		constructor() {
-			super()
-			const attr = this.getAttribute('attr')
-			if (attr != null) {
-				//...
-			}
-		}
-	}
-	```
-2. 注册全局指令时添加限定条件
+每个cydon实例都有一个`directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
+
+不推荐注册全局指令时添加限定条件来实现局部指令
 	```js
 	directives.push(({ name, value, ownerElement: el }) => {
 		if (el.tagName == 'CUSTOM-ELEMENT' && name == 'attr') {

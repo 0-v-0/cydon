@@ -23,7 +23,7 @@ export const isTargetElement = (element: Node, name: string) =>
 export const getSlotElementNodes = (slot: HTMLSlotElement) =>
 	slot.assignedNodes().filter(el => el.nodeType == 1 /* Node.ELEMENT_NODE */)
 
-export const querySlot = (el: HTMLElement, name: string) =>
+export const querySlot = (el: Element, name: string) =>
 	el.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
 
 export const toggle = (e: HTMLElement) => {

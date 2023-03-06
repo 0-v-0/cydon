@@ -77,6 +77,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		_parent?: Data
 
 		/**
+		 * directives
+		 */
+		directives = directives
+
+		/**
 		 * update callback
 		 * @param prop prop name
 		 */
@@ -127,7 +132,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					next: for (let i = 0; i < attrs.length;) {
 						const attr = <DOMAttr>attrs[i]
 						const name = attr.name
-						for (const handler of directives) {
+						for (const handler of this.directives) {
 							const data = handler(attr, map)
 							if (data) {
 								map.set(name, <Part>data)
