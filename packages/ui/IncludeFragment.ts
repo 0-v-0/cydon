@@ -5,8 +5,6 @@ const loaded = new WeakMap()
 // Functional stand in for the W3 spec "queue a task" paradigm
 const task = () => new Promise<void>(resolve => setTimeout(resolve, 0))
 
-const isWildcard = (accept: string | null) => accept && accept.split(',').find(x => x.match(/^\s*\*\/\*/))
-
 export default class IncludeFragmentElement extends HTMLElement {
 	static observedAttributes = ['src', 'lazy']
 
@@ -99,9 +97,6 @@ export default class IncludeFragmentElement extends HTMLElement {
 			.then(response => {
 				if (!response.ok)
 					throw new Error(`Failed to load resource: the server responded with a status of ${response.status}`)
-				const ct = response.headers.get('Content-Type')
-				if (!isWildcard(this.accept) && (!ct || !ct.includes(this.accept)))
-					throw new Error(`Failed to load resource: expected ${this.accept} but was ${ct}`)
 				return response.text()
 			})
 			.then(
