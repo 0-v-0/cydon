@@ -49,7 +49,7 @@ const proxies = new WeakMap<Set<string>, ProxyHandler<Data>>()
 
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
-	class Mixin extends (<Ctor<Object>>base) {
+	class Mixin extends (<Ctor<{ connectedCallback?(): void }>>base) {
 		[s: symbol]: any
 
 		/**
@@ -296,8 +296,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		}
 
 		connectedCallback() {
-			if (this instanceof Element)
+			if (this instanceof Element) {
+				super.connectedCallback?.()
 				this.mount()
+			}
 		}
 	}
 	return <new (data?: Data, ...args: any[]) => T & Mixin>Mixin
