@@ -94,6 +94,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		setData(data: Data = this) {
 			this.data = new Proxy(this.$data = data, {
+				get: (obj, key: string) => obj[key],
 				set: (obj, key: string, val, receiver) => {
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
@@ -150,7 +151,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					}
 					if (map.size)
 						results.push(level << 22 | i, result = { a: map })
-					if ((<Element>el).tagName.includes('-'))
+					if (el instanceof Mixin)
 						return
 				}
 			}

@@ -20,8 +20,6 @@ class MyElement extends CydonElement {
 	func(e: Event) {
         // 这里的this其实是一个Proxy对象，因此所有对this所作的更改将会同步到DOM中
         this.msg = 'OK'
-        // 不能在这里直接调用基类的某些方法，否则会抛出非法调用的异常，应当使用e.currentTarget访问真正的this
-        // this.focus() -> e.currentTarget.focus()
     }
 }
 ```
