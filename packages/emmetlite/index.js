@@ -1,4 +1,4 @@
-/* emmetLite v1.2.2 - emmet2html https://github.com/0-v-0/emmetLite */
+/* emmetLite v1.2.2 */
 
 export const itags = {// default elements
 	audio: 'source',

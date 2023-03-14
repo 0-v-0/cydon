@@ -5,7 +5,8 @@ export default defineConfig({
 		lib: {
 			entry: 'index.ts',
 			formats: ['iife'],
-			name: 'sw'
+			name: 'sw',
+			fileName: () => 'sw.js'
 		},
 		rollupOptions: {
 			output: { sourcemap: 'hidden' }

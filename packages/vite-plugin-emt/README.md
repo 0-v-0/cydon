@@ -31,13 +31,14 @@ export default {
 所有参数均可选
 | 名称         | 类型                     | 说明                                        |
 | ------------ | ------------------------ | ------------------------------------------- |
-| root         | string                   | emt文件所在根文件夹                         |
 | alwaysReload | boolean                  | 开发模式下，当emt文件改变后是否总是重新加载 |
+| emtLiteral   | boolean                  | 是否转换emt字面量                           |
 | log          | boolean                  | 重新加载时是否输出信息到控制台，默认true    |
-| styleProc    | StyleProcFunc            |                                             |
+| paths        | string[]                 | 除`root`外的include搜索路径                 |
 | read         | (path: string) => string | 自定义文件读取函数                          |
 | render       | Render                   | 自定义模板渲染函数                          |
-| paths        | string[]                 | 除`root`外的include搜索路径                 |
+| root         | string                   | emt文件所在根文件夹                         |
+| styleProc    | StyleProcFunc            |                                             |
 | templated    | boolean                  | 为true时每个emt元素模板至多展开一次         |
 | tplFile      | string                   | 自定义模板文件                              |
 

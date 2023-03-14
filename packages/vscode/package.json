@@ -4,22 +4,44 @@
   "description": "Language support for emt",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.75.1"
+    "vscode": "^1.76.1"
   },
   "categories": [
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "emt",
-      "aliases": ["Emt", "emt"],
-      "extensions": [".emt"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "emt",
-      "scopeName": "source.emt",
-      "path": "./syntaxes/emt.json"
-    }]
+    "languages": [
+      {
+        "id": "emt",
+        "aliases": [
+          "Emt",
+          "emt"
+        ],
+        "extensions": [
+          ".emt"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "emt",
+        "scopeName": "source.emt",
+        "path": "./syntaxes/emt.json"
+      },
+      {
+        "injectTo": [
+          "source.js",
+          "source.ts"
+        ],
+        "scopeName": "inline.emt",
+        "path": "./syntaxes/emt-embedded.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.html": "html",
+          "meta.embedded.block.css": "css",
+          "source.css": "css"
+        }
+      }
+    ]
   }
 }

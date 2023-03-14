@@ -19,14 +19,15 @@ type TitleCache = Record<string, {
 type TemplateCache = Record<string, any>
 
 export interface Option extends Omit<Plugin, 'name'> {
-	log?: boolean
 	alwaysReload?: boolean
+	emtLiteral?: boolean
+	log?: boolean
+	paths?: string[]
 	root?: string
-	styleProc?: StyleProcFunc
 	read?(path: string): string
 	render?: Render
+	styleProc?: StyleProcFunc
 	tplFile?: string
-	paths?: string[]
 	templated?: boolean
 }
 
@@ -38,6 +39,7 @@ const tplCache: TemplateCache = {}
 
 export default (config: Option = {}): Plugin => {
 	let {
+		emtLiteral = true,
 		log,
 		read = path => path ? include(path) : '',
 		root,
@@ -165,6 +167,12 @@ export default (config: Option = {}): Plugin => {
 				}
 				return []
 			}
+			return
+		},
+		transform(code, id) {
+			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts')))
+				return code.replace(/\bemt\s*`([\s\S]*?)(?<!\\)`/g,
+					(_, s) => '`' + emmet(s, '\t', styleProc) + '`')
 			return
 		},
 		...config

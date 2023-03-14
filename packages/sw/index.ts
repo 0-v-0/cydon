@@ -9,6 +9,7 @@ export type WSResponse = {
 }
 
 let ws: WebSocket | undefined,
+	waiting: Promise<Event | void>,
 	id = 0
 
 // 键：client字符串id，值：client数字id
@@ -17,7 +18,7 @@ const map = new Map<string, number>(),
 
 // 创建或返回已存在的ws连接
 const connect = async (): Promise<Event | void> => {
-	if (!ws || ws.readyState == WebSocket.CLOSED) {
+	if (!ws || ws.readyState > WebSocket.OPEN) {
 		ws = new WebSocket(`ws://${location.host}/wsapi`)
 		ws.binaryType = 'arraybuffer'
 		ws.addEventListener('message', (e: WSResponse) => {
@@ -44,8 +45,10 @@ const connect = async (): Promise<Event | void> => {
 				})
 			}
 		})
-		return new Promise(res => ws!.addEventListener('open', res))
+		return waiting = new Promise(res => ws!.addEventListener('open', res))
 	}
+	if (!ws.readyState) /* WebSocket.CONNECTING */
+		return waiting
 }
 
 self.addEventListener('message', e => {
