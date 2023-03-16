@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
 
 export default defineConfig({
-	root: '.',
 	define: {
 		'globalThis.CYDON_NO_TOGGLE': 'true'
 	},

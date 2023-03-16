@@ -16,7 +16,7 @@ let ws: WebSocket | undefined,
 const map = new Map<string, number>(),
 	queue: string[] = []
 
-// 创建或返回已存在的ws连接
+/** 创建或返回已存在的ws连接 */
 const connect = async (): Promise<Event | void> => {
 	if (!ws || ws.readyState > WebSocket.OPEN) {
 		ws = new WebSocket(`ws://${location.host}/wsapi`)
