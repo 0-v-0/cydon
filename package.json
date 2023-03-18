@@ -1,7 +1,7 @@
 {
 	"name": "@cydon/monorepo",
 	"private": true,
-	"packageManager": "pnpm@7.29.1",
+	"packageManager": "pnpm@7.29.3",
 	"version": "0.0.1",
 	"devDependencies": {
 		"@cydon/ui": "workspace:^0.0.1",

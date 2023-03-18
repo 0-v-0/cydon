@@ -13,6 +13,7 @@
 		"build": "vite build"
 	},
 	"dependencies": {
+		"known-css-properties": "^0.27.0",
 		"stylus": "^0.58.1",
 		"vite-plugin-emt": "workspace:0.0.1"
 	},

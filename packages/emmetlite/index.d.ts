@@ -11,7 +11,7 @@ export type StringMap = {
 
 export type TagProcFunc = (prop: TagProp) => boolean | void
 
-export type StyleProcFunc = (buffer: string, tag: string, attr: string[], result: string[]) => string
+export type StyleProcFunc = (str: string, tag: string, attr: string[], result: string[]) => string
 
 declare module 'emmetlite' {
 	export const itags: StringMap,

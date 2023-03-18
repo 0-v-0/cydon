@@ -2,11 +2,13 @@ import { writeFile } from 'fs'
 import { render as stylus, RenderOptions } from 'stylus'
 import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
 import { EsbuildTransformOptions, transformWithEsbuild } from 'vite'
+import { all } from 'known-css-properties'
 
 export * from 'vite-plugin-emt'
 export type { EsbuildTransformOptions }
 
 export interface PluginConfig extends Option {
+	inlineStyle?: boolean
 	writeIndexHtml?: boolean
 }
 
@@ -36,6 +38,8 @@ export function inlineTS(options?: EsbuildTransformOptions): Plugin {
 	}
 }
 
+const cssProps = new Set(all)
+
 export default (config?: PluginConfig): Plugin => emt({
 	read(path) {
 		// HACK: make unocss recongize classes in Shadow Root
@@ -57,22 +61,25 @@ export default (config?: PluginConfig): Plugin => emt({
 			writeFile(data!.DOCUMENT_ROOT + '/index.html', str, _ => { })
 		return str
 	},
-	styleProc(buffer, tag, _attr, result) {
+	styleProc(str, tag, _attr, result) {
 		if (!tag)
-			return buffer
-		buffer = '-' + buffer
-		let cls = ' class="'
+			return str
+		const inlineStyle = config?.inlineStyle && cssProps.has(tag.replace(/^>([^:]+):.*/g, '$1'))
+		str = (inlineStyle ?
+			tag[0] == '>' ? ' ' : ':'
+			: '-') + str
+		let cls = inlineStyle ? ' style="' : ' class="'
 		if (tag[0] == '>')
 			cls += tag = tag.substring(1)
 		else
-			buffer = tag + buffer
+			str = tag + str
 		const len = result.length,
 			last = result[len - 1],
 			s = last.replace(/>[\S\s]+/g, '>')
 		result[len - 1] = s.includes(cls) ?
-			last.replace(cls, cls + buffer + (cls.length > 8 ? '' : ' ')) :
-			last.replace('>', cls + buffer + '">')
-		return '>' + buffer
+			last.replace(cls, cls + str + (cls.length > 8 ? '' : inlineStyle ? ';' : ' ')) :
+			last.replace('>', cls + str + '">')
+		return '>' + str
 	},
 	...config
 })
