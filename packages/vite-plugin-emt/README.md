@@ -38,7 +38,6 @@ export default {
 | read         | (path: string) => string | 自定义文件读取函数                          |
 | render       | Render                   | 自定义模板渲染函数                          |
 | root         | string                   | emt文件所在根文件夹                         |
-| styleProc    | StyleProcFunc            |                                             |
 | templated    | boolean                  | 为true时每个emt元素模板至多展开一次         |
 | tplFile      | string                   | 自定义模板文件                              |
 

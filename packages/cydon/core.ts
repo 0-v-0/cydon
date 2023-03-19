@@ -151,7 +151,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					}
 					if (map.size)
 						results.push(level << 22 | i, result = { a: map })
-					if (el instanceof Mixin)
+					if ((<this><unknown>el).$data && (<this><unknown>el).directives)
 						return
 				}
 			}

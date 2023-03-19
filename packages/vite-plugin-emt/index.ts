@@ -1,4 +1,4 @@
-import emmet, { StyleProcFunc, tagProcs } from 'emmetlite'
+import emmet, { tagProcs } from 'emmetlite'
 import { basename, posix, resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
@@ -26,7 +26,6 @@ export interface Option extends Omit<Plugin, 'name'> {
 	root?: string
 	read?(path: string): string
 	render?: Render
-	styleProc?: StyleProcFunc
 	tplFile?: string
 	templated?: boolean
 }
@@ -44,7 +43,6 @@ export default (config: Option = {}): Plugin => {
 		read = path => path ? include(path) : '',
 		root,
 		render: rend = render,
-		styleProc,
 		tplFile = 'page.emt',
 		paths = [],
 		templated = true
@@ -74,7 +72,7 @@ export default (config: Option = {}): Plugin => {
 	}, include = globalThis.include = (url: string) => {
 		url = resolveAll(url)
 		const content = readFileSync(url, 'utf8')
-		return url?.endsWith('.emt') ? emmet(content, '\t', styleProc) : content
+		return url?.endsWith('.emt') ? emmet(content, '\t') : content
 	}
 	tagProcs.push(prop => {
 		const { tag, attr } = prop
@@ -171,8 +169,8 @@ export default (config: Option = {}): Plugin => {
 		},
 		transform(code, id) {
 			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts')))
-				return code.replace(/\bemt\s*`([\s\S]*?)(?<!\\)`/g,
-					(_, s) => '`' + emmet(s, '\t', styleProc) + '`')
+				return code.replace(/\bemt\s*`(.*?)(?<!\\)`/gs,
+					(_, s) => '`' + emmet(s, '\t') + '`')
 			return
 		},
 		...config

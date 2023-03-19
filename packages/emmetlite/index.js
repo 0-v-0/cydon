@@ -133,12 +133,12 @@ export const itags = {// default elements
 		btn: ' type="button"',
 	},
 	tagProcs = [prop => {
-		let { tag, taglist: list, result } = prop,
+		let { tag, tags, result } = prop,
 			s = tag.split(':'),
 			t
 		if (tag = s[0])
 			for (t = tag.toLowerCase(); tabbr[t] && (t = tag.replace(t, tabbr[t])) != tag;) tag = t
-		prop.tag = (tag || (t = list[list.length - 1]) && itags[t.toLowerCase()] ||
+		prop.tag = (tag || (t = tags[tags.length - 1]) && itags[t.toLowerCase()] ||
 			(t = result[result.length - 1]) && itags[t.slice(1).replace(/[\s>][\S\s]*/, '').toLowerCase()] ||
 			'div') + (eabbr[s[1]] || '')
 	}]
@@ -207,9 +207,9 @@ function extractTabs(input, indent) {
 	return res
 }
 
-function zencode(input, styleProc) {
+function zencode(input) {
 	function closeTag(ret) {
-		let tag = taglist.pop()
+		let tag = tagList.pop()
 		if (tag && !/^!|^(area|base|br|col|embed|frame|hr|img|input|link|meta|param|source|wbr)$/i.test(tag)) {
 			tag = '</' + tag + '>'
 			return ret ? tag : result.push(tag)
@@ -217,9 +217,8 @@ function zencode(input, styleProc) {
 		return ''
 	}
 	input = input.replace(/<!--[\S\s]*?-->/g, '')
-	let s = [], buffer, taglist = [], grouplist = [], lastgroup = [],
-		result = [], c, l = 0,
-		i = 0, len = input.length, g = 0, n = 0
+	let tokens = [], buffer, tagList = [], groups = [], lastGroup = [], result = [],
+		c, l = 0, i = 0, len = input.length, g = 0, n = 0
 	for (; i < len; i++) {
 		c = input[i]
 		switch (c) {
@@ -238,15 +237,15 @@ function zencode(input, styleProc) {
 			case ')':
 				if (!l) {
 					if (g < n)
-						s.push(input.slice(g, n))
+						tokens.push(input.slice(g, n))
 					g = n + 1
-					s.push(c)
+					tokens.push(c)
 				}
 				break
 
 			case '*':
 				if (g < n && !l) {
-					s.push(input.slice(g, n))
+					tokens.push(input.slice(g, n))
 					g = n
 				}
 				break
@@ -254,7 +253,7 @@ function zencode(input, styleProc) {
 			case '}':
 				if (l > 0) l--
 				if (!l && g < n) {
-					s.push(input.slice(g, n + 1))
+					tokens.push(input.slice(g, n + 1))
 					g = n + 1
 				}
 				break
@@ -264,42 +263,41 @@ function zencode(input, styleProc) {
 				break
 			default:
 				if (!l && buffer == '}')
-					s.push('+')
+					tokens.push('+')
 		}
 		n++
 		buffer = c
 	}
 	if (g < len)
-		s.push(input.slice(g, len))
-	for (i = 0, len = s.length; i < len; i++) {
-		let set = s[i], tag = '', content = '', attr = [''],
-			tags = [], lasttag, prevg
-		switch (set) {
+		tokens.push(input.slice(g, len))
+	for (i = 0, len = tokens.length; i < len; i++) {
+		let token = tokens[i], tag, content, attr = [''],
+			tags = [], lastTag, p
+		switch (token) {
 			case '^':
-				lasttag = result[result.length - 1]
-				if (lasttag && !lasttag.startsWith('</')) closeTag()
+				lastTag = result[result.length - 1]
+				if (lastTag && !lastTag.startsWith('</')) closeTag()
 				closeTag()
 			case '>':
 				break
 			case '+':
-				lasttag = result[result.length - 1]
-				if (lasttag && !lasttag.startsWith('</')) closeTag()
+				lastTag = result[result.length - 1]
+				if (lastTag && !lastTag.startsWith('</')) closeTag()
 				break
 			case '(':
-				grouplist.push([result.length, taglist.length])
+				groups.push([result.length, tagList.length])
 				break
 			case ')':
-				prevg = grouplist[grouplist.length - 1]
-				l = prevg[1]
-				for (g = taglist.length; g-- > l;) closeTag()
-				lastgroup = result.slice(prevg[0])
+				[p, l] = groups[groups.length - 1]
+				for (g = tagList.length; g-- > l;) closeTag()
+				lastGroup = result.slice(p)
 				break
 			default:
-				if (set[n = 0] == '*') {
-					g = parseInt(set.substring(1)) | 0
-					if (lastgroup.length) {
-						tags = lastgroup
-						result.length = grouplist.pop()[0]
+				if (token[n = 0] == '*') {
+					g = parseInt(token.substring(1)) | 0
+					if (lastGroup.length) {
+						tags = lastGroup
+						result.length = groups.pop()[0]
 					} else if (result.length)
 						tags.push(result.pop(), closeTag(true))
 					for (; n < g; n++)
@@ -312,48 +310,41 @@ function zencode(input, styleProc) {
 							}))
 						}
 				} else {
-					lastgroup.length = 0
-					n = /\{([\s\S]+)}|\[([\s\S]+?)]|([.#]?)([^[.#{\s]+(?:(?<=\$)\{[^}]+})?)/g
-					while (l = n.exec(set)) {
-						if (l[1])
-							content = l[1]
-						else if (l[2])
-							attr.push(l[2].replace(/([^=\s]+)(=?)('[^']*'|"[^"]*"|[^"'\s]*)/g,
-								(m, attr, s, c) => (aabbr[attr] || attr) + s +
-									(s && c[0] != '"' && c[0] != "'" ? '"' + c + '"' : c)))
-						else {
-							buffer = l[4]
-							if (l[3] == '#')
-								attr.push('id="' + buffer + '"')
-							else if (l[3] == '.')
-								attr[0] += buffer + ' '
-							else
-								tag = styleProc(buffer || "", tag, attr, result)
-						}
-					}
+					lastGroup.length = 0;
+					[buffer, tag, p, content = ''] =
+						/((?:[^[{\s]+(?:(?<=\$)\{[^}]+})?)*)(?:\[(.+?)])?(?:\{(.+)})?/s.exec(token)
+					if (p)
+						attr.push(p.replace(/([^=\s]+)(=?)('[^']*'|"[^"]*"|[^"'\s]*)/g,
+							(m, attr, s, c) => (aabbr[attr] || attr) + s +
+								(s && c[0] != '"' && c[0] != "'" ? '"' + c + '"' : c)));
+					[tag, ...l] = tag.split('.')
+					attr[0] = l.join(' ');
+					[tag, p] = tag.split('#')
+					if (p)
+						attr.push('id="' + p + '"')
 					if (!content || tag || attr[0] || attr[1]) {
-						content = { tag, taglist, attr, content, result }
-						for (l of tagProcs)
-							if (l(content))
+						content = { tag, tags: tagList, attr, content, match: buffer, token, result }
+						for (const process of tagProcs)
+							if (process(content))
 								break
 						if (attr[0])
-							attr[0] = ' class="' + attr[0].trimEnd() + '"'
+							attr[0] = ' class="' + attr[0] + '"'
 						if (tag = content.tag)
 							result.push('<' + tag + attr.join(' ') + '>' + content.content)
-						taglist.push(tag.replace(/(!|\s)[\S\s]*/g, ''))
+						tagList.push(tag.replace(/(!|\s)[\S\s]*/g, ''))
 					} else {
 						result.push(content)
-						taglist.push('')
+						tagList.push('')
 					}
 				}
 		}
 	}
-	for (i = taglist.length; i--;) closeTag()
+	for (i = tagList.length; i--;) closeTag()
 	return result.join('')
 }
 
-export default (input, indent, styleProc = tag => tag) => {
+export default (input, indent) => {
 	if (indent)
 		input = extractTabs(input, indent)
-	return zencode(input, styleProc)
+	return zencode(input)
 }

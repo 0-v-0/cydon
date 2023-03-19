@@ -1,8 +1,10 @@
 export type TagProp = {
 	tag: string
-	taglist: string[]
+	tags: string[]
 	attr: string[]
 	content: string
+	match: string
+	token: string
 	result: string[]
 }
 export type StringMap = {
@@ -11,8 +13,6 @@ export type StringMap = {
 
 export type TagProcFunc = (prop: TagProp) => boolean | void
 
-export type StyleProcFunc = (str: string, tag: string, attr: string[], result: string[]) => string
-
 declare module 'emmetlite' {
 	export const itags: StringMap,
 		tabbr: StringMap,
@@ -20,6 +20,6 @@ declare module 'emmetlite' {
 		eabbr: StringMap,
 		tagProcs: TagProcFunc[]
 
-	const emmet: (input: string, intent?: string, styleProc?: StyleProcFunc) => string
+	const emmet: (input: string, intent?: string) => string
 	export default emmet
 }
