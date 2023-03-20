@@ -105,17 +105,17 @@ export default class TabContainer extends HTMLElement {
 		for (const tab of tabs) {
 			if (tab != selectedTab) {
 				tab.ariaSelected = 'false'
-				tab.setAttribute('tabindex', '-1')
+				tab.tabIndex = -1
 			}
 		}
 		for (const panel of panels) {
 			panel.hidden = true
-			if (!panel.hasAttribute('tabindex') && !panel.hasAttribute('data-tab-container-no-tabstop'))
-				panel.setAttribute('tabindex', '0')
+			if (panel.tabIndex == -1 && !panel.hasAttribute('data-no-tabstop'))
+				panel.tabIndex = 0
 		}
 
 		selectedTab.ariaSelected = 'true'
-		selectedTab.setAttribute('tabindex', '0')
+		selectedTab.tabIndex = 0
 		selectedTab.focus()
 		selectedPanel.hidden = false
 

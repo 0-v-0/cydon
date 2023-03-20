@@ -88,7 +88,7 @@ importers:
       postcss: ^8.4.21
       stylus: ^0.59.0
       terser: ^5.16.6
-      typedoc: ^0.23.27
+      typedoc: ^0.23.28
       typescript: ^4.9.5
       unocss: ^0.50.6
       vite: ^4.2.0
@@ -110,7 +110,7 @@ importers:
       postcss: registry.npmmirror.com/postcss/8.4.21
       stylus: registry.npmmirror.com/stylus/0.59.0
       terser: registry.npmmirror.com/terser/5.16.6
-      typedoc: registry.npmmirror.com/typedoc/0.23.27_typescript@4.9.5
+      typedoc: registry.npmmirror.com/typedoc/0.23.28_typescript@4.9.5
       typescript: registry.npmmirror.com/typescript/4.9.5
       unocss: registry.npmmirror.com/unocss/0.50.6_postcss@8.4.21+vite@4.2.0
       vite: registry.npmmirror.com/vite/4.2.0_e2j432uqjsllrc6fjertkbo7py
@@ -1199,7 +1199,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: registry.npmmirror.com/browserslist/4.21.5
-      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001467
+      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001468
       fraction.js: registry.npmmirror.com/fraction.js/4.2.0
       normalize-range: registry.npmmirror.com/normalize-range/0.1.2
       picocolors: registry.npmmirror.com/picocolors/1.0.0
@@ -1255,7 +1255,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001467
+      caniuse-lite: registry.npmmirror.com/caniuse-lite/1.0.30001468
       electron-to-chromium: registry.npmmirror.com/electron-to-chromium/1.4.333
       node-releases: registry.npmmirror.com/node-releases/2.0.10
       update-browserslist-db: registry.npmmirror.com/update-browserslist-db/1.0.10_browserslist@4.21.5
@@ -1296,10 +1296,10 @@ packages:
     version: 5.3.1
     engines: {node: '>=6'}
 
-  registry.npmmirror.com/caniuse-lite/1.0.30001467:
-    resolution: {integrity: sha512-cEdN/5e+RPikvl9AHm4uuLXxeCNq8rFsQ+lPHTfe/OtypP3WwnVVbjn+6uBV7PaFL6xUFzTh+sSCOz1rKhcO+Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001467.tgz}
+  registry.npmmirror.com/caniuse-lite/1.0.30001468:
+    resolution: {integrity: sha512-zgAo8D5kbOyUcRAgSmgyuvBkjrGk5CGYG5TYgFdpQv+ywcyEpo1LOWoG8YmoflGnh+V+UsNuKYedsoYs0hzV5A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001468.tgz}
     name: caniuse-lite
-    version: 1.0.30001467
+    version: 1.0.30001468
     dev: true
 
   registry.npmmirror.com/chalk/2.4.2:
@@ -3007,10 +3007,10 @@ packages:
     dependencies:
       glob: registry.npmmirror.com/glob/7.2.3
 
-  registry.npmmirror.com/rollup/3.19.1:
-    resolution: {integrity: sha512-lAbrdN7neYCg/8WaoWn/ckzCtz+jr70GFfYdlf50OF7387HTg+wiuiqJRFYawwSPpqfqDNYqK7smY/ks2iAudg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/rollup/-/rollup-3.19.1.tgz}
+  registry.npmmirror.com/rollup/3.20.0:
+    resolution: {integrity: sha512-YsIfrk80NqUDrxrjWPXUa7PWvAfegZEXHuPsEZg58fGCdjL1I9C1i/NaG+L+27kxxwkrG/QEDEQc8s/ynXWWGQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/rollup/-/rollup-3.20.0.tgz}
     name: rollup
-    version: 3.19.1
+    version: 3.20.0
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
@@ -3632,15 +3632,15 @@ packages:
     version: 0.8.1
     engines: {node: '>=8'}
 
-  registry.npmmirror.com/typedoc/0.23.27_typescript@4.9.5:
-    resolution: {integrity: sha512-YKjlxX3LEhYbMCkemjlpNh1OKDiFa+ynqP0VRPsH28bEugrMTGI6l8DC6oX5kzFcUKKlYWKpZDSGWszuO/FR3g==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typedoc/-/typedoc-0.23.27.tgz}
-    id: registry.npmmirror.com/typedoc/0.23.27
+  registry.npmmirror.com/typedoc/0.23.28_typescript@4.9.5:
+    resolution: {integrity: sha512-9x1+hZWTHEQcGoP7qFmlo4unUoVJLB0H/8vfO/7wqTnZxg4kPuji9y3uRzEu0ZKez63OJAUmiGhUrtukC6Uj3w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/typedoc/-/typedoc-0.23.28.tgz}
+    id: registry.npmmirror.com/typedoc/0.23.28
     name: typedoc
-    version: 0.23.27
+    version: 0.23.28
     engines: {node: '>= 14.14'}
     hasBin: true
     peerDependencies:
-      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x
     dependencies:
       lunr: registry.npmmirror.com/lunr/2.3.9
       marked: registry.npmmirror.com/marked/4.2.12
@@ -3838,7 +3838,7 @@ packages:
       esbuild: registry.npmmirror.com/esbuild/0.17.12
       postcss: registry.npmmirror.com/postcss/8.4.21
       resolve: registry.npmmirror.com/resolve/1.22.1
-      rollup: registry.npmmirror.com/rollup/3.19.1
+      rollup: registry.npmmirror.com/rollup/3.20.0
     optionalDependencies:
       fsevents: registry.npmmirror.com/fsevents/2.3.2
 
@@ -3873,7 +3873,7 @@ packages:
       esbuild: registry.npmmirror.com/esbuild/0.17.12
       postcss: registry.npmmirror.com/postcss/8.4.21
       resolve: registry.npmmirror.com/resolve/1.22.1
-      rollup: registry.npmmirror.com/rollup/3.19.1
+      rollup: registry.npmmirror.com/rollup/3.20.0
       stylus: registry.npmmirror.com/stylus/0.59.0
       terser: registry.npmmirror.com/terser/5.16.6
     optionalDependencies:

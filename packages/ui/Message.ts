@@ -62,7 +62,7 @@ const create = () => {
 		if (msg.open === false)
 			return msg
 	}
-	return messageContent.appendChild(document.createElement('c-message'))
+	return messageContent.appendChild(new Message)
 }
 
 export const
