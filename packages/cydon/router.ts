@@ -1,6 +1,5 @@
-import { Constructor as Ctor, DOM } from '.'
-
-export type Callback = (url: string, fnb?: boolean, data?: any) => void
+import { Constructor as Ctor } from '.'
+import { onDOMContentLoaded } from '../ui'
 
 /**
  * 获取url中的路径
@@ -55,18 +54,18 @@ export const Router = <T extends HTMLElement>(base: Ctor<T>) => {
 							e.stopPropagation()
 
 							// 标签的data-属性值将作为data传入新页面
-							this.jump(url, false, el.dataset)
+							this.jump(url, el.dataset)
 						}
 					}
 				},
-					popstate = (e: PopStateEvent) => this.jump(location.href, true, e.state)
+					popstate = (e: PopStateEvent) => this.jump(location.href, e.state, true)
 				this.addEventListener('click', click)
 				addEventListener('popstate', popstate)
 				this.stop = () => {
 					this.removeEventListener('click', click)
 					removeEventListener('popstate', popstate)
 				}
-				addEventListener('DOMContentLoaded', () => this.jump(location.href, true))
+				onDOMContentLoaded(() => this.jump(location.href, null, true))
 			}
 		}
 
@@ -76,23 +75,12 @@ export const Router = <T extends HTMLElement>(base: Ctor<T>) => {
 		/**
 		 * 跳转到指定页面
 		 * @param url
-		 * @param fnb      Forward And Back，表示当前操作是否由前进和后退触发
 		 * @param data     要传到新页面的参数，可省略
-		 * @param callback 请求成功时的回调
+		 * @param fnb      Forward And Back，表示当前操作是否由前进和后退触发
 		 */
-		jump(url: string, fnb = false, data?: any, callback?: Callback) {
-			url = getPath(url)
-			try {
-				for (const el of this.root.children) {
-					const path = el.getAttribute('c-path') || el.getAttribute('src')
-					if (path)
-						(<DOM>el).style.display = url == path ? '' : 'none'
-				}
-				if (!fnb)
-					history.pushState('', '', url)
-			} finally {
-				callback?.(url, fnb, data)
-			}
+		jump(url: string, data?: any, fnb = false) {
+			if (!fnb)
+				history.pushState(data, '', getPath(url))
 		}
 	}
 	return <Ctor<T & Mixin>>Mixin
