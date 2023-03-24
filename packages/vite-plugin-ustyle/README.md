@@ -51,8 +51,7 @@ output:
 
 ## Options
 所有参数均可选，默认值均为false
-| 名称           | 类型    | 说明                         |
-| -------------- | ------- | ---------------------------- |
-| inlineStyle    | boolean | 是否启用内联样式支持         |
-| writeIndexHtml | boolean | 是否输出index.html，用于构建 |
+| 名称        | 类型    | 说明                 |
+| ----------- | ------- | -------------------- |
+| inlineStyle | boolean | 是否启用内联样式支持 |
 其他选项见vite-plugin-emt

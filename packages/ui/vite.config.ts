@@ -3,7 +3,7 @@ import CleanCSS, { OptionsPromise } from 'clean-css'
 import Inspect from 'vite-plugin-inspect'
 import progress from 'vite-plugin-progress'
 import { presetAttributify, presetUno } from 'unocss'
-import transformerDirective from '@unocss/transformer-directives'
+import directives from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
 import { BuildOptions, defineConfig } from 'vite'
 import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
 		}
 	}
 
-	const transformers = [transformerDirective({ varStyle: false })]
+	const transformers = [directives({ varStyle: false })]
 	if (!dev)
 		transformers.push(cleanCSS())
 	const plugins = [

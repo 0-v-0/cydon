@@ -4,12 +4,12 @@ import { getFunc } from './util'
 
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [value, key, index]: string[]) {
 	const data = cydon.$data
-	const arr = data[value]
+	let arr = data[value]
 	if (!Array.isArray(arr)) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
-	const newScope = !cydon.deps
+	const newScope = !cydon._parent
 	const parent = el.parentElement!
 	const content = el.content
 	const count = content.childElementCount
@@ -19,7 +19,6 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		n *= count
 		if (n) {
 			let len = list.length, i = len / count | 0
-			const start = i
 			for (; len < n; len += count) {
 				const target = <DocumentFragment>content.cloneNode(true)
 				const c: Cydon & Data = ctxs[i++] = Object.create(cydon)
@@ -33,19 +32,15 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 				if (index)
 					c[index] = len
 				c.bind(results, target)
+				render(len, arr[len])
+				if (newScope)
+					c.commit()
 				parent.appendChild(target)
-				render(len)
 			}
-			const end = i
 			for (; len > n;)
 				list[--len].remove()
-			queueMicrotask(() => {
-				if (newScope)
-					for (let i = start; i < end; i++)
-						ctxs[i].commit()
-				else
-					cydon.commit()
-			})
+			if (!newScope)
+				queueMicrotask(() => cydon.commit())
 		} else // clear
 			parent.textContent = ''
 		ctxs.length = n
@@ -56,7 +51,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 
 	const onUpdate = (prop: string) => cydon.updateValue(prop)
 
-	const render = (i: number, item = arr[i]) => {
+	const render = (i: number, item: any) => {
 		const c = ctxs[i]
 		if (!c[key])
 			c[key] = new Proxy(item || {}, {
@@ -98,6 +93,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		get: () => items,
 		set(v) {
 			if (v != items) {
+				arr = v
 				items.length = v.length
 				Object.assign(items, v)
 			}

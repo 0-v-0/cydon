@@ -1,6 +1,5 @@
-import { writeFile } from 'fs'
 import { render as stylus, RenderOptions } from 'stylus'
-import emt, { Option, Plugin, render, tagProcs } from 'vite-plugin-emt'
+import emt, { Option, Plugin, tagProcs } from 'vite-plugin-emt'
 import { EsbuildTransformOptions, transformWithEsbuild } from 'vite'
 import { all } from 'known-css-properties'
 
@@ -9,7 +8,6 @@ export type { EsbuildTransformOptions }
 
 export interface PluginConfig extends Option {
 	inlineStyle?: boolean
-	writeIndexHtml?: boolean
 }
 
 export const inlineStylus = (options?: RenderOptions): Plugin => ({
@@ -19,16 +17,14 @@ export const inlineStylus = (options?: RenderOptions): Plugin => ({
 			(_, a, b, s) => a + b + stylus(s, options!))
 })
 
-export function inlineTS(options?: EsbuildTransformOptions): Plugin {
-	return {
-		name: 'inline-ts',
-		transform(code, id) {
-			if (id.includes('html-proxy&') && id.endsWith('.js'))
-				return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
-			return
-		}
+export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
+	name: 'inline-ts',
+	transform(code, id) {
+		if (id.includes('html-proxy&') && id.endsWith('.js'))
+			return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
+		return
 	}
-}
+})
 
 const cssProps = new Set(all)
 
@@ -64,12 +60,6 @@ export default (config?: PluginConfig): Plugin => {
 					classes = '/* ' + classes + '*/ '
 				return classes + match
 			})
-		},
-		render(str, data) {
-			str = render(str, data)
-			if (config?.writeIndexHtml && data!.REQUEST_PATH == 'index.emt')
-				writeFile(data!.DOCUMENT_ROOT + '/index.html', str, _ => { })
-			return str
 		},
 		...config
 	})

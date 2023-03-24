@@ -18,7 +18,7 @@ export const Router = <T extends HTMLElement>(base: Ctor<T>) => {
 		 */
 		selector = 'a'
 
-		_routerRunning?: boolean
+		routerRunning?: boolean
 
 		/** 开始监听事件 */
 		start() {
@@ -26,10 +26,10 @@ export const Router = <T extends HTMLElement>(base: Ctor<T>) => {
 				if (!this.root)
 					return console.warn('root element is not defined')
 
-				if (this._routerRunning)
+				if (this.routerRunning)
 					return console.warn('router is already running')
 
-				this._routerRunning = true
+				this.routerRunning = true
 			}
 
 			if (this.root) {

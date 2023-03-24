@@ -45,21 +45,23 @@
 				</div>
 			</div>
 			<table class="table table-hover table-striped test-data">
-				<template c-for="item; rows">
-					<tr :class="danger: item == selected">
-						<td class="col-md-1">${item.id}</td>
-						<td class="col-md-4">
-							<a role="select" @click="select">${item.label}</a>
-						</td>
-						<td class="col-md-1">
-							<a>
-								<span role="delete" @click="delete" class="glyphicon glyphicon-remove"
-									aria-hidden="true"></span>
-							</a>
-						</td>
-						<td class="col-md-6"></td>
-					</tr>
-				</template>
+				<tbody>
+					<template c-for="item; rows">
+						<tr :class="danger: item == selected">
+							<td class="col-md-1">${item.id}</td>
+							<td class="col-md-4">
+								<a role="select" @click="select">${item.label}</a>
+							</td>
+							<td class="col-md-1">
+								<a>
+									<span role="delete" @click="delete" class="glyphicon glyphicon-remove"
+										aria-hidden="true"></span>
+								</a>
+							</td>
+							<td class="col-md-6"></td>
+						</tr>
+					</template>
+				</tbody>
 			</table>
 		</div>
 		<span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>

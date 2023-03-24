@@ -3,7 +3,7 @@ import { basename, posix, resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
 import events from 'events'
-import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
+import { createReadStream, existsSync, promises as fs, readFileSync, writeFile } from 'fs'
 import { Plugin, ViteDevServer } from 'vite'
 import { Data, Render, render } from './simpletpl'
 
@@ -28,6 +28,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 	render?: Render
 	tplFile?: string
 	templated?: boolean
+	writeHtml?: boolean
 }
 
 // https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
@@ -45,7 +46,8 @@ export default (config: Option = {}): Plugin => {
 		render: rend = render,
 		tplFile = 'page.emt',
 		paths = [],
-		templated = true
+		templated = true,
+		writeHtml
 	} = config
 	const resolve = (p: string, base = root!, throwOnErr = false) => {
 		let i = p.indexOf('?')
@@ -141,12 +143,13 @@ export default (config: Option = {}): Plugin => {
 					})
 					await events.once(rl, 'close')
 				}
-				const content = 'doc_title' in data ?
-					await server.transformIndexHtml?.(req.originalUrl!,
-						rend(include(tplFile), data), req.originalUrl) :
-					rend(include(path), data)
+				const content = rend(include('doc_title' in data ? tplFile : path), data)
+				if (writeHtml)
+					writeFile(data.DOCUMENT_ROOT + '/' + basename(url, '.emt') + '.html', content, _ => { })
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
-				res.end(content)
+				res.end('doc_title' in data ?
+					await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl) :
+					content)
 			})
 		},
 		handleHotUpdate({ file, server }) {

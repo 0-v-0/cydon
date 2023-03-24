@@ -40,6 +40,7 @@ export default {
 | root         | string                   | emt文件所在根文件夹                         |
 | templated    | boolean                  | 为true时每个emt元素模板至多展开一次         |
 | tplFile      | string                   | 自定义模板文件                              |
+| writeHtml    | boolean                  | 是否输出html，用于构建                      |
 
 ### emt环境变量
 环境变量类型均为string

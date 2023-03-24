@@ -17,7 +17,12 @@ script[type=module]{
 
 	@define('my-counter')
 	class MyCounter extends CydonElement {
-		value = +this.getAttribute('value')!
+		static observedAttributes = ['value']
+		value = 0
+
+		attributeChangedCallback(_attr: string, _oldVal: string, newVal: string) {
+			this.data.value = +newVal
+		}
 	}
 
 	declare global {
