@@ -235,8 +235,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			let proxy: ProxyHandler<Data> | undefined
 			if (deps) {
 				proxy = proxies.get(deps)
-				if (!proxy) {
-					proxy = {
+				if (!proxy)
+					proxies.set(deps, proxy = {
 						get: (obj, key, receiver) => {
 							if (typeof key == 'string') {
 								if (this.deps && !obj.hasOwnProperty(key))
@@ -245,9 +245,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 							}
 							return Reflect.get(obj, key, receiver)
 						}
-					}
-					proxies.set(deps, proxy)
-				}
+					})
 				this.targets.add(target)
 				this.queue.add(target)
 			}
