@@ -3,6 +3,7 @@ import { basename, posix, resolve as res } from 'path'
 import readline from 'readline'
 import colors from 'picocolors'
 import events from 'events'
+import MagicString from 'magic-string'
 import { createReadStream, existsSync, promises as fs, readFileSync, writeFile } from 'fs'
 import { Plugin, ViteDevServer } from 'vite'
 import { Data, Render, render } from './simpletpl'
@@ -171,9 +172,14 @@ export default (config: Option = {}): Plugin => {
 			return
 		},
 		transform(code, id) {
-			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts')))
-				return code.replace(/\bemt\s*`(.*?)(?<!\\)`/gs,
-					(_, s) => '`' + emmet(s, '\t') + '`')
+			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts'))) {
+				const ms = new MagicString(code)
+				return {
+					code: ms.replace(/\bemt\s*`(.*?)(?<!\\)`/gs,
+						(_, s) => '`' + emmet(s, '\t') + '`').toString(),
+					map: ms.generateMap({ source: id })
+				}
+			}
 			return
 		},
 		...config

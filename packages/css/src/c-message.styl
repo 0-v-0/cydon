@@ -11,15 +11,15 @@ c-message
 	transition var(--ui-animate-time, 0.3s) cubic-bezier(0.645, 0.045, 0.355, 1)
 	animation fadeIn 0.25s both
 
-c-message[type="success"]
+c-message[type=success]
 	background-color var(--ui-green, #1cad70)
-c-message[type="error"]
+c-message[type=error]
 	background-color var(--ui-red, #eb4646)
-c-message[type="warning"]
+c-message[type=warning]
 	background-color var(--ui-orange, #f59b00)
-c-message[type="success"]:before
-c-message[type="error"]:before
-c-message[type="warning"]:before
+c-message[type=success]:before
+c-message[type=error]:before
+c-message[type=warning]:before
 	flex-shrink 0
 	width 1.2em
 	height 1.2em
@@ -27,12 +27,12 @@ c-message[type="warning"]:before
 	background url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath fill='%23FFF' d='M163.038 57.226c-5.217-4.162-5.713-4.289-11.674-7.244-2.683-1.344-6.633 2.113-8.569 4.67l-52.648 67.042-34.301-43.387c-1.94-2.558-5.516-3.499-8.2-2.293-6.11 3.095-5.496 2.992-10.715 7.029-2.386 1.883-2.535 5.245-.597 7.793 0 0 36.97 46.917 41.44 52.565 6.557 8.068 18.483 7.669 24.744 0 4.62-5.781 61.117-78.506 61.117-78.506 1.937-2.559 1.788-5.918-.597-7.669z'/%3E%3C/svg%3E") no-repeat
 	background-size contain
 	transform translate(-0.4em, 0)
-c-message[type="error"]:before
+c-message[type=error]:before
 	background-image url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath fill='%23FFF' d='M116.153 99.999l36.484-36.486a7.369 7.369 0 0 0 0-10.423l-5.212-5.213a7.375 7.375 0 0 0-10.425 0l-36.484 36.485-36.485-36.485a7.374 7.374 0 0 0-10.424 0l-5.211 5.213a7.365 7.365 0 0 0 0 10.423L84.88 99.999l-36.483 36.485a7.369 7.369 0 0 0 0 10.426l5.211 5.213a7.38 7.38 0 0 0 10.424 0l36.485-36.486L137 152.122a7.38 7.38 0 0 0 10.425 0l5.212-5.213a7.372 7.372 0 0 0 0-10.426l-36.484-36.484z'/%3E%3C/svg%3E")
-c-message[type="warning"]:before
+c-message[type=warning]:before
 	background-image url("data:image/svg+xml,%3Csvg%20class%3D%22icon%22%20viewBox%3D%220%200%201024%201024%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%3E%3Cpath%20d%3D%22M413%20178c5.5%200%2010.1%204.6%2010.1%2010.1V413c0%205.5-4.6%2010.1-10.1%2010.1H188.1c-5.5%200-10.1-4.6-10.1-10.1V188.1c0-5.5%204.6-10.1%2010.1-10.1H413m0-50H188.1c-33.1%200-60.1%2027-60.1%2060.1V413c0%2033.1%2027%2060.1%2060.1%2060.1H413c33.1%200%2060.1-27%2060.1-60.1V188.1c0-33.1-27-60.1-60.1-60.1zm423.1%20345.1H611.2c-33.1%200-60.1-27-60.1-60.1V188.1c0-33.1%2027-60.1%2060.1-60.1h224.9c33.1%200%2060.1%2027%2060.1%2060.1V413c0%2033-27.1%2060.1-60.1%2060.1zM413%20601.3c5.5%200%2010.1%204.6%2010.1%2010.1v224.9c0%205.5-4.6%2010.1-10.1%2010.1H188.1c-5.5%200-10.1-4.6-10.1-10.1V611.4c0-5.5%204.6-10.1%2010.1-10.1H413m0-50H188.1c-33.1%200-60.1%2027-60.1%2060.1v224.9c0%2033.1%2027%2060.1%2060.1%2060.1H413c33.1%200%2060.1-27%2060.1-60.1V611.4c0-33-27-60.1-60.1-60.1zm423.1%2050c5.5%200%2010.1%204.6%2010.1%2010.1v224.9c0%205.5-4.6%2010.1-10.1%2010.1H611.2c-5.5%200-10.1-4.6-10.1-10.1V611.4c0-5.5%204.6-10.1%2010.1-10.1h224.9m0-50H611.2c-33.1%200-60.1%2027-60.1%2060.1v224.9c0%2033.1%2027%2060.1%2060.1%2060.1h224.9c33.1%200%2060.1-27%2060.1-60.1V611.4c0-33-27.1-60.1-60.1-60.1z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E")
 
-c-message[type="loading"]
+c-message[type=loading]
 	top 50%
 	left 50%
 	width auto
@@ -43,7 +43,7 @@ c-message[type="loading"]
 	border-radius var(--ui-radius, 0.25em)
 	opacity 0
 	transform translate(-50%, -50%)
-c-message[type="loading"][open]:before
+c-message[type=loading][open]:before
 	display inline-block
 	width 1.2em
 	height 1.2em
@@ -52,10 +52,10 @@ c-message[type="loading"][open]:before
 	background var(--ui-loading) center / 100%
 	filter brightness(100)
 	animation spin 1s linear infinite
-c-message[type="loading"][open]
+c-message[type=loading][open]
 	visibility visible
 	opacity 1
-c-message[type="loading"]:before
+c-message[type=loading]:before
 	display none
 
 @media (prefers-reduced-motion reduce)

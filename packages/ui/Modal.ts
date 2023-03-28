@@ -12,7 +12,6 @@ export default class Modal extends HTMLElement {
 	}
 
 	show() {
-		this.ariaHidden = null
 		this.ariaModal = 'true'
 		this.setAttribute('role', 'dialog')
 		this.classList.add('show')
@@ -20,11 +19,9 @@ export default class Modal extends HTMLElement {
 			this.classList.add('in')
 			this.focus()
 		}, 150)
-		//this.scrollBar.hide()
 	}
 
 	hide() {
-		this.ariaHidden = 'true'
 		this.ariaModal = null
 		this.removeAttribute('role')
 		this.classList.remove('in')
