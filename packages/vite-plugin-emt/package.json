@@ -13,7 +13,7 @@
 		"build": "vite build"
 	},
 	"dependencies": {
-		"emmetlite": "workspace:0.0.1",
+		"emmetlite": "workspace:*",
 		"magic-string": "^0.30.0",
 		"picocolors": "^1.0.0",
 		"vite": "^4.2.1"

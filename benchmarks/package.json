@@ -12,7 +12,7 @@
     "cydon"
   ],
   "dependencies": {
-    "cydon": "workspace:0.0.1"
+    "cydon": "workspace:*"
   },
   "devDependencies": {
     "vite": "^4.2.1"

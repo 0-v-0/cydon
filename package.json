@@ -1,12 +1,12 @@
 {
 	"name": "@cydon/monorepo",
 	"private": true,
-	"packageManager": "pnpm@7.30.5",
+	"packageManager": "pnpm@8.1.0",
 	"version": "0.0.1",
 	"devDependencies": {
-		"@cydon/ui": "workspace:^0.0.1",
-		"cydon": "workspace:^0.0.1",
-		"emmetlite": "workspace:^0.0.1",
+		"@cydon/ui": "workspace:^",
+		"cydon": "workspace:^",
+		"emmetlite": "workspace:^",
 		"vite": "^4.2.1"
 	},
 	"scripts": {
