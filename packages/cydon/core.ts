@@ -3,8 +3,8 @@
  * https://github.com/0-v-0/cydon
  */
 
-import { directives, for_ } from './directives'
-import { Constructor as Ctor, Data, DOMAttr, Part, Result, Target } from './type'
+import { directives as d, for_ } from './directives'
+import { Constructor as Ctor, Data, Dep, DOMAttr, Part, Result, Target } from './type'
 import { getFunc } from './util'
 
 function parse(s: string, attr = '') {
@@ -13,22 +13,23 @@ function parse(s: string, attr = '') {
 	if (!a)
 		return null
 
-	const deps = new Set<string>()
 	let vals = ''
 	for (; a; a = re.exec(s)) {
 		const [match, expr, prop] = a,
 			start = re.lastIndex - match.length
 		if (start)
 			vals += s.substring(lastIndex, start).replace(/`/g, '\\`')
-		vals += expr || (deps.add(prop), '${' + prop + '}')
+		vals += expr || '${' + prop + '}'
 		lastIndex = re.lastIndex
 	}
 	if (lastIndex < s.length)
 		vals += s.substring(lastIndex).replace(/`/g, '\\`')
 	return {
-		deps, func: getFunc(attr ? 'let $v=`' + vals +
+		deps: new Set<string>,
+		func: getFunc(attr ? 'let $v=`' + vals +
 			`\`;if($v!=$e.getAttribute("${attr}"))$e.setAttribute("${attr}",$v)` :
-			'return`' + vals + '`')
+			'return`' + vals + '`'),
+		text: true
 	}
 }
 
@@ -36,8 +37,8 @@ function parse(s: string, attr = '') {
  * update a node
  * @param target
  */
-function update({ node, data, func }: Target) {
-	if (node.nodeType == 3)
+function update({ node, data, func, text }: Target) {
+	if (text)
 		(<Text>node).data = func.call(data, <Element>node.parentNode)
 	else
 		func.call(data, <Element>node)
@@ -45,7 +46,84 @@ function update({ node, data, func }: Target) {
 
 type DF = DocumentFragment
 
-const proxies = new WeakMap<Set<string>, ProxyHandler<Data>>()
+function compile(results: Result[], el: Element | DF, directives = d, level = 0, i = 0) {
+	let result
+	if (level) {
+		const map = new Map<string, Part>()
+		const attrs = (<Element>el).attributes
+		// Find pattern in attributes
+		if (attrs) {
+			const exp = attrs[<any>'c-for']
+			if (exp) {
+				const val = exp.value
+				if (val) {
+					const [key, value] = val.split(';')
+					if (import.meta.env.DEV && !value) {
+						console.warn('invalid v-for expression: ' + val)
+						return
+					}
+					const r: Result[] = []
+					compile(r, (<HTMLTemplateElement>el).content, directives)
+					results.push(level << 22 | i,
+						{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
+				}
+				return
+			}
+
+			next: for (let i = 0; i < attrs.length;) {
+				const attr = <DOMAttr>attrs[i]
+				const name = attr.name
+				for (const handler of directives) {
+					const data = handler(attr, map)
+					if (data) {
+						map.set(name, <Part>data)
+						if (data.keep)
+							++i
+						else
+							(<Element>el).removeAttribute(name)
+						continue next
+					}
+				}
+				const parts = parse(attr.value, name)
+				if (parts)
+					map.set(name, parts)
+				++i
+			}
+			if (map.size)
+				results.push(level << 22 | i, result = { a: map })
+			if (customElements.get((<Element>el).tagName.toLowerCase())?.prototype.updateValue)
+				return
+		}
+	}
+	const s = (<Element>el).shadowRoot
+	if (s) {
+		const r: Result[] = []
+		compile(r, s, directives)
+		results.push(level << 22 | i, result = { r, s })
+	}
+	let node: Node | null = el.firstChild
+	if (node && !result)
+		results.push(level << 22 | i)
+	level++
+	for (i = 0; node; node = node.nextSibling) {
+		if (node.nodeType == 1/* Node.ELEMENT_NODE */)
+			compile(results, <Element>node, directives, level, i)
+		if (node.nodeType == 3/* Node.TEXT_NODE */) {
+			const parts = parse((<Text>node).data)
+			if (parts)
+				results.push(level << 22 | i, parts)
+		}
+		i++
+	}
+}
+
+/**
+ * newly added targets
+ */
+const newTargets = new WeakSet<Target>
+
+const proxies = new WeakMap<Dep, ProxyHandler<Data>>()
+const queue = new WeakSet
 
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
@@ -62,37 +140,26 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		data!: Data
 
-		/**
-		 * render queue
-		 */
-		queue = new Set<Target | string>()
+		queue = new Set<string>
 
 		/**
 		 * bound nodes
 		 */
-		targets = new Set<Target>()
-
-		deps?: Set<string>
+		targets: Target[] = []
 
 		_parent?: Data
 
 		/**
 		 * directives
 		 */
-		directives = directives
-
-		/**
-		 * update callback
-		 * @param prop prop name
-		 */
-		onUpdate?(prop: string): void
+		directives = d
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
 			this.setData(data)
 		}
 
-		setData(data: Data = this) {
+		setData(data: Data = this, parent?: Data) {
 			this.data = new Proxy(this.$data = data, {
 				get: (obj, key: string) => obj[key],
 				set: (obj, key: string, val, receiver) => {
@@ -104,83 +171,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					return r
 				}
 			})
-		}
-
-		compile(results: Result[], el: Element | DF, level = 0, i = 0) {
-			let result
-			if (level) {
-				const map = new Map<string, Part>()
-				const attrs = (<Element>el).attributes
-				// Find pattern in attributes
-				if (attrs) {
-					const exp = attrs[<any>'c-for']
-					if (exp) {
-						const val = exp.value
-						if (val) {
-							const [key, value] = val.split(';')
-							if (import.meta.env.DEV && !value) {
-								console.warn('invalid v-for expression: ' + val)
-								return
-							}
-							const r: Result[] = []
-							this.compile(r, (<HTMLTemplateElement>el).content)
-							results.push(level << 22 | i,
-								{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
-						}
-						return
-					}
-
-					next: for (let i = 0; i < attrs.length;) {
-						const attr = <DOMAttr>attrs[i]
-						const name = attr.name
-						for (const handler of this.directives) {
-							const data = handler(attr, map)
-							if (data) {
-								map.set(name, <Part>data)
-								if (data.keep)
-									++i
-								else
-									(<Element>el).removeAttribute(name)
-								continue next
-							}
-						}
-						const parts = parse(attr.value, name)
-						if (parts)
-							map.set(name, parts)
-						++i
-					}
-					if (map.size)
-						results.push(level << 22 | i, result = { a: map })
-					if (customElements.get((<Element>el).tagName.toLowerCase())?.prototype instanceof Mixin)
-						return
-				}
-			}
-			const s = (<Element>el).shadowRoot
-			if (s) {
-				const r: Result[] = []
-				this.compile(r, s)
-				results.push(level << 22 | i, result = { r, s })
-			}
-			let node: Node | null = el.firstChild
-			if (node && !result)
-				results.push(level << 22 | i)
-			level++
-			for (let i = 0; node; node = node.nextSibling) {
-				if (node.nodeType == 1/* Node.ELEMENT_NODE */)
-					this.compile(results, <Element>node, level, i)
-				if (node.nodeType == 3/* Node.TEXT_NODE */) {
-					const parts = parse((<Text>node).data)
-					if (parts)
-						results.push(level << 22 | i, parts)
-				}
-				i++
-			}
+			this._parent = parent
 		}
 
 		bind(results: Result[], el: Element | DF = <any>this) {
 			let node: Node = el
 			let l = 0, n = 0, stack = []
-			for (let i = 0, len = results.length; i < len; ++i) {
+			for (let i = 1, len = results.length; i < len; ++i) {
 				const result = results[i]
 				if (typeof result == 'object') {
 					const { a: attrs, r: res, s } = result
@@ -201,9 +198,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					if (result.func)
 						this.addPart(<Text>node, <Part>result)
 					else if (attrs)
-						for (const part of attrs.values())
+						for (const [, part] of attrs)
 							this.addPart(<Element>node, part)
-				} else if (i) {
+				} else {
 					let index = result
 					const level = index >>> 22
 					index &= 4194303
@@ -216,38 +213,36 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						node = node.parentNode!
 						n = stack.pop()!
 					}
-					for (; n < index; n++) node = node.nextSibling!
+					for (; n < index; n++)
+						node = node.nextSibling!
 				}
 			}
 		}
 
 		mount(el: Element | DF = <any>this) {
 			const results: Result[] = []
-			this.compile(results, el)
+			compile(results, el)
 			this.bind(results, el)
 			this.commit()
 		}
 
 		addPart(node: Target['node'], part: Part) {
 			const target: Target = Object.create(part)
-			const deps = part.deps
 			target.node = node
 			let proxy: ProxyHandler<Data> | undefined
+			const deps = part.deps
 			if (deps) {
 				proxy = proxies.get(deps)
 				if (!proxy)
 					proxies.set(deps, proxy = {
 						get: (obj, key, receiver) => {
-							if (typeof key == 'string') {
-								if (this.deps && !obj.hasOwnProperty(key))
-									this.deps.add(key)
+							if (typeof key == 'string')
 								deps.add(key)
-							}
 							return Reflect.get(obj, key, receiver)
 						}
 					})
-				this.targets.add(target)
-				this.queue.add(target)
+				this.targets.push(target)
+				newTargets.add(target)
 			}
 			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
 			if (!deps)
@@ -258,10 +253,14 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * unmount an element
 		 * @param el target element
 		 */
-		unmount(el: Element | DF = <any>this) {
-			for (const target of this.targets) {
-				if (el.contains(target.node))
-					this.targets.delete(target)
+		unmount(el: Element | DF | null = <any>this) {
+			const targets = this.targets
+			for (let i = 0; i < targets.length;) {
+				const node = targets[i].node
+				if (el ? el.contains(node) : !node.isConnected)
+					targets.splice(i, 1)
+				else
+					i++
 			}
 		}
 
@@ -270,28 +269,35 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			if (this.queue.size == 0)
-				queueMicrotask(() => this.commit())
+			const data = this._parent ?? this.$data
+			if (!queue.has(data)) {
+				queueMicrotask(() => {
+					this.commit()
+					queue.delete(data)
+				})
+				queue.add(data)
+			}
 			this.queue.add(prop)
-			this.onUpdate?.(prop)
 		}
 
 		/**
 		 * update queued nodes immediately and clear queue
 		 */
 		commit() {
+			const q = this.queue
 			for (const target of this.targets) {
-				if (this.queue.has(target))
+				if (newTargets.has(target)) {
 					update(target)
-				else
-					for (const prop of this.queue) {
-						if (typeof prop == 'string' && target.deps?.has(prop)) {
+					newTargets.delete(target)
+				} else
+					for (const dep of target.deps) {
+						if (q.has(dep)) {
 							update(target)
 							break
 						}
 					}
 			}
-			this.queue.clear()
+			q.clear()
 		}
 
 		connectedCallback() {

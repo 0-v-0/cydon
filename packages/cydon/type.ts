@@ -7,16 +7,19 @@ export type DOMAttr = Attr & {
 }
 
 export type Part = {
-	deps?: Set<string>
-	func: Target['func']
+	deps?: Dep
+	func(this: Data, el: Element): string
 }
 
 export type Target = {
 	node: Text | Element
-	deps?: Set<string>
+	deps: Dep
 	data: Data
-	func(this: Data, el: Element): string
+	func: Part['func']
+	text?: boolean
 }
+
+export type Dep = Set<string>
 
 type AttrMap = Map<string, Part>
 
@@ -29,7 +32,7 @@ export type Result = Partial<Part> & {
 } | number
 
 export type Directive = {
-	deps?: Set<string>
+	deps?: Dep
 	func(this: Data, el: Element): void
 	keep?: boolean
 }

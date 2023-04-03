@@ -25,7 +25,7 @@ html[lang=en]
 								input.toggle[type=checkbox c-model=todo.done title=done]
 								label[@dblclick=editTodo]{${todo.name}}
 								button.destroy[@click=removeTodo]
-							input.edit[c-model=todo.name @blur=doneEdit :="editing == todo && $e.focus()" @keyup=keyup]
+							input.edit[c-model=todo.name @blur.capture=doneEdit :="editing == todo && $e.focus()" @keyup=keyup]
 			footer.footer[c-show=items.length c-cloak]
 				span.todo-count
 					strong{${remaining}}

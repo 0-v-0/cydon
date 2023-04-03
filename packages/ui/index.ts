@@ -3,8 +3,6 @@ import { isDisabled, toggle } from './util'
 
 export * from './util'
 
-const cloneArray = <T extends {}>(arr: T[]) => arr.map(obj => ({ ...obj }))
-
 export class TableElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
 	items: T[] = []
@@ -34,8 +32,7 @@ export class TableElement<T extends {}> extends CydonElement {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		// BUG: must deep clone
-		this.items = <T[]>cloneArray(data.slice(i * n, i * n + n))
+		this.items = data.slice(i * n, i * n + n)
 	}
 
 	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
