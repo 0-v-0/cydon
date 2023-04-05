@@ -23,28 +23,28 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
-	const parent = el.parentElement!
+	const parent = el.parentNode!
 	const content = el.content
 	const count = content.childNodes.length
 	el.remove()
-	const list = parent.children
 	const setCapacity = (n: number) => {
 		if (n) {
-			let i = list.length / count | 0
+			let i = parent.childNodes.length / count | 0
 			for (; i < n; ++i) {
 				const target = <DocumentFragment>content.cloneNode(true)
 				const c: Cydon & Data = ctxs[i] = Object.create(cydon)
 				c.setData(c, data)
 				if (index)
 					c[index] = i
-				c.bind(results, target)
 				render(c, key, value, arr[i])
+				c.bind(results, target)
 				parent.appendChild(target)
 			}
-			if (i > n)
+			if (i > n) {
+				for (i = (i - n) * count; i--;)
+					parent.lastChild!.remove()
 				setTimeout(() => cydon.unmount(null))
-			for (n *= count; i-- > n;)
-				parent.lastChild!.remove()
+			}
 		} else {// clear
 			parent.textContent = ''
 			setTimeout(() => cydon.unmount(null))
@@ -81,7 +81,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		get: () => items,
 		set(v) {
 			if (v != items) {
-				let oldLen = arr.length
+				const oldLen = arr.length
 				for (let i = 0; i < oldLen; i++)
 					render(ctxs[i], key, value, v[i])
 				items = new Proxy(arr = v, handler)
@@ -94,14 +94,27 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 }
 
 type D = Directive | void
-type Handler = EventListenerObject & AddEventListenerOptions
 
 const boundElements = new Map<string, WeakSet<Element>>()
 const listenedElements = new Map<string, WeakSet<EventTarget>>()
-const delegatedElements = new Map<string, WeakMap<EventTarget, Handler>>()
+const handlers = new Map<string, symbol>()
+
+declare global {
+	interface EventTarget {
+		[x: symbol]: (e: Event) => void
+	}
+}
 
 const listener = (e: Event) => {
-	delegatedElements.get(e.type)!.get(e.target!)?.handleEvent(e)
+	const key = handlers.get(e.type)
+	if (key)
+		for (let target = e.target; target instanceof Node; target = target.parentNode) {
+			const handler = target[key]
+			if (handler) {
+				handler(e)
+				break
+			}
+		}
 }
 
 export const directives: DirectiveHandler[] = [
@@ -110,12 +123,12 @@ export const directives: DirectiveHandler[] = [
 			const func = getFunc('return ' + value)
 			const data: Directive = {
 				deps: new Set,
-				func(el) {
+				f(el) {
 					const parent = el.parentElement!
-					const anchor = new Text()
+					const anchor = new Text
 					parent.insertBefore(anchor, el)
 					let lastValue: boolean
-					data.func = function (el) {
+					data.f = function (el) {
 						const val = func.call(this, el)
 						if (val != lastValue) {
 							lastValue = val
@@ -133,7 +146,7 @@ export const directives: DirectiveHandler[] = [
 			}
 			return data
 		}
-	}, ({ name, value, ownerElement: el }): D => {
+	}, ({ name, value, ownerElement: el }, _, parent): D => {
 		if (name == 'c-model' || name == 'c-model.lazy') {
 			value = value.trim()
 			type Input = HTMLInputElement
@@ -149,7 +162,7 @@ export const directives: DirectiveHandler[] = [
 			const setter = Function('$e', '$val', `with(this)${value}=$val`)
 			return {
 				deps: new Set,
-				func(el: Element & Data) {
+				f(el) {
 					if (!set!.has(el)) {
 						el.addEventListener(event, () => {
 							const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
@@ -183,28 +196,30 @@ export const directives: DirectiveHandler[] = [
 				passive: modifiers.has('passive')
 			}
 			name = arr[0]
+			let key: symbol | undefined
+			if (parent && name[0] != '$') { // delegate to root node of parent
+				key = handlers.get(name)
+				if (!key)
+					handlers.set(name, key = Symbol())
+				let set = listenedElements.get(name)
+				if (!set)
+					listenedElements.set(name, set = new WeakSet)
+				const root = parent.getRootNode()
+				if (!set.has(root)) {
+					root.addEventListener(name, listener, options)
+					set.add(root)
+				}
+			}
 			return {
-				func(el) {
-					if (name[0] == '$')
-						name = this[name.slice(1)] // dynamic event name
-					if (import.meta.env.eventDelegate) {
-						const handler = Object.create(options)
-						handler.handleEvent = this[value]?.bind?.(this) ?? getFunc(value).bind(this, el)
-						let set = listenedElements.get(name)
-						if (!set)
-							listenedElements.set(name, set = new WeakSet)
-						const root = el.getRootNode()
-						if (!set.has(root)) {
-							root.addEventListener(name, listener, handler)
-							set.add(root)
-						}
-						let map = delegatedElements.get(name)
-						if (!map)
-							delegatedElements.set(name, map = new WeakMap)
-						map.set(el, handler)
-					} else
-						el.addEventListener(name,
-							this[value]?.bind?.(this) ?? getFunc(value).bind(this, el), options)
+				f(el) {
+					const handler = (this[value] ?? getFunc(value)).bind(this)
+					if (key)
+						el[key] = handler
+					else {
+						if (name[0] == '$')
+							name = this[name.slice(1)] // dynamic event name
+						el.addEventListener(name, handler, options)
+					}
 				}
 			}
 		}
@@ -212,7 +227,7 @@ export const directives: DirectiveHandler[] = [
 		if (name == '@click.away') {
 			const func: Function = getFunc(value)
 			return {
-				func(el) {
+				f(el) {
 					el.addEventListener('click', e => {
 						if (e.target != el && !el.contains(<Node>e.target))
 							func.call(this, e)
@@ -223,7 +238,7 @@ export const directives: DirectiveHandler[] = [
 	}, ({ name, value }): D => {
 		if (name == 'ref') {
 			return {
-				func(el) {
+				f(el) {
 					if (import.meta.env.DEV && value in this.$data)
 						console.warn(`The ref "${value}" has already defined on`, this.$data)
 					this.$data[value] = el
@@ -248,13 +263,11 @@ export const directives: DirectiveHandler[] = [
 			if (!name)
 				return {
 					deps: new Set,
-					func: getFunc(value)
+					f: getFunc(value)
 				}
 
-			if (!el.hasAttribute(name))
-				el.setAttribute(name, '')
 			el.removeAttribute(':' + name)
-			let code = `let $v="${el.getAttribute(name)}";`
+			let code = `let $v="${el.getAttribute(name) ?? ''}";`
 			for (const cls of value.split(';')) {
 				let key = cls,
 					val = cls
@@ -265,10 +278,11 @@ export const directives: DirectiveHandler[] = [
 				}
 				code += `if(${val.trim()})$v+=" ${key.trim()}";`
 			}
-			if (!map.get(name))
-				map.set(name, <Part>{ deps: new Set })
-			const attr = map.get(name)!
-			attr.func = getFunc(code + `if($v!=$e.getAttribute("${name}"))$e.setAttribute("${name}",$v)`)
+			let attr = map.get(name)
+			if (!attr)
+				map.set(name, attr = <Part>{ deps: new Set })
+			attr.f = getFunc(code +
+				`if($v!=$e.getAttribute("${name}"))$e.setAttribute("${name}",$v)`)
 		}
 	}, ({ name, value }): D => {
 		if (name[0] == '$') {
@@ -276,7 +290,7 @@ export const directives: DirectiveHandler[] = [
 			let attrName: string
 			return {
 				deps: new Set,
-				func(el) {
+				f(el) {
 					if (attrName) {
 						const newName = this.data[name]
 						if (newName != attrName) {
@@ -297,7 +311,7 @@ export const directives: DirectiveHandler[] = [
 				initial = (<DOM>el).style.display
 			return {
 				deps: new Set,
-				func(el) {
+				f(el) {
 					(<DOM>el).style.display = func.call(this, el) ? initial : 'none'
 				}
 			}
@@ -306,7 +320,7 @@ export const directives: DirectiveHandler[] = [
 		if (name == 'c-cloak')
 			return {
 				keep: true,
-				func(el) {
+				f(el) {
 					el.removeAttribute(name)
 				}
 			}

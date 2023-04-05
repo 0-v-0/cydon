@@ -1,4 +1,4 @@
-import { Data } from "./type"
+import { Data } from './type'
 
 const funcCache: Record<string, Function> = Object.create(null)
 

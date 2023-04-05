@@ -26,10 +26,9 @@ function parse(s: string, attr = '') {
 		vals += s.substring(lastIndex).replace(/`/g, '\\`')
 	return {
 		deps: new Set<string>,
-		func: getFunc(attr ? 'let $v=`' + vals +
+		f: getFunc(attr ? 'let $v=`' + vals +
 			`\`;if($v!=$e.getAttribute("${attr}"))$e.setAttribute("${attr}",$v)` :
-			'return`' + vals + '`'),
-		text: true
+			'return`' + vals + '`')
 	}
 }
 
@@ -37,19 +36,19 @@ function parse(s: string, attr = '') {
  * update a node
  * @param target
  */
-function update({ node, data, func, text }: Target) {
-	if (text)
-		(<Text>node).data = func.call(data, <Element>node.parentNode)
+function update({ node, data, f }: Target) {
+	if (node.nodeType == 3/* Node.TEXT_NODE */)
+		(<Text>node).data = f.call(data, <Element>node.parentNode)
 	else
-		func.call(data, <Element>node)
+		f.call(data, <Element>node)
 }
 
 type DF = DocumentFragment
 
-function compile(results: Result[], el: Element | DF, directives = d, level = 0, i = 0) {
+let map = new Map<string, Part>()
+function compile(results: Result[], el: Element | DF, directives = d, level = 0, i = 0, parent?: ParentNode) {
 	let result
 	if (level) {
-		const map = new Map<string, Part>()
 		const attrs = (<Element>el).attributes
 		// Find pattern in attributes
 		if (attrs) {
@@ -63,7 +62,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 						return
 					}
 					const r: Result[] = []
-					compile(r, (<HTMLTemplateElement>el).content, directives)
+					compile(r, (<HTMLTemplateElement>el).content, directives, 0, 0, el.parentNode!)
 					results.push(level << 22 | i,
 						{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
 				}
@@ -74,7 +73,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 				const attr = <DOMAttr>attrs[i]
 				const name = attr.name
 				for (const handler of directives) {
-					const data = handler(attr, map)
+					const data = handler(attr, map, parent)
 					if (data) {
 						map.set(name, <Part>data)
 						if (data.keep)
@@ -89,8 +88,10 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 					map.set(name, parts)
 				++i
 			}
-			if (map.size)
+			if (map.size) {
 				results.push(level << 22 | i, result = { a: map })
+				map = new Map
+			}
 			if (customElements.get((<Element>el).tagName.toLowerCase())?.prototype.updateValue)
 				return
 		}
@@ -98,7 +99,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 	const s = (<Element>el).shadowRoot
 	if (s) {
 		const r: Result[] = []
-		compile(r, s, directives)
+		compile(r, s, directives, 0, 0, parent)
 		results.push(level << 22 | i, result = { r, s })
 	}
 	let node: Node | null = el.firstChild
@@ -107,7 +108,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 	level++
 	for (i = 0; node; node = node.nextSibling) {
 		if (node.nodeType == 1/* Node.ELEMENT_NODE */)
-			compile(results, <Element>node, directives, level, i)
+			compile(results, <Element>node, directives, level, i, parent)
 		if (node.nodeType == 3/* Node.TEXT_NODE */) {
 			const parts = parse((<Text>node).data)
 			if (parts)
@@ -117,13 +118,8 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 	}
 }
 
-/**
- * newly added targets
- */
-const newTargets = new WeakSet<Target>
-
 const proxies = new WeakMap<Dep, ProxyHandler<Data>>()
-const queue = new WeakSet
+const queue = new WeakSet<Data>()
 
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
@@ -163,6 +159,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			this.data = new Proxy(this.$data = data, {
 				get: (obj, key: string) => obj[key],
 				set: (obj, key: string, val, receiver) => {
+					if (val == obj[key])
+						return true
+
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
 					const r = this._parent && !obj.hasOwnProperty(key) ?
@@ -195,7 +194,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						n = stack.pop()!
 						l--
 					}
-					if (result.func)
+					if (result.f)
 						this.addPart(<Text>node, <Part>result)
 					else if (attrs)
 						for (const [, part] of attrs)
@@ -223,7 +222,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			const results: Result[] = []
 			compile(results, el)
 			this.bind(results, el)
-			this.commit()
 		}
 
 		addPart(node: Target['node'], part: Part) {
@@ -236,22 +234,21 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				if (!proxy)
 					proxies.set(deps, proxy = {
 						get: (obj, key, receiver) => {
-							if (typeof key == 'string')
+							if (typeof key == 'string') {
 								deps.add(key)
+							}
 							return Reflect.get(obj, key, receiver)
 						}
 					})
 				this.targets.push(target)
-				newTargets.add(target)
 			}
 			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
-			if (!deps)
-				update(target)
+			update(target)
 		}
 
 		/**
 		 * unmount an element
-		 * @param el target element
+		 * @param el target element, null means clean unconnected nodes
 		 */
 		unmount(el: Element | DF | null = <any>this) {
 			const targets = this.targets
@@ -269,13 +266,15 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			const data = this._parent ?? this.$data
-			if (!queue.has(data)) {
-				queueMicrotask(() => {
-					this.commit()
-					queue.delete(data)
-				})
-				queue.add(data)
+			if (!this.queue.size) {
+				const data = this._parent ?? this.$data
+				if (!queue.has(data)) {
+					queueMicrotask(() => {
+						this.commit()
+						queue.delete(data)
+					})
+					queue.add(data)
+				}
 			}
 			this.queue.add(prop)
 		}
@@ -286,16 +285,12 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		commit() {
 			const q = this.queue
 			for (const target of this.targets) {
-				if (newTargets.has(target)) {
-					update(target)
-					newTargets.delete(target)
-				} else
-					for (const dep of target.deps) {
-						if (q.has(dep)) {
-							update(target)
-							break
-						}
+				for (const dep of target.deps) {
+					if (q.has(dep)) {
+						update(target)
+						break
 					}
+				}
 			}
 			q.clear()
 		}
