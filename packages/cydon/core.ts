@@ -119,7 +119,6 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 }
 
 const proxies = new WeakMap<Dep, ProxyHandler<Data>>()
-const queue = new WeakSet<Data>()
 
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
@@ -159,12 +158,13 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			this.data = new Proxy(this.$data = data, {
 				get: (obj, key: string) => obj[key],
 				set: (obj, key: string, val, receiver) => {
-					if (val == obj[key])
+					const hasOwn = obj.hasOwnProperty(key)
+					if (hasOwn && val == obj[key])
 						return true
 
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
-					const r = this._parent && !obj.hasOwnProperty(key) ?
+					const r = !hasOwn && this._parent ?
 						Reflect.set(this._parent, key, val) : Reflect.set(obj, key, val, receiver)
 					this.updateValue(key)
 					return r
@@ -266,16 +266,8 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			if (!this.queue.size) {
-				const data = this._parent ?? this.$data
-				if (!queue.has(data)) {
-					queueMicrotask(() => {
-						this.commit()
-						queue.delete(data)
-					})
-					queue.add(data)
-				}
-			}
+			if (!this.queue.size)
+				queueMicrotask(() => this.commit())
 			this.queue.add(prop)
 		}
 

@@ -2,20 +2,6 @@ import { Cydon } from './core'
 import { Data, Directive, DirectiveHandler, DOM, Part, Result } from './type'
 import { getFunc } from './util'
 
-function render(c: Cydon & Data, key: string, value: string, item: Data) {
-	if (!c[key])
-		c[key] = new Proxy({ ...item }, {
-			set: (obj, p: string, val) => {
-				obj[p] = val
-				c.updateValue(key)
-				c.updateValue(value)
-				return true
-			}
-		})
-	else // update data
-		Object.assign(c[key], item)
-}
-
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [value, key, index]: string[]) {
 	const data = cydon.$data
 	let arr = data[value]
@@ -27,6 +13,23 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 	const content = el.content
 	const count = content.childNodes.length
 	el.remove()
+
+	const ctxs: (Cydon & Data)[] = []
+	const render = (i: number) => {
+		const c = ctxs[i],
+			item = arr[i]
+		if (c[key])
+			Object.assign(c[key], item) // update data
+		else
+			c[key] = new Proxy({ ...item }, {
+				set: (obj, p: string, val) => {
+					obj[p] = val
+					c.updateValue(key)
+					c.updateValue(value)
+					return true
+				}
+			})
+	}
 	const setCapacity = (n: number) => {
 		if (n) {
 			let i = parent.childNodes.length / count | 0
@@ -36,7 +39,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 				c.setData(c, data)
 				if (index)
 					c[index] = i
-				render(c, key, value, arr[i])
+				render(i)
 				c.bind(results, target)
 				parent.appendChild(target)
 			}
@@ -52,8 +55,6 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		ctxs.length = n
 	}
 
-	const ctxs: (Cydon & Data)[] = []
-
 	const handler: ProxyHandler<any> = {
 		get: (obj: any, p) => typeof p == 'string' && +p == <any>p &&
 			ctxs[<any>p]?.[key] || obj[p],
@@ -68,7 +69,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 						if (n >= ctxs.length)
 							setCapacity(n + 1)
 						else
-							render(ctxs[n], key, value, val)
+							render(n)
 					}
 				}
 			}
@@ -82,9 +83,9 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		set(v) {
 			if (v != items) {
 				const oldLen = arr.length
-				for (let i = 0; i < oldLen; i++)
-					render(ctxs[i], key, value, v[i])
 				items = new Proxy(arr = v, handler)
+				for (let i = 0; i < oldLen; i++)
+					render(i)
 				items.length = v.length
 			}
 		}
