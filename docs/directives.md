@@ -81,9 +81,20 @@ import { directives } from 'cydon'
 
 其中func是一个接受参数类型为`DOMAttr`的指令处理函数，返回真会跳过执行`directives`中后续的指令处理函数并**删除**该属性
 
-e.g.
+### 局部指令
+每个cydon实例都有一个`directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
+```js
+this.directives.push(({ name, value, ownerElement: el }) => {
+	if (name == 'attr') {
+		//...
+	}
+})
+```
 
-`to-remove`：带有该属性的元素将在页面加载完成时被自动删除
+## 自定义指令示例
+
+### to-remove
+带有该属性的元素将在页面加载完成时被自动删除
 ```js
 directives.push(({ name, ownerElement: el }) => {
 	if (name == 'to-remove') {
@@ -93,14 +104,18 @@ directives.push(({ name, ownerElement: el }) => {
 })
 ```
 
-### 局部指令
-每个cydon实例都有一个`directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
-
-不推荐注册全局指令时添加限定条件来实现局部指令
-	```js
-	directives.push(({ name, value, ownerElement: el }) => {
-		if (el.tagName == 'CUSTOM-ELEMENT' && name == 'attr') {
-			//...
+### c-text
+更新元素的文本内容
+```ts
+({ name, value }): D => {
+		if (name == 'c-text') {
+			const func = getFunc('return ' + value)
+			return {
+				deps: new Set,
+				f(el) {
+					(<DOM>el).textContent = func.call(this, el)
+				}
+			}
 		}
-	})
-	```
+	}
+```

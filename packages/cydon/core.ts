@@ -120,11 +120,22 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 
 const proxies = new WeakMap<Dep, ProxyHandler<Data>>()
 
+/**
+ * render queue
+ */
+export const dirty = Symbol(),
+	/**
+	 * bound nodes
+	 */
+	targets = Symbol(),
+	/**
+	* parent data object
+	*/
+	parentData = Symbol()
+
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 	class Mixin extends (<Ctor<{ connectedCallback?(): void }>>base) {
-		[s: symbol]: any
-
 		/**
 		 * raw data object
 		 */
@@ -135,14 +146,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		data!: Data
 
-		queue = new Set<string>
+		[dirty] = new Set<string>;
 
-		/**
-		 * bound nodes
-		 */
-		targets: Target[] = []
+		[parentData]?: Data
 
-		_parent?: Data
+		[targets]: Target[] = []
 
 		/**
 		 * directives
@@ -164,17 +172,17 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
-					const r = !hasOwn && this._parent ?
-						Reflect.set(this._parent, key, val) : Reflect.set(obj, key, val, receiver)
+					const r = !hasOwn && this[parentData] ?
+						Reflect.set(this[parentData], key, val) : Reflect.set(obj, key, val, receiver)
 					this.updateValue(key)
 					return r
 				}
 			})
-			this._parent = parent
+			this[parentData] = parent
 		}
 
-		bind(results: Result[], el: Element | DF = <any>this) {
-			let node: Node = el
+		bind(results: Result[], container: Element | DF = <any>this) {
+			let node: Node = container
 			let l = 0, n = 0, stack = []
 			for (let i = 1, len = results.length; i < len; ++i) {
 				const result = results[i]
@@ -195,10 +203,10 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						l--
 					}
 					if (result.f)
-						this.addPart(<Text>node, <Part>result)
+						this.bindNode(<Text>node, <Part>result)
 					else if (attrs)
 						for (const [, part] of attrs)
-							this.addPart(<Element>node, part)
+							this.bindNode(<Element>node, part)
 				} else {
 					let index = result
 					const level = index >>> 22
@@ -218,13 +226,22 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			}
 		}
 
-		mount(el: Element | DF = <any>this) {
+		/**
+		 * mount the instance in a container element
+		 * @param container container element
+		 */
+		mount(container: Element | DF = <any>this) {
 			const results: Result[] = []
-			compile(results, el)
-			this.bind(results, el)
+			compile(results, container)
+			this.bind(results, container)
 		}
 
-		addPart(node: Target['node'], part: Part) {
+		/**
+		 * bind a node with specific part and update it
+		 * @param node node to bind
+		 * @param part
+		 */
+		bindNode(node: Target['node'], part: Part) {
 			const target: Target = Object.create(part)
 			target.node = node
 			let proxy: ProxyHandler<Data> | undefined
@@ -240,7 +257,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 							return Reflect.get(obj, key, receiver)
 						}
 					})
-				this.targets.push(target)
+				this[targets].push(target)
 			}
 			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
 			update(target)
@@ -251,32 +268,32 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param el target element, null means clean unconnected nodes
 		 */
 		unmount(el: Element | DF | null = <any>this) {
-			const targets = this.targets
-			for (let i = 0; i < targets.length;) {
-				const node = targets[i].node
+			const arr = this[targets]
+			for (let i = 0; i < arr.length;) {
+				const node = arr[i].node
 				if (el ? el.contains(node) : !node.isConnected)
-					targets.splice(i, 1)
+					arr.splice(i, 1)
 				else
 					i++
 			}
 		}
 
 		/**
-		 * update all nodes with specific variable
+		 * enqueue all nodes with given variable
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			if (!this.queue.size)
+			if (!this[dirty].size)
 				queueMicrotask(() => this.commit())
-			this.queue.add(prop)
+			this[dirty].add(prop)
 		}
 
 		/**
-		 * update queued nodes immediately and clear queue
+		 * update nodes immediately and clear queue
 		 */
 		commit() {
-			const q = this.queue
-			for (const target of this.targets) {
+			const q = this[dirty]
+			for (const target of this[targets]) {
 				for (const dep of target.deps) {
 					if (q.has(dep)) {
 						update(target)
