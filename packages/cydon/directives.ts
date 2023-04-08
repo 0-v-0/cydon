@@ -1,8 +1,8 @@
 import { Cydon } from './core'
-import { Data, Directive, DirectiveHandler, DOM, Part, Result } from './type'
+import { Data, Directive, DirectiveHandler, DOM, Part, Results } from './type'
 import { getFunc } from './util'
 
-export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [value, key, index]: string[]) {
+export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
 	const data = cydon.$data
 	let arr = data[value]
 	if (!Array.isArray(arr)) {
@@ -13,7 +13,10 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 	const content = el.content
 	const count = content.childNodes.length
 	el.remove()
+	const newScope = !cydon._parent
+	cydon._deps = new Set<string>()
 
+	const onUpdate = (prop: string) => cydon.updateValue(prop)
 	const ctxs: (Cydon & Data)[] = []
 	const render = (i: number) => {
 		const c = ctxs[i],
@@ -36,6 +39,11 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 			for (; i < n; ++i) {
 				const target = <DocumentFragment>content.cloneNode(true)
 				const c: Cydon & Data = ctxs[i] = Object.create(cydon)
+				if (newScope) {
+					c._dirty = new Set
+					c._targets = []
+					c.onUpdate = onUpdate
+				}
 				c.setData(c, data)
 				if (index)
 					c[index] = i
@@ -43,22 +51,17 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 				c.bind(results, target)
 				parent.appendChild(target)
 			}
-			if (i > n) {
-				for (i = (i - n) * count; i--;)
-					parent.lastChild!.remove()
-				setTimeout(() => cydon.unmount(null))
-			}
-		} else {// clear
+			for (i = (i - n) * count; i--;)
+				parent.lastChild!.remove()
+		} else // clear
 			parent.textContent = ''
-			setTimeout(() => cydon.unmount(null))
-		}
 		ctxs.length = n
 	}
 
 	const handler: ProxyHandler<any> = {
-		get: (obj: any, p) => typeof p == 'string' && +p == <any>p &&
+		get: (obj, p) => typeof p == 'string' && +p == <any>p &&
 			ctxs[<any>p]?.[key] || obj[p],
-		set: (obj: any, p, val) => {
+		set: (obj, p, val) => {
 			if (p == 'length')
 				setCapacity(obj.length = +val)
 			else {
@@ -91,6 +94,14 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Result[], [
 		}
 	})
 
+	if (newScope)
+		cydon.onUpdate = (prop: string) => {
+			if (cydon._deps!.has(prop))
+				for (const c of ctxs) {
+					c._dirty.add(prop)
+					c.commit()
+				}
+		}
 	setCapacity(arr.length)
 }
 
@@ -101,8 +112,8 @@ const listenedElements = new Map<string, WeakSet<EventTarget>>()
 const handlers = new Map<string, symbol>()
 
 declare global {
-	interface EventTarget {
-		[x: symbol]: (e: Event) => void
+	interface Node {
+		[x: symbol]: any
 	}
 }
 

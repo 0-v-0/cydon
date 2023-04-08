@@ -1,6 +1,10 @@
+export type Constructor<T> = new (...args: any[]) => T
+
 export type Data = Record<string, any>
 
-export type Constructor<T> = new (...args: any[]) => T
+export type DataHandler = ProxyHandler<Data>
+
+export type Dep = Set<string>
 
 export type DOMAttr = Attr & {
 	ownerElement: Element
@@ -11,28 +15,24 @@ export type Part = {
 	f(this: Data, el: Element): string
 }
 
-export type Target = {
+export type Target = Part & {
 	node: Text | Element
 	deps: Dep
 	data: Data
-	f: Part['f']
 }
 
-export type Dep = Set<string>
-
-type AttrMap = Map<string, Part>
+export type AttrMap = Map<string, Part>
 
 /** template result */
-export type Result = Partial<Part> & {
-	/** attributes */
-	a?: AttrMap
+export type Result = Results & {
 	/** shadow root */
 	s?: ShadowRoot
 	e?: string[] // [value, key, index]
-	r?: Result[]
-} | number
+} | Partial<Part>
 
-export type Directive = {
+export type Results = (AttrMap | Result | number)[]
+
+export interface Directive {
 	deps?: Dep
 	f(this: Data, el: Element): void
 	keep?: boolean

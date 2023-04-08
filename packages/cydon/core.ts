@@ -4,7 +4,10 @@
  */
 
 import { directives as d, for_ } from './directives'
-import { Constructor as Ctor, Data, Dep, DOMAttr, Part, Result, Target } from './type'
+import {
+	AttrMap, Constructor as Ctor, Data, DataHandler as Handler,
+	Dep, DOMAttr, Part, Result, Results, Target
+} from './type'
 import { getFunc } from './util'
 
 function parse(s: string, attr = '') {
@@ -46,7 +49,7 @@ function update({ node, data, f }: Target) {
 type DF = DocumentFragment
 
 let map = new Map<string, Part>()
-function compile(results: Result[], el: Element | DF, directives = d, level = 0, i = 0, parent?: ParentNode) {
+export function compile(results: Results, el: Element | DF, directives = d, level = 0, i = 0, parent?: ParentNode) {
 	let result
 	if (level) {
 		const attrs = (<Element>el).attributes
@@ -61,10 +64,10 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 						console.warn('invalid v-for expression: ' + val)
 						return
 					}
-					const r: Result[] = []
+					const r: Result = []
 					compile(r, (<HTMLTemplateElement>el).content, directives, 0, 0, el.parentNode!)
-					results.push(level << 22 | i,
-						{ r, e: [value.trim(), ...key.split(/\s*,\s*/)] })
+					r.e = [value.trim(), ...key.split(/\s*,\s*/)]
+					results.push(level << 22 | i, r)
 				}
 				return
 			}
@@ -89,7 +92,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 				++i
 			}
 			if (map.size) {
-				results.push(level << 22 | i, result = { a: map })
+				results.push(level << 22 | i, result = map)
 				map = new Map
 			}
 			if (customElements.get((<Element>el).tagName.toLowerCase())?.prototype.updateValue)
@@ -98,9 +101,10 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 	}
 	const s = (<Element>el).shadowRoot
 	if (s) {
-		const r: Result[] = []
-		compile(r, s, directives, 0, 0, parent)
-		results.push(level << 22 | i, result = { r, s })
+		const r: Result = []
+		compile(r, s, directives, 0, 0, parent);
+		r.s = s
+		results.push(level << 22 | i, result = r)
 	}
 	let node: Node | null = el.firstChild
 	if (node && !result)
@@ -118,20 +122,7 @@ function compile(results: Result[], el: Element | DF, directives = d, level = 0,
 	}
 }
 
-const proxies = new WeakMap<Dep, ProxyHandler<Data>>()
-
-/**
- * render queue
- */
-export const dirty = Symbol(),
-	/**
-	 * bound nodes
-	 */
-	targets = Symbol(),
-	/**
-	* parent data object
-	*/
-	parentData = Symbol()
+const proxies = new WeakMap<Dep, Handler>()
 
 export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
@@ -146,16 +137,30 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		data!: Data
 
-		[dirty] = new Set<string>;
+		/**
+		 * render queue
+		 */
+		_dirty = new Set<string>
 
-		[parentData]?: Data
+		/**
+		 * bound nodes
+		 */
+		_targets: Target[] = []
 
-		[targets]: Target[] = []
+		_deps?: Set<string>
+
+		_parent?: Data
 
 		/**
 		 * directives
 		 */
 		directives = d
+
+		/**
+		 * update callback
+		 * @param prop prop name
+		 */
+		onUpdate?(prop: string): void
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
@@ -164,7 +169,6 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 		setData(data: Data = this, parent?: Data) {
 			this.data = new Proxy(this.$data = data, {
-				get: (obj, key: string) => obj[key],
 				set: (obj, key: string, val, receiver) => {
 					const hasOwn = obj.hasOwnProperty(key)
 					if (hasOwn && val == obj[key])
@@ -172,45 +176,44 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 
 					// when setting a property that doesn't exist on current scope,
 					// do not create it on the current scope and fallback to parent scope.
-					const r = !hasOwn && this[parentData] ?
-						Reflect.set(this[parentData], key, val) : Reflect.set(obj, key, val, receiver)
+					const r = !hasOwn && this._parent ?
+						Reflect.set(this._parent, key, val) :
+						Reflect.set(obj, key, val, receiver)
 					this.updateValue(key)
 					return r
 				}
 			})
-			this[parentData] = parent
+			this._parent = parent
 		}
 
-		bind(results: Result[], container: Element | DF = <any>this) {
+		bind(results: Results, container: Element | DF = <any>this) {
 			let node: Node = container
 			let l = 0, n = 0, stack = []
 			for (let i = 1, len = results.length; i < len; ++i) {
-				const result = results[i]
+				let result = results[i]
 				if (typeof result == 'object') {
-					const { a: attrs, r: res, s } = result
-					if (s) {
-						let shadow = (<Element>node).shadowRoot
-						if (!shadow) {
-							shadow = (<Element>node).attachShadow({ mode: 'open' })
-							s.childNodes.forEach(c => shadow!.append(c.cloneNode(true)))
+					if (Array.isArray(result)) {
+						if (result.s) {
+							let shadow = (<Element>node).shadowRoot
+							if (!shadow) {
+								shadow = (<Element>node).attachShadow({ mode: 'open' })
+								result.s.childNodes.forEach(c => shadow!.append(c.cloneNode(true)))
+							}
+							this.bind(result, shadow)
+						} else {
+							const p = node.parentNode!
+							for_(this, <HTMLTemplateElement>node, result, result.e!)
+							node = p
+							n = stack.pop()!
+							l--
 						}
-						this.bind(res!, shadow)
-					} else if (res) {
-						const p = node.parentNode!
-						for_(this, <HTMLTemplateElement>node, res, result.e!)
-						node = p
-						n = stack.pop()!
-						l--
-					}
-					if (result.f)
+					} else if ((<Part>result).f)
 						this.bindNode(<Text>node, <Part>result)
-					else if (attrs)
-						for (const [, part] of attrs)
-							this.bindNode(<Element>node, part)
+					else for (const [, part] of <AttrMap>result)
+						this.bindNode(<Element>node, part)
 				} else {
-					let index = result
-					const level = index >>> 22
-					index &= 4194303
+					const level = result >>> 22
+					result &= 4194303 // index
 					if (level > l) {
 						stack.push(n)
 						n = 0
@@ -220,7 +223,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 						node = node.parentNode!
 						n = stack.pop()!
 					}
-					for (; n < index; n++)
+					for (; n < result; n++)
 						node = node.nextSibling!
 				}
 			}
@@ -231,7 +234,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param container container element
 		 */
 		mount(container: Element | DF = <any>this) {
-			const results: Result[] = []
+			const results: Results = []
 			compile(results, container)
 			this.bind(results, container)
 		}
@@ -244,7 +247,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		bindNode(node: Target['node'], part: Part) {
 			const target: Target = Object.create(part)
 			target.node = node
-			let proxy: ProxyHandler<Data> | undefined
+			let proxy: Handler | undefined
 			const deps = part.deps
 			if (deps) {
 				proxy = proxies.get(deps)
@@ -252,12 +255,14 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					proxies.set(deps, proxy = {
 						get: (obj, key, receiver) => {
 							if (typeof key == 'string') {
+								if (this._deps && !obj.hasOwnProperty(key))
+									this._deps.add(key)
 								deps.add(key)
 							}
 							return Reflect.get(obj, key, receiver)
 						}
 					})
-				this[targets].push(target)
+				this._targets.push(target)
 			}
 			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
 			update(target)
@@ -268,7 +273,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param el target element, null means clean unconnected nodes
 		 */
 		unmount(el: Element | DF | null = <any>this) {
-			const arr = this[targets]
+			const arr = this._targets
 			for (let i = 0; i < arr.length;) {
 				const node = arr[i].node
 				if (el ? el.contains(node) : !node.isConnected)
@@ -283,17 +288,18 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			if (!this[dirty].size)
+			if (!this._dirty.size)
 				queueMicrotask(() => this.commit())
-			this[dirty].add(prop)
+			this._dirty.add(prop)
+			this.onUpdate?.(prop)
 		}
 
 		/**
 		 * update nodes immediately and clear queue
 		 */
 		commit() {
-			const q = this[dirty]
-			for (const target of this[targets]) {
+			const q = this._dirty
+			for (const target of this._targets) {
 				for (const dep of target.deps) {
 					if (q.has(dep)) {
 						update(target)

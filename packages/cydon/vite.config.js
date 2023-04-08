@@ -4,8 +4,9 @@ export default defineConfig({
 	build: {
 		lib: {
 			entry: 'index.ts',
-			formats: ['es'],
-			fileName: 'index'
+			formats: ['iife'],
+			fileName: 'index',
+			name: 'cydon'
 		},
 		rollupOptions: {
 			output: { sourcemap: 'hidden' }
