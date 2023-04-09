@@ -27,6 +27,11 @@ class MainApp extends CydonElement {
 
 	selected = null
 
+	constructor() {
+		super()
+		this._limits.set('selected', 2)
+	}
+
 	delete() {
 		const id = this.item.id
 		const index = this.rows.findIndex(item => item.id == id)

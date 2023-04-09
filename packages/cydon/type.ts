@@ -6,12 +6,20 @@ export type DataHandler = ProxyHandler<Data>
 
 export type Dep = Set<string>
 
+export type Container = Element | DocumentFragment
+
+export type DOM = HTMLElement | MathMLElement | SVGElement
+
 export type DOMAttr = Attr & {
 	ownerElement: Element
 }
 
 export type Part = {
+	/** attribute name */
+	a: string
+	/** dependencies */
 	deps?: Dep
+	/** update function */
 	f(this: Data, el: Element): string
 }
 
@@ -40,5 +48,3 @@ export interface Directive {
 
 export type DirectiveHandler =
 	(attr: DOMAttr, attrs: AttrMap, parent?: ParentNode) => Directive | void
-
-export type DOM = HTMLElement | MathMLElement | SVGElement

@@ -22,7 +22,7 @@ A lightweight library for building fast, reactive web components.
         css_class: 'bold red'
     })
     app.mount(document.body)
-    let { data } = app
+    const { data } = app
     data.msg = 'foo'
     data.css_class = 'bar'
 </script>

@@ -39,6 +39,14 @@
 ### @*event*
 给元素绑定事件监听器
 
+**期望的绑定值类型：**`Function | Inline Statement`
+
+## 修饰符：
+- `.away`： 只有事件从元素外发出才触发处理函数
+- `.capture`： 在捕获模式添加事件监听器
+- `.once`： 最多触发一次处理函数
+- `.passive` - 通过 { passive: true } 附加一个 DOM 事件
+
 ### @$*event*
 动态事件名称绑定，与@*event*类似
 
@@ -54,6 +62,8 @@
 - 当`cond2`为真：`class="b"`
 - 当`cond1`,`cond2`为假：`class=""`
 
+### .*prop*
+DOM对象属性绑定
 
 ### c-cloak
 用于隐藏尚未完成编译的 DOM 模板，该属性在组件初始化后被移除
@@ -97,25 +107,27 @@ this.directives.push(({ name, value, ownerElement: el }) => {
 带有该属性的元素将在页面加载完成时被自动删除
 ```js
 directives.push(({ name, ownerElement: el }) => {
-	if (name == 'to-remove') {
-		addEventListener('load', () => el.remove())
-		return true
-	}
+	if (name == 'to-remove')
+		return {
+			f(el) {
+				addEventListener('load', () => el.remove())
+			}
+		}
 })
 ```
 
 ### c-text
 更新元素的文本内容
 ```ts
-({ name, value }): D => {
-		if (name == 'c-text') {
-			const func = getFunc('return ' + value)
-			return {
-				deps: new Set,
-				f(el) {
-					(<DOM>el).textContent = func.call(this, el)
-				}
+({ name, value }): Directive | void => {
+	if (name == 'c-text') {
+		const func = getFunc('return ' + value)
+		return {
+			deps: new Set,
+			f(el) {
+				(<DOM>el).textContent = func.call(this, el)
 			}
 		}
 	}
+}
 ```

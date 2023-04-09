@@ -1,5 +1,5 @@
-import { Cydon } from './core'
-import { Data, Directive, DirectiveHandler, DOM, Part, Results } from './type'
+import { Cydon, setData } from './core'
+import { Data, DataHandler, Directive, DirectiveHandler, DOM, Part, Results } from './type'
 import { getFunc } from './util'
 
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
@@ -13,10 +13,15 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const content = el.content
 	const count = content.childNodes.length
 	el.remove()
-	const newScope = !cydon._parent
-	cydon._deps = new Set<string>()
 
-	const onUpdate = (prop: string) => cydon.updateValue(prop)
+	const ph: DataHandler = {
+		set: (obj, p: string, val) => {
+			obj[p] = val
+			cydon.updateValue(key)
+			cydon.updateValue(value)
+			return true
+		}
+	}
 	const ctxs: (Cydon & Data)[] = []
 	const render = (i: number) => {
 		const c = ctxs[i],
@@ -24,37 +29,37 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 		if (c[key])
 			Object.assign(c[key], item) // update data
 		else
-			c[key] = new Proxy({ ...item }, {
-				set: (obj, p: string, val) => {
-					obj[p] = val
-					c.updateValue(key)
-					c.updateValue(value)
-					return true
-				}
-			})
+			c[key] = new Proxy({ ...item }, ph)
 	}
+	/**
+	 * Sets the capacity of the parent element to display the given number of items.
+	 * If capacity > the current number of items, new elements are created and added to the parent.
+	 * If capacity < the current number of items, excess elements are removed from the parent.
+	 * If capacity = 0, all elements are removed from the parent.
+	 * @param n The desired capacity of the parent element.
+	 */
 	const setCapacity = (n: number) => {
 		if (n) {
 			let i = parent.childNodes.length / count | 0
 			for (; i < n; ++i) {
 				const target = <DocumentFragment>content.cloneNode(true)
 				const c: Cydon & Data = ctxs[i] = Object.create(cydon)
-				if (newScope) {
-					c._dirty = new Set
-					c._targets = []
-					c.onUpdate = onUpdate
-				}
-				c.setData(c, data)
+				setData(c, c, data)
 				if (index)
 					c[index] = i
 				render(i)
 				c.bind(results, target)
 				parent.appendChild(target)
 			}
-			for (i = (i - n) * count; i--;)
-				parent.lastChild!.remove()
-		} else // clear
+			if (i > n) {
+				for (i = (i - n) * count; i--;)
+					parent.lastChild!.remove()
+				requestIdleCallback(() => cydon.unmount(null))
+			}
+		} else { // clear
 			parent.textContent = ''
+			requestIdleCallback(() => cydon.unmount(null))
+		}
 		ctxs.length = n
 	}
 
@@ -85,23 +90,18 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 		get: () => items,
 		set(v) {
 			if (v != items) {
-				const oldLen = arr.length
-				items = new Proxy(arr = v, handler)
-				for (let i = 0; i < oldLen; i++)
-					render(i)
+				const len = Math.min(arr.length, v.length)
+				arr = v
+				for (let i = 0; i < len; i++) {
+					if (items[i] != v[i])
+						render(i)
+				}
+				items = new Proxy(arr, handler)
 				items.length = v.length
 			}
 		}
 	})
 
-	if (newScope)
-		cydon.onUpdate = (prop: string) => {
-			if (cydon._deps!.has(prop))
-				for (const c of ctxs) {
-					c._dirty.add(prop)
-					c.commit()
-				}
-		}
 	setCapacity(arr.length)
 }
 
@@ -110,6 +110,7 @@ type D = Directive | void
 const boundElements = new Map<string, WeakSet<Element>>()
 const listenedElements = new Map<string, WeakSet<EventTarget>>()
 const handlers = new Map<string, symbol>()
+export const context = Symbol()
 
 declare global {
 	interface Node {
@@ -121,9 +122,9 @@ const listener = (e: Event) => {
 	const key = handlers.get(e.type)
 	if (key)
 		for (let target = e.target; target instanceof Node; target = target.parentNode) {
-			const handler = target[key]
+			const handler: Function = target[key]
 			if (handler) {
-				handler(e)
+				handler.call(target[context], e)
 				break
 			}
 		}
@@ -200,13 +201,14 @@ export const directives: DirectiveHandler[] = [
 		}
 		// bind event
 		if (name[0] == '@') {
-			const arr = name.slice(1).split('.')
-			const modifiers = new Set(arr.slice(1))
-			const options = {
-				capture: modifiers.has('capture'),
-				once: modifiers.has('once'),
-				passive: modifiers.has('passive')
-			}
+			const arr = name.substring(1).split('.'),
+				modifiers = new Set(arr.slice(1)),
+				options = {
+					capture: modifiers.has('capture'),
+					once: modifiers.has('once'),
+					passive: modifiers.has('passive')
+				},
+				away = modifiers.has('away')
 			name = arr[0]
 			let key: symbol | undefined
 			if (parent && name[0] != '$') { // delegate to root node of parent
@@ -224,31 +226,23 @@ export const directives: DirectiveHandler[] = [
 			}
 			return {
 				f(el) {
-					const handler = (this[value] ?? getFunc(value)).bind(this)
-					if (key)
+					const handler: Function = this[value] ?? getFunc(value)
+					if (key) {
 						el[key] = handler
-					else {
+						el[context] = this
+					} else {
 						if (name[0] == '$')
-							name = this[name.slice(1)] // dynamic event name
-						el.addEventListener(name, handler, options)
+							name = this[name.substring(1)] // dynamic event name
+						el.addEventListener(name, away ? e => {
+							if (e.target != el && !el.contains(<Node>e.target))
+								handler.call(this, e)
+						} : handler.bind(this), options)
 					}
 				}
 			}
 		}
 	}, ({ name, value }): D => {
-		if (name == '@click.away') {
-			const func: Function = getFunc(value)
-			return {
-				f(el) {
-					el.addEventListener('click', e => {
-						if (e.target != el && !el.contains(<Node>e.target))
-							func.call(this, e)
-					})
-				}
-			}
-		}
-	}, ({ name, value }): D => {
-		if (name == 'ref') {
+		if (name == 'ref')
 			return {
 				f(el) {
 					if (import.meta.env.DEV && value in this.$data)
@@ -256,20 +250,49 @@ export const directives: DirectiveHandler[] = [
 					this.$data[value] = el
 				}
 			}
+		if (name[0] == '$') { // dynamic attribute name
+			name = name.substring(1)
+			let attrName: string
+			return {
+				deps: new Set,
+				f(el) {
+					if (attrName) {
+						const newName = this.data[name]
+						if (newName != attrName) {
+							el.removeAttribute(attrName)
+							if (newName)
+								el.setAttribute(newName, value)
+						}
+					} else {
+						attrName = this.data[name]
+						el.setAttribute(attrName, value)
+					}
+				}
+			}
 		}
-
-		/**
-		 * A simple utility for conditionally joining attributes like classNames together
-		 *
-		 * e.g. :class="a:cond1;b:cond2"
-		 * cond1 & cond2 is true:	class="a b"
-		 * cond1 is true:			class="a"
-		 * cond2 is true:			class="b"
-		 * neither is true:			class=""
-		 *
-		 * NOTE: This differs from Vue
-		 */
-	}, ({ name, value, ownerElement: el }, map): D => {
+		if (name[0] == '.') { // bind DOM property
+			name = name.substring(1)
+			const func = getFunc('return ' + value)
+			return {
+				deps: new Set,
+				f(el) {
+					(<Data>el)[name] = func.call(this, el)
+				}
+			}
+		}
+	},
+	/**
+	 * A simple utility for conditionally joining attributes like classNames together
+	 *
+	 * e.g. :class="a:cond1;b:cond2"
+	 * cond1 & cond2 is true:	class="a b"
+	 * cond1 is true:			class="a"
+	 * cond2 is true:			class="b"
+	 * neither is true:			class=""
+	 *
+	 * NOTE: This differs from Vue
+	 */
+	({ name, value, ownerElement: el }, map): D => {
 		if (name[0] == ':') {
 			name = name.substring(1)
 			if (!name)
@@ -292,30 +315,8 @@ export const directives: DirectiveHandler[] = [
 			}
 			let attr = map.get(name)
 			if (!attr)
-				map.set(name, attr = <Part>{ deps: new Set })
-			attr.f = getFunc(code +
-				`if($v!=$e.getAttribute("${name}"))$e.setAttribute("${name}",$v)`)
-		}
-	}, ({ name, value }): D => {
-		if (name[0] == '$') {
-			name = name.slice(1)
-			let attrName: string
-			return {
-				deps: new Set,
-				f(el) {
-					if (attrName) {
-						const newName = this.data[name]
-						if (newName != attrName) {
-							el.removeAttribute(attrName)
-							if (newName)
-								el.setAttribute(newName, value)
-						}
-					} else {
-						attrName = this.data[name]
-						el.setAttribute(attrName, value)
-					}
-				}
-			}
+				map.set(name, attr = <Part>{ a: name, deps: new Set })
+			attr.f = getFunc(code + `return $v`)
 		}
 	}, ({ name, value, ownerElement: el }): D => {
 		if (name == 'c-show') {
@@ -328,7 +329,6 @@ export const directives: DirectiveHandler[] = [
 				}
 			}
 		}
-	}, ({ name }): D => {
 		if (name == 'c-cloak')
 			return {
 				keep: true,
