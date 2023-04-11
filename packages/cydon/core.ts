@@ -1,5 +1,5 @@
 /*
- * Cydon v0.0.1
+ * Cydon v0.1.0
  * https://github.com/0-v-0/cydon
  */
 
@@ -29,32 +29,6 @@ function update({ a, node, data, f }: Target) {
 }
 
 const proxies = new WeakMap<Dep | Data, Handler>()
-
-/**
- * bind a node with specific part and update it
- * @param node node to bind
- * @param part
- */
-function bindNode(cydon: Cydon, node: Target['node'], part: Part) {
-	const target: Target = Object.create(part)
-	target.node = node
-	let proxy: Handler | undefined
-	const deps = part.deps
-	if (deps) {
-		proxy = proxies.get(deps)
-		if (!proxy)
-			proxies.set(deps, proxy = {
-				get: (obj, key, receiver) => {
-					if (typeof key == 'string')
-						deps.add(key)
-					return Reflect.get(obj, key, receiver)
-				}
-			})
-		cydon._targets.push(target)
-	}
-	target.data = deps ? new Proxy(cydon.$data, proxy!) : cydon.data
-	update(target)
-}
 
 export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 	let proxy = proxies.get(parent!)
@@ -97,22 +71,22 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		/**
 		 * render queue
 		 */
-		_dirty = new Map<string, number>
+		$queue = new Map<string, number>
 
 		/**
 		 * bound nodes
 		 */
-		_targets: Target[] = []
+		$targets = new Set<Target>
 
 		/**
 		 * max number of updates of a property per commit
 		 */
-		_limits = new Map<string, number>
+		$limits = new Map<string, number>
 
 		/**
 		 * directives
 		 */
-		directives = d
+		$directives = d
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
@@ -141,9 +115,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 							l--
 						}
 					} else if ((<Part>result).f)
-						bindNode(this, <Text>node, <Part>result)
+						this.bindNode(<Text>node, <Part>result)
 					else for (const [, part] of <AttrMap>result)
-						bindNode(this, <Element>node, part)
+						this.bindNode(<Element>node, part)
 				} else {
 					const level = result >>> 22
 					result &= 4194303 // index
@@ -163,12 +137,40 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		}
 
 		/**
+		 * bind a node with specific part and update it
+		 * @param node node to bind
+		 * @param part
+		 * @returns target object
+		 */
+		bindNode(node: Target['node'], part: Part) {
+			const target: Target = Object.create(part)
+			target.node = node
+			let proxy: Handler | undefined
+			const deps = part.deps
+			if (deps) {
+				proxy = proxies.get(deps)
+				if (!proxy)
+					proxies.set(deps, proxy = {
+						get: (obj, key, receiver) => {
+							if (typeof key == 'string')
+								deps.add(key)
+							return Reflect.get(obj, key, receiver)
+						}
+					})
+				this.$targets.add(target)
+			}
+			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
+			update(target)
+			return target
+		}
+
+		/**
 		 * mount the instance in a container element
 		 * @param container container element
 		 */
 		mount(container: Container = <any>this) {
 			const results: Results = []
-			compile(results, container)
+			compile(results, container, this.$directives)
 			this.bind(results, container)
 		}
 
@@ -177,13 +179,11 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param el target element, null means clean unconnected nodes
 		 */
 		unmount(el: Container | null = <any>this) {
-			const arr = this._targets
-			for (let i = 0; i < arr.length;) {
-				const node = arr[i].node
+			const targets = this.$targets
+			for (const target of targets) {
+				const node = target.node
 				if (el ? el.contains(node) : !node.isConnected)
-					arr.splice(i, 1)
-				else
-					i++
+					targets.delete(target)
 			}
 		}
 
@@ -192,22 +192,23 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
-			if (!this._dirty.size)
+			if (!this.$queue.size)
 				queueMicrotask(() => this.commit())
-			this._dirty.set(prop, 1)
+			this.$queue.set(prop, 1)
 		}
 
 		/**
 		 * update nodes immediately and clear queue
 		 */
 		commit() {
-			const q = this._dirty
-			for (const target of this._targets) {
+			const q = this.$queue
+			for (const target of this.$targets) {
 				for (const dep of target.deps) {
 					const count = q.get(dep)
 					if (count) {
+						// target.deps.clear()
 						if (update(target)) {
-							if (count == this._limits.get(dep))
+							if (count == this.$limits.get(dep))
 								q.delete(dep)
 							else
 								q.set(dep, count + 1)

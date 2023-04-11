@@ -1,4 +1,4 @@
-import { define, CydonElement, Data } from 'cydon'
+import { define, CydonElement, Data, watch } from 'cydon'
 
 type Todo = {
 	name: string
@@ -21,7 +21,7 @@ class TodoApp extends CydonElement {
 	visibility = 'all'
 	filter: boolean | null = null
 
-	items: Todo[] = []
+	todos: Todo[] = []
 
 	todo!: Todo
 	i!: number
@@ -34,29 +34,32 @@ class TodoApp extends CydonElement {
 		return !this.remaining
 	}
 	set allDone(value) {
-		this.items.forEach(todo => todo.done = value)
+		this.todos.forEach(todo => todo.done = value)
 	}
 
 	get remaining() {
 		let count = 0
-		for (const todo of this.items) {
+		for (const todo of this.todos) {
 			if (!todo.done)
 				count++
 		}
-
-		// save data
-		queueMicrotask(() => storage.save(this.items))
 		return count
 	}
 
 	// init
 	connectedCallback() {
-		this.items = storage.load()
+		this.todos = storage.load()
+
 		// simple router
 		addEventListener('hashchange', () => this.updateFilter())
 
 		this.updateFilter()
 		super.connectedCallback()
+
+		// watch todos change for localStorage persistence
+		watch(this, function () {
+			storage.save(this.todos)
+		})
 	}
 
 	updateFilter() {
@@ -72,7 +75,7 @@ class TodoApp extends CydonElement {
 
 	addTodo(e: KeyboardEvent) {
 		if (e.key == 'Enter' && this.newTodo) {
-			this.items.push({ name: this.newTodo, done: false })
+			this.todos.push({ name: this.newTodo, done: false })
 			this.newTodo = ''
 		}
 	}
@@ -93,9 +96,6 @@ class TodoApp extends CydonElement {
 			this.todo.name = this.todo.name?.trim()
 			if (!this.todo.name)
 				this.removeTodo()
-
-			// save data
-			queueMicrotask(() => storage.save(this.items))
 		}
 	}
 
@@ -105,11 +105,11 @@ class TodoApp extends CydonElement {
 	}
 
 	removeTodo() {
-		this.items.splice(this.i, 1)
+		this.todos.splice(this.i, 1)
 	}
 
 	removeCompleted() {
-		this.items = this.items.filter(item => !item.done)
+		this.todos = this.todos.filter(item => !item.done)
 	}
 
 	pluralize(word: string, count: number) {

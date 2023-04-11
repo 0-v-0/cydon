@@ -1,6 +1,5 @@
-import { directives as d } from './directives'
-import { Part, Results, Result, DOMAttr, Container } from './type'
-import { getFunc } from './util'
+import { Part, Results, Result, DOMAttr, Container, DirectiveHandler } from './type'
+import { toFunction } from './util'
 
 function parse(s: string, attr = '') {
 	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
@@ -22,13 +21,13 @@ function parse(s: string, attr = '') {
 	return {
 		a: attr,
 		deps: new Set<string>,
-		f: getFunc('return`' + vals.replace(/\\/g, '\\\\').replace(/`/g, '\\`') + '`')
+		f: toFunction('return`' + vals.replace(/\\/g, '\\\\').replace(/`/g, '\\`') + '`')
 	}
 }
 
 let map = new Map<string, Part>()
 export function compile(results: Results, el: Container,
-	directives = d, level = 0, i = 0, parent?: ParentNode) {
+	directives: DirectiveHandler[], level = 0, i = 0, parent?: ParentNode) {
 	let result: Results[number] | undefined
 	if (level) {
 		const attrs = (<Element>el).attributes
@@ -74,7 +73,8 @@ export function compile(results: Results, el: Container,
 				results.push(level << 22 | i, result = map)
 				map = new Map
 			}
-			if (customElements.get((<Element>el).tagName.toLowerCase())?.prototype.updateValue)
+			const tagName = (<Element>el).tagName.toLowerCase()
+			if (tagName == 'textarea' || customElements.get(tagName)?.prototype.updateValue)
 				return // skip cydon elements
 		}
 	}

@@ -2,11 +2,10 @@
 A lightweight library for building fast, reactive web components.
 
 ## 特点
-- 简单易用：采用模板语法，所见即所得
-- 首屏加载速度快
+- 轻量级：~3kB minified & brotli'd
+- 采用模板语法，所见即所得
 - 组件即元素：无虚拟DOM
-- 轻量小巧：~3kB brotli'd
-- 模块间低耦合：大部分模块可单独使用
+- 不错的性能
 
 # Usage
 

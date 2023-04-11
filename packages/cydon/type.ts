@@ -16,20 +16,21 @@ export type DOMAttr = Attr & {
 
 export type Part = {
 	/** attribute name */
-	a: string
+	a?: string
 	/** dependencies */
 	deps?: Dep
 	/** update function */
-	f(this: Data, el: Element): string
+	f(this: Data, el: Element): any
 }
 
 export type Target = Part & {
-	node: Text | Element
+	node: Element | Text
+	/** dependencies */
 	deps: Dep
 	data: Data
 }
 
-export type AttrMap = Map<string, Part>
+export type AttrMap = Map<string | symbol, Part>
 
 /** template result */
 export type Result = Results & {
@@ -40,11 +41,18 @@ export type Result = Results & {
 
 export type Results = (AttrMap | Result | number)[]
 
-export interface Directive {
-	deps?: Dep
-	f(this: Data, el: Element): void
+export interface Directive extends Part {
+	/**
+	 * don't remove the attribute after compiling
+	 */
 	keep?: boolean
 }
 
+/**
+ * Directive handling function
+ * @param attr DOM attribute
+ * @param attrs bound attributes
+ * @param parent parent node (presents if in c-for)
+ */
 export type DirectiveHandler =
 	(attr: DOMAttr, attrs: AttrMap, parent?: ParentNode) => Directive | void

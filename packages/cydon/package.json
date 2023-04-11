@@ -1,6 +1,6 @@
 {
 	"name": "cydon",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "A lightweight library for building fast, reactive web components.",
 	"author": {
 		"name": "0-v-0",
@@ -15,10 +15,25 @@
 	"keywords": [
 		"cydon"
 	],
-	"packageManager": "pnpm@8.1.0",
+	"packageManager": "pnpm@8.2.0",
 	"scripts": {
-		"build": "vite build"
+		"build": "vite build && tsc --emitDeclarationOnly"
 	},
-	"main": "index.ts",
-	"type": "module"
+	"files": [
+		"dist"
+	],
+	"main": "./dist/cydon.umd.cjs",
+	"unpkg": "dist/cydon.iife.js",
+	"jsdelivr": "dist/cydon.iife.js",
+	"module": "./dist/cydon.js",
+	"exports": {
+		".": {
+			"import": "./dist/cydon.js",
+			"require": "./dist/cydon.umd.cjs"
+		}
+	},
+	"type": "module",
+	"dependencies": {
+		"terser": "^5.16.8"
+	}
 }

@@ -1,4 +1,3 @@
-//import autoprefixer from 'autoprefixer'
 import CleanCSS, { OptionsPromise } from 'clean-css'
 import Inspect from 'vite-plugin-inspect'
 import progress from 'vite-plugin-progress'
@@ -83,11 +82,6 @@ export default defineConfig(({ mode }) => {
 			}
 		},
 		build,
-		/*css: {
-			postcss: {
-				plugins: [<{}>autoprefixer()]
-			}
-		},*/
 		plugins
 	}
 })

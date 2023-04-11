@@ -29,7 +29,7 @@ class MainApp extends CydonElement {
 
 	constructor() {
 		super()
-		this._limits.set('selected', 2)
+		this.$limits.set('selected', 2)
 	}
 
 	delete() {

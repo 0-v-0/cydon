@@ -22,6 +22,8 @@
 
 修饰符：`.lazy` ——监听`change`事件而不是`input`
 
+注意在`<textarea>`中是不支持插值表达式的，请使用`.value`或`c-model`来替代
+
 ### ref
 获取原始 DOM 元素，并将对象保存到`$data`上
 
@@ -51,7 +53,12 @@
 动态事件名称绑定，与@*event*类似
 
 ### :
-组件初始化和更新时执行的代码
+用于执行内联响应式语句，在组件初始化时执行一次并追踪依赖，并依赖项更改时重新执行，类似petite-vue中的`v-effect`
+
+**e.g.** 实现`c-text`的功能：
+```html
+<span :="$e.textContent = msg"></span>
+```
 
 ### :*attr*
 属性绑定，一般只用于class
@@ -89,12 +96,50 @@ import { directives } from 'cydon'
 	directives.push(func)
 	```
 
-其中func是一个接受参数类型为`DOMAttr`的指令处理函数，返回真会跳过执行`directives`中后续的指令处理函数并**删除**该属性
+其中func为指令处理函数，返回真会跳过执行`directives`中后续的指令处理函数并**删除**该属性
+
+若需保留该属性，在返回的对象加上`keep: true`即可
+
+当返回的对象不存在deps属性时：
+```js
+directives.push((attr, attrs, parent) => {
+	// 模板编译时执行
+	// …
+
+	return {
+		f(el) {
+			// 绑定元素时执行，这里this指向cydon实例的data对象
+		}
+	}
+})
+```
+
+当返回的对象存在deps属性时：
+```js
+directives.push((attr, attrs, parent) => {
+	// 模板编译时执行
+	// …
+
+	// 允许在一个指令处理函数中注册多个Target
+	attrs.set(Symbol('xxx'), {
+		f(el) {
+			// 绑定元素时执行，执行顺序优先于下面的f函数
+		}
+	})
+
+	return {
+		deps: new Set // 关联的依赖项
+		f(el) {
+			// 绑定元素或关联的依赖项更新时执行，这里this指向cydon实例的data对象
+		}
+	}
+})
+```
 
 ### 局部指令
-每个cydon实例都有一个`directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
+每个cydon实例都有一个`$directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
 ```js
-this.directives.push(({ name, value, ownerElement: el }) => {
+this.$directives.push(({ name, value, ownerElement: el }) => {
 	if (name == 'attr') {
 		//...
 	}
@@ -121,7 +166,7 @@ directives.push(({ name, ownerElement: el }) => {
 ```ts
 ({ name, value }): Directive | void => {
 	if (name == 'c-text') {
-		const func = getFunc('return ' + value)
+		const func = toFunction('return ' + value)
 		return {
 			deps: new Set,
 			f(el) {

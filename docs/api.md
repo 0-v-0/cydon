@@ -28,7 +28,13 @@
 ### EventOf(obj: Object)
 创建一个轻量级的事件目标
 
+### watch(cydon: Cydon, f: Target['f'], node: Element | Text)
+立即运行一个函数，同时响应式地追踪其依赖，并在依赖更改时重新执行
+
+返回值是一个用来停止该副作用的函数，该函数返回是否成功移除该副作用
+
 ## 应用实例API
+提示：ShadowRoot属于DocumentFragment的一种
 
 ### new(data?: Data, ...args: ConstructorParameters<Constructor<T>>)
 创建一个Cydon实例
@@ -37,38 +43,31 @@
 - `data`：数据对象
 - `args`：传给基类的参数
 
-### mount(el: Element | ShadowRoot = this)
-将Cydon实例挂载到一个元素或ShadowRoot上
+### mount(el: Element | DocumentFragment = this)
+将Cydon实例挂载到一个元素或DocumentFragment上
 
 参数：
-- `el`：目标元素或ShadowRoot
+- `el`：目标元素或DocumentFragment
 
-### unmount(el: Element | ShadowRoot)
+### unmount(el: Element | DocumentFragment)
 将Cydon实例从目标元素上解绑
 
 参数：
-- `el`：目标元素或Shadow Root
+- `el`：目标元素或DocumentFragment
 
-### compile(results: Results, el: Element | ShadowRoot)
+### compile(results: Results, el: Element | DocumentFragment)
 编译一个元素或Shadow Root下的所有模板
 
 参数：
 - `results`：编译结果
-- `el`：目标元素或Shadow Root
+- `el`：目标元素或DocumentFragment
 
-### bind(results: Results, el: Element | ShadowRoot = this)
+### bind(results: Results, el: Element | DocumentFragment = this)
 将模板编译结果绑定到一个元素或Shadow Root
 
 参数：
 - `results`：编译结果
 - `el`：目标元素或Shadow Root
-
-### addPart(node: Element | Attr | Text, part: Part)
-添加目标节点并加入到更新队列中
-
-参数：
-- `node`：目标节点
-- `part`：表达式
 
 ### updateValue(prop: string)
 将`prop`加入更新队列

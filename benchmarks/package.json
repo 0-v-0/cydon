@@ -12,7 +12,8 @@
     "cydon"
   ],
   "dependencies": {
-    "cydon": "workspace:*"
+    "cydon": "workspace:*",
+    "terser": "^5.16.9"
   },
   "devDependencies": {
     "vite": "^4.2.1"

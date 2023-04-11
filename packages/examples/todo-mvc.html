@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title>Cydon • TodoMVC</title>
+	<link rel="stylesheet" href="node_modules/todomvc-common/base.css">
+	<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+	<style>
+		todo-app {
+			display: block
+		}
+
+		[c-cloak] {
+			display: none
+		}
+	</style>
+</head>
+
+<body>
+	<todo-app class="todoapp">
+		<header class="header">
+			<h1>todos</h1>
+			<input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?"
+				c-model.lazy="newTodo" @keyup="addTodo">
+		</header>
+		<section class="main" c-show="todos.length" c-cloak>
+			<input class="toggle-all" type="checkbox" c-model="allDone" id="toggle-all">
+			<label for="toggle-all">Mark all as complete</label>
+			<ul class="todo-list">
+				<template c-for="todo, i; todos">
+					<li class="todo"
+						:class="completed: todo.done; editing: editing == todo; hidden: filter != null && todo.done != filter">
+						<div class="view">
+							<input class="toggle" type="checkbox" c-model="todo.done" title="done">
+							<label @dblclick="editTodo">${todo.name}</label>
+							<button class="destroy" @click="removeTodo"></button>
+						</div>
+						<input class="edit" c-model="todo.name" @blur.capture="doneEdit"
+							:="editing == todo && $e.focus()" @keyup="keyup">
+					</li>
+				</template>
+			</ul>
+		</section>
+		<footer class="footer" c-show="todos.length" c-cloak>
+			<span class="todo-count">
+				<strong>${remaining}</strong> ${pluralize('item', remaining)} left
+			</span>
+			<ul class="filters">
+				<li><a href="#/all" :class="selected: visibility == 'all'">All</a></li>
+				<li><a href="#/active" :class="selected: visibility == 'active'">Active</a></li>
+				<li><a href="#/completed" :class="selected: visibility == 'completed'">Completed</a></li>
+			</ul>
+			<button class="clear-completed" @click="removeCompleted" c-show="todos.length > remaining">
+				Clear completed
+			</button>
+		</footer>
+	</todo-app>
+	<footer class="info">
+		<p>Double-click to edit a todo</p>
+		<p>Written by <a href="https://github.com/0-v-0">0-v-0</a></p>
+		<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+	</footer>
+	<script src="./app.ts" type="module"></script>
+</body>
+
+</html>

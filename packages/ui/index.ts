@@ -64,5 +64,5 @@ if (!globalThis.CYDON_NO_TOGGLE)
 	})
 
 declare module globalThis {
-	const CYDON_NO_TOGGLE: boolean
+	const CYDON_NO_TOGGLE: boolean | undefined
 }

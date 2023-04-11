@@ -1,8 +1,9 @@
 /*
- * Cydon v0.0.1
+ * Cydon v0.1.0
  * https://github.com/0-v-0/cydon
  */
 
+export * from './compiler'
 export * from './core'
 export * from './directives'
 export * from './events'

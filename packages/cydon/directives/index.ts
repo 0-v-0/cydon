@@ -1,6 +1,7 @@
-import { Cydon, setData } from './core'
-import { Data, DataHandler, Directive, DirectiveHandler, DOM, Part, Results } from './type'
-import { getFunc } from './util'
+import { Cydon, setData } from '../core'
+import { Data, DataHandler, Directive, DirectiveHandler, Part, Results } from '../type'
+import { toFunction } from '../util'
+import event from './event'
 
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
 	const data = cydon.$data
@@ -107,141 +108,9 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 
 type D = Directive | void
 
-const boundElements = new Map<string, WeakSet<Element>>()
-const listenedElements = new Map<string, WeakSet<EventTarget>>()
-const handlers = new Map<string, symbol>()
-export const context = Symbol()
-
-declare global {
-	interface Node {
-		[x: symbol]: any
-	}
-}
-
-const listener = (e: Event) => {
-	const key = handlers.get(e.type)
-	if (key)
-		for (let target = e.target; target instanceof Node; target = target.parentNode) {
-			const handler: Function = target[key]
-			if (handler) {
-				handler.call(target[context], e)
-				break
-			}
-		}
-}
-
 export const directives: DirectiveHandler[] = [
+	event,
 	({ name, value }): D => {
-		if (name == 'c-if') {
-			const func = getFunc('return ' + value)
-			const data: Directive = {
-				deps: new Set,
-				f(el) {
-					const parent = el.parentElement!
-					const anchor = new Text
-					parent.insertBefore(anchor, el)
-					let lastValue: boolean
-					data.f = function (el) {
-						const val = func.call(this, el)
-						if (val != lastValue) {
-							lastValue = val
-							if (val) {
-								this.mount(el)
-								if (!el.isConnected)
-									parent.insertBefore(el, anchor)
-							} else {
-								this.unmount(el)
-								el.remove()
-							}
-						}
-					}
-				}
-			}
-			return data
-		}
-	}, ({ name, value, ownerElement: el }, _, parent): D => {
-		if (name == 'c-model' || name == 'c-model.lazy') {
-			value = value.trim()
-			type Input = HTMLInputElement
-
-			const isCheckbox = (<Input>el).type == 'checkbox'
-			const isRadio = (<Input>el).type == 'radio'
-			const isSelect = el.tagName == 'SELECT'
-			const event = name != 'c-model' || isSelect || isCheckbox ? 'change' : 'input'
-			let set = boundElements.get(event)
-			if (!set)
-				boundElements.set(event, set = new WeakSet)
-			const getter = getFunc('return ' + value)
-			const setter = Function('$e', '$val', `with(this)${value}=$val`)
-			return {
-				deps: new Set,
-				f(el) {
-					if (!set!.has(el)) {
-						el.addEventListener(event, () => {
-							const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
-								[...(<HTMLSelectElement>el).selectedOptions].map(
-									option => option.value || option.text) :
-								isCheckbox ?
-									(<Input>el).checked :
-									(<Input>el).value
-							setter.call(this, el, newVal)
-						})
-						set!.add(el)
-					}
-					// Two-way binding
-					const val = getter.call(this, el)
-					if (isRadio)
-						(<Input>el).checked = val == (<Input>el).value
-					else if (isCheckbox)
-						(<Input>el).checked = val
-					else
-						(<Input>el).value = val
-				}
-			}
-		}
-		// bind event
-		if (name[0] == '@') {
-			const arr = name.substring(1).split('.'),
-				modifiers = new Set(arr.slice(1)),
-				options = {
-					capture: modifiers.has('capture'),
-					once: modifiers.has('once'),
-					passive: modifiers.has('passive')
-				},
-				away = modifiers.has('away')
-			name = arr[0]
-			let key: symbol | undefined
-			if (parent && name[0] != '$') { // delegate to root node of parent
-				key = handlers.get(name)
-				if (!key)
-					handlers.set(name, key = Symbol())
-				let set = listenedElements.get(name)
-				if (!set)
-					listenedElements.set(name, set = new WeakSet)
-				const root = parent.getRootNode()
-				if (!set.has(root)) {
-					root.addEventListener(name, listener, options)
-					set.add(root)
-				}
-			}
-			return {
-				f(el) {
-					const handler: Function = this[value] ?? getFunc(value)
-					if (key) {
-						el[key] = handler
-						el[context] = this
-					} else {
-						if (name[0] == '$')
-							name = this[name.substring(1)] // dynamic event name
-						el.addEventListener(name, away ? e => {
-							if (e.target != el && !el.contains(<Node>e.target))
-								handler.call(this, e)
-						} : handler.bind(this), options)
-					}
-				}
-			}
-		}
-	}, ({ name, value }): D => {
 		if (name == 'ref')
 			return {
 				f(el) {
@@ -272,7 +141,7 @@ export const directives: DirectiveHandler[] = [
 		}
 		if (name[0] == '.') { // bind DOM property
 			name = name.substring(1)
-			const func = getFunc('return ' + value)
+			const func = toFunction('return ' + value)
 			return {
 				deps: new Set,
 				f(el) {
@@ -298,7 +167,7 @@ export const directives: DirectiveHandler[] = [
 			if (!name)
 				return {
 					deps: new Set,
-					f: getFunc(value)
+					f: toFunction(value)
 				}
 
 			el.removeAttribute(':' + name)
@@ -316,25 +185,16 @@ export const directives: DirectiveHandler[] = [
 			let attr = map.get(name)
 			if (!attr)
 				map.set(name, attr = <Part>{ a: name, deps: new Set })
-			attr.f = getFunc(code + `return $v`)
+			attr.f = toFunction(code + `return $v`)
 		}
-	}, ({ name, value, ownerElement: el }): D => {
-		if (name == 'c-show') {
-			const func = getFunc('return ' + value),
-				initial = (<DOM>el).style.display
-			return {
-				deps: new Set,
-				f(el) {
-					(<DOM>el).style.display = func.call(this, el) ? initial : 'none'
-				}
-			}
-		}
-		if (name == 'c-cloak')
-			return {
-				keep: true,
-				f(el) {
-					el.removeAttribute(name)
-				}
-			}
 	}
 ]
+
+declare module globalThis {
+	const CYDON_NO_EXTRA: boolean | undefined
+}
+
+import extra from './extra'
+
+if (!globalThis.CYDON_NO_EXTRA)
+	directives.push(...extra)

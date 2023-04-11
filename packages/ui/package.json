@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@8.1.0",
+  "packageManager": "pnpm@8.2.0",
   "browserslist": [
     "last 4 version",
     "Chrome >= 84",
@@ -24,14 +24,14 @@
     "@custom-elements-manifest/analyzer": "^0.6.9",
     "@cydon/css": "workspace:^",
     "@types/clean-css": "^4.2.6",
-    "@typescript-eslint/parser": "^5.57.1",
+    "@typescript-eslint/parser": "^5.58.0",
     "@unocss/transformer-directives": "^0.51.2",
     "autoprefixer": "^10.4.14",
     "clean-css": "^5.3.2",
     "eslint": "^8.38.0",
     "postcss": "^8.4.21",
     "stylus": "^0.59.0",
-    "terser": "^5.16.8",
+    "terser": "^5.16.9",
     "typedoc": "^0.23.28",
     "typescript": "^4.9.5",
     "unocss": "^0.51.2",

@@ -3,11 +3,18 @@
 轻量级响应式框架
 
 ## 特点
-- 轻量
-- 无VDOM
-- 单向/双向绑定
-- 支持`computed`属性
-- 支持自定义指令
+- 轻量级：~3kB minified & brotli'd
+- 采用模板语法，所见即所得
+- 组件即元素：无虚拟DOM
+- 不错的性能
 
-## 注意
-绕过Cydon直接使用DOM操作修改`Cydon.bind`绑定过的元素可能会出现问题
+## 功能
+- 插值表达式
+- 单向/双向绑定
+- `c-if`, `c-for`, `c-show`, `c-cloak`
+- 事件绑定
+- 自定义指令
+- `watch`响应式回调函数
+
+## Documentation
+https://0-v-0.github.io/cydon/
