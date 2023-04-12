@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build&&cd ../vite-plugin-ustyle&&pnpm build",
-		"update-deps": "pnpm update&&cd benchmarks&&pnpm update&&cd ../packages/css&&pnpm update&&cd ../examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
+		"update-deps": "pnpm update&&cd ./packages/css&&pnpm update&&cd ../examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
 	},
 	"type": "module"
 }

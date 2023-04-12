@@ -6,10 +6,10 @@
 			"dom",
 			"dom.iterable"
 		],
-		"baseUrl": ".",
+		"allowJs": false,
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "dist/types",
+		"outDir": "dist",
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
