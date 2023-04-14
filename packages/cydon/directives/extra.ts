@@ -39,8 +39,8 @@ export default [cModel, ({ name, value, ownerElement: el }: DOMAttr): D => {
 			initial = (<DOM>el).style.display
 		return {
 			deps: new Set,
-			f(el) {
-				(<DOM>el).style.display = func.call(this, el) ? initial : 'none'
+			f(el: DOM) {
+				el.style.display = func.call(this, el) ? initial : 'none'
 			}
 		}
 	}

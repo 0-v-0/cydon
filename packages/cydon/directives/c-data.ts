@@ -1,4 +1,4 @@
-import { Cydon } from '..'
+import { Cydon } from '../core'
 
 function walk(el: Element) {
 	for (const child of el.children)

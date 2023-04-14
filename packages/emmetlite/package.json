@@ -1,6 +1,6 @@
 {
 	"name": "emmetlite",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Liteweight emmet for JavaScript",
 	"repository": {
 		"type": "git",
@@ -10,7 +10,11 @@
 	"keywords": [
 		"emmet"
 	],
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
 	"main": "index.js",
 	"type": "module",
-	"types": "index"
+	"types": "index.d.ts"
 }

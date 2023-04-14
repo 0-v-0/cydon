@@ -1,29 +1,15 @@
 {
 	"compilerOptions": {
-		"module": "esnext",
 		"lib": [
 			"es2021",
 			"WebWorker"
 		],
-		"declaration": true,
-		"emitDeclarationOnly": true,
-		"outDir": "./types",
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node",
-		"isolatedModules": true,
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-		"target": "es2021",
-		"forceConsistentCasingInFileNames": true,
-		"useDefineForClassFields": false,
-		"skipLibCheck": true
+		"target": "es2021"
 	},
 	"exclude": [
+		"dist",
 		"node_modules",
-		"dist"
-	]
+		"vite.config.ts"
+	],
+	"extends": "../../tsconfig.json"
 }

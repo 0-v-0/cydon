@@ -2,7 +2,7 @@ import { Part, Results, Result, DOMAttr, Container, DirectiveHandler } from './t
 import { toFunction } from './util'
 
 function parse(s: string, attr = '') {
-	const re = /(\$\{[\S\s]+?})|\$([_a-z]\w*)/gi
+	const re = /(\$\{.+?})|\$([_a-z]\w*)/gis
 	let a = re.exec(s), lastIndex!: number
 	if (!a)
 		return null

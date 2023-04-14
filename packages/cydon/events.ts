@@ -1,4 +1,4 @@
-import { Constructor as Ctor } from '.'
+import { Constructor as Ctor } from './type'
 
 export type EventType = string | number | symbol
 export type Handler = (...args: any[]) => void

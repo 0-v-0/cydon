@@ -1,31 +1,9 @@
 {
 	"compilerOptions": {
-		"module": "esnext",
-		"lib": [
-			"es2020",
-			"dom",
-			"dom.iterable"
-		],
-		"allowJs": false,
-		"declaration": true,
-		"emitDeclarationOnly": true,
-		"outDir": "dist",
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node",
-		"isolatedModules": true,
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-		"target": "es2020",
-		"forceConsistentCasingInFileNames": true,
-		"useDefineForClassFields": false,
-		"skipLibCheck": true
+		"outDir": "dist"
 	},
 	"exclude": [
-		"dist",
-		"node_modules"
-	]
+		"dist"
+	],
+	"extends": "../../tsconfig.json"
 }

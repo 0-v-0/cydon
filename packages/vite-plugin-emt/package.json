@@ -1,22 +1,37 @@
 {
 	"name": "vite-plugin-emt",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"description": "emt support for vite",
 	"author": {
 		"name": "0-v-0",
 		"email": "kduice@qq.com"
 	},
 	"license": "MIT",
 	"keywords": [
+		"emt",
 		"vite-plugin"
 	],
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=16"
+	},
 	"scripts": {
-		"build": "vite build"
+		"build": "vite build && tsup index.ts --dts-only"
 	},
 	"dependencies": {
 		"emmetlite": "workspace:*",
+		"known-css-properties": "^0.27.0",
 		"magic-string": "^0.30.0",
 		"picocolors": "^1.0.0",
+		"stylus": "^0.59.0"
+	},
+	"peerDependencies": {
 		"vite": "^4.2.1"
+	},
+	"devDependencies": {
+		"@types/stylus": "^0.48.38"
 	},
 	"main": "dist/index.js",
 	"type": "module"

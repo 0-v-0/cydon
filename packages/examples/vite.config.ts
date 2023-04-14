@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import emt, { inlineStylus, inlineTS } from 'vite-plugin-ustyle'
+import emt, { inlineStylus, inlineTS } from 'vite-plugin-emt'
 
 export default defineConfig({
 	define: {

@@ -1,4 +1,4 @@
-/* emmetLite v1.2.2 */
+/* emmetLite v0.0.2 */
 
 export const itags = {// default elements
 	audio: 'source',
@@ -139,7 +139,7 @@ export const itags = {// default elements
 		if (tag = s[0])
 			for (t = tag.toLowerCase(); tabbr[t] && (t = tag.replace(t, tabbr[t])) != tag;) tag = t
 		prop.tag = (tag || (t = tags[tags.length - 1]) && itags[t.toLowerCase()] ||
-			(t = result[result.length - 1]) && itags[t.slice(1).replace(/[\s>][\S\s]*/, '').toLowerCase()] ||
+			(t = result[result.length - 1]) && itags[t.slice(1).replace(/[\s>].*/s, '').toLowerCase()] ||
 			'div') + (eabbr[s[1]] || '')
 	}]
 
@@ -216,7 +216,7 @@ function zencode(input) {
 		}
 		return ''
 	}
-	input = input.replace(/<!--[\S\s]*?-->/g, '')
+	input = input.replace(/<!--.*?-->/gs, '')
 	let tokens = [], buffer, tagList = [], groups = [], lastGroup = [], result = [],
 		c, l = 0, i = 0, len = input.length, g = 0, n = 0
 	for (; i < len; i++) {
@@ -331,7 +331,7 @@ function zencode(input) {
 							attr[0] = ' class="' + attr[0] + '"'
 						if (tag = content.tag)
 							result.push('<' + tag + attr.join(' ') + '>' + content.content)
-						tagList.push(tag.replace(/(!|\s)[\S\s]*/g, ''))
+						tagList.push(tag.replace(/(!|\s).*/gs, ''))
 					} else {
 						result.push(content)
 						tagList.push('')

@@ -6,25 +6,25 @@
 			"dom",
 			"dom.iterable"
 		],
+		"allowJs": false,
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"outDir": "./types",
 		"strict": true,
+		"isolatedModules": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"moduleResolution": "node",
-		"isolatedModules": true,
-		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"experimentalDecorators": true,
 		"target": "es2020",
-		"forceConsistentCasingInFileNames": true,
-		"useDefineForClassFields": false,
+		"useDefineForClassFields": true,
 		"skipLibCheck": true
 	},
 	"exclude": [
-		"node_modules",
-		"dist"
+		"dist",
+		"node_modules"
 	]
 }

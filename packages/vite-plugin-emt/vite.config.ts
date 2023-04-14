@@ -8,8 +8,7 @@ export default defineConfig({
 			fileName: 'index'
 		},
 		rollupOptions: {
-			external: s => !s.includes('vite-plugin-emt') && !s.includes('simpletpl'),
-			output: { sourcemap: 'hidden' }
+			external: s => !s.includes('vite-plugin-emt') && s[0] != '.'
 		},
 		target: 'esnext'
 	}

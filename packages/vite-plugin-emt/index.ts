@@ -1,15 +1,17 @@
 import emmet, { tagProcs } from 'emmetlite'
-import { basename, posix, resolve as res } from 'path'
+import { basename, resolve as res } from 'path'
 import readline from 'readline'
-import colors from 'picocolors'
 import events from 'events'
 import MagicString from 'magic-string'
 import { createReadStream, existsSync, promises as fs, readFileSync, writeFile } from 'fs'
 import { Plugin, ViteDevServer } from 'vite'
 import { Data, Render, render } from './simpletpl'
+import { all } from 'known-css-properties'
+import { logger } from './util'
 
 export * from 'emmetlite'
 export * from './simpletpl'
+export * from './util'
 export type { Plugin }
 
 type TitleCache = Record<string, {
@@ -17,12 +19,14 @@ type TitleCache = Record<string, {
 	time: number
 }>
 
-type TemplateCache = Record<string, any>
+type TemplateCache = Record<string, string>
 
 export interface Option extends Omit<Plugin, 'name'> {
 	alwaysReload?: boolean
+	classy?: boolean
+	cssProps?: Set<string>
 	emtLiteral?: boolean
-	log?: boolean
+	log?(server: ViteDevServer, file: string): void
 	paths?: string[]
 	root?: string
 	read?(path: string): string
@@ -32,24 +36,53 @@ export interface Option extends Omit<Plugin, 'name'> {
 	writeHtml?: boolean
 }
 
-// https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
-const getShortName = (file: string, root: string) =>
-	file.startsWith(root + '/') ? posix.relative(root, file) : file
-
 const tplCache: TemplateCache = {}
 
 export default (config: Option = {}): Plugin => {
-	let {
+	const r = (path: string) => {
+		// HACK: make unocss recongize classes in Shadow Root
+		const html = path ? include(path) : ''
+		return html.replace(/@unocss-placeholder/g, match => {
+			let classes = ''
+			const re = / class="(.+?)"/gs
+			for (let a: string[] | null; a = re.exec(html);)
+				classes += a[1] + ' '
+			return (classes &&= '/* ' + classes + '*/ ') + match
+		})
+	}
+	const {
+		classy = true,
 		emtLiteral = true,
-		log,
-		read = path => path ? include(path) : '',
-		root,
+		log = logger,
+		read = r,
 		render: rend = render,
 		tplFile = 'page.emt',
 		paths = [],
 		templated = true,
 		writeHtml
 	} = config
+	let root = config.root
+	if (classy) {
+		const { cssProps = new Set(all) } = config
+		tagProcs.unshift((prop): true | void => {
+			const { match, token, result } = prop
+			if (match != token) {
+				const isCss = cssProps.has(match)
+				const attr = isCss ? ' style="' : ' class="',
+					len = result.length,
+					last = result[len - 1],
+					str = token.replace(/\$/g, '$$$$')
+						.replace(isCss ? /\s/ : /\s/g, isCss ? ':' : '-')
+				result[len - 1] =
+					last.replace(/>.+/gs, '>').includes(attr) ?
+						last.replace(RegExp(`(${attr}.+?)"`, 's'),
+							'$1' + (isCss ? ';' : ' ') + str + '"') :
+						last.replace('>', attr + str + '">')
+				prop.tag = ''
+				return true
+			}
+		})
+	}
 	const resolve = (p: string, base = root!, throwOnErr = false) => {
 		let i = p.indexOf('?')
 		p = res(process.cwd(), base, i < 0 ? p : p.substring(0, i))
@@ -84,20 +117,17 @@ export default (config: Option = {}): Plugin => {
 			name = tag
 		else
 			for (let i = 1; i < attr.length;) {
-				const r = /^is="(.+?)"/i.exec(attr[i++])
+				const r = /^is="(.+?)"/is.exec(attr[i++])
 				if (r) {
 					name = r[1]
 					break
 				}
 			}
 		if (name) {
-			let content: string
-			if (name in tplCache)
-				content = tplCache[name]
-			else
-				tplCache[name] = content = read!(resolveAll(name, false))
-			prop.content = (!used?.has(name) ? content :
-				content.replace(/<script [^>]*?type="module"[^>]*?>[\S\s]*?<\/script>/gi, '')) + prop.content
+			const content = tplCache[name] ??= read!(resolveAll(name, false))
+			prop.content = (used?.has(name) ?
+				content.replace(/<script [^>]*?type="module"[^>]*?>.*?<\/script>/gis, '') :
+				content) + prop.content
 			used?.add(name)
 		}
 	})
@@ -108,17 +138,7 @@ export default (config: Option = {}): Plugin => {
 		configureServer(server: ViteDevServer) {
 			root = res(root || server.config.root)
 			const titles: TitleCache = {}
-			server.middlewares.use(async (req, res, next) => {
-				// if not emt, next it.
-				const url = req.originalUrl?.substring(1) || 'index.emt'
-				if (!url.endsWith('.emt'))
-					return next()
-
-				const path = resolve(url)
-				if (!path)
-					return next()
-
-				used?.clear()
+			async function getData(url: string, path: string) {
 				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 					time = (await fs.stat(path)).mtime.getTime()
 				if (url in titles && time == titles[url].time)
@@ -144,6 +164,20 @@ export default (config: Option = {}): Plugin => {
 					})
 					await events.once(rl, 'close')
 				}
+				return data
+			}
+			server.middlewares.use(async (req, res, next) => {
+				// if not emt, next it
+				const url = req.originalUrl?.substring(1) || 'index.emt'
+				if (!url.endsWith('.emt'))
+					return next()
+
+				const path = resolve(url)
+				if (!path)
+					return next()
+
+				used?.clear()
+				const data = await getData(url, path)
 				const content = rend(include('doc_title' in data ? tplFile : path), data)
 				if (writeHtml)
 					writeFile(data.DOCUMENT_ROOT + '/' + basename(url, '.emt') + '.html', content, _ => { })
@@ -161,16 +195,12 @@ export default (config: Option = {}): Plugin => {
 					tplCache[name] = read!(file)
 				}
 				server.ws.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
-				if (log ?? true) {
-					server.config.logger.info(
-						colors.green(`page reload `) + colors.dim(getShortName(file, server.config.root)),
-						{ clear: true, timestamp: true }
-					)
-				}
+				log(server, file)
 				return []
 			}
 			return
 		},
+		// parse emt`...`
 		transform(code, id) {
 			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts'))) {
 				const ms = new MagicString(code)

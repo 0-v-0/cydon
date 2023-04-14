@@ -170,7 +170,7 @@ directives.push(({ name, ownerElement: el }) => {
 		return {
 			deps: new Set,
 			f(el) {
-				(<DOM>el).textContent = func.call(this, el)
+				el.textContent = func.call(this, el)
 			}
 		}
 	}

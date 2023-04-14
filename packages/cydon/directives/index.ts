@@ -144,8 +144,9 @@ export const directives: DirectiveHandler[] = [
 			const func = toFunction('return ' + value)
 			return {
 				deps: new Set,
-				f(el) {
-					(<Data>el)[name] = func.call(this, el)
+				f(el: Data & Element) {
+					customElements.upgrade(el)
+					el[name] = func.call(this, el)
 				}
 			}
 		}
