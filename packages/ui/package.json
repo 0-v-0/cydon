@@ -35,7 +35,7 @@
     "typedoc": "^0.24.1",
     "unocss": "^0.51.4",
     "vite": "^4.2.1",
-    "vite-plugin-inspect": "^0.7.21",
+    "vite-plugin-inspect": "^0.7.22",
     "vite-plugin-progress": "^0.0.7"
   },
   "dependencies": {

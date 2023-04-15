@@ -59,8 +59,8 @@ export class ClipboardCopy extends HTMLElement {
 	}
 
 	connectedCallback(): void {
-		if (!this.hasAttribute('tabindex'))
-			this.setAttribute('tabindex', '0')
+		if (this.tabIndex < 0)
+			this.tabIndex = 0
 
 		if (!this.hasAttribute('role'))
 			this.setAttribute('role', 'button')

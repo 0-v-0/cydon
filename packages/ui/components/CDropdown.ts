@@ -1,8 +1,8 @@
 import { define } from 'cydon'
-import Modal from './Modal'
+import CModal from './CModal'
 
 @define('c-dropdown')
-export default class Dropdown extends Modal {
+export default class CDropdown extends CModal {
 	get open() {
 		return this.ariaExpanded == 'true'
 	}
@@ -13,6 +13,6 @@ export default class Dropdown extends Modal {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'c-dropdown': Dropdown
+		'c-dropdown': CDropdown
 	}
 }

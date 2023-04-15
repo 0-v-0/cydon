@@ -1,3 +1,5 @@
+import { directives, Directive } from 'cydon'
+
 export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).disabled
 
 	/**
@@ -31,4 +33,30 @@ export const toggle = (e: HTMLElement) => {
 		e.ariaHidden ? (<any>e).show() : (<any>e).hide()
 	else
 		e.hidden = !e.hidden
+}
+
+if (!globalThis.CYDON_NO_TOGGLE)
+	directives.push(({ name, value }): Directive | void => {
+		if (name == 'c-toggle') {
+			return {
+				f(el) {
+					el.addEventListener('click', e => {
+						const el = <HTMLElement>e.currentTarget
+						if (el.tagName == 'A' || el.tagName == 'AREA')
+							e.preventDefault()
+						if (!isDisabled(el)) {
+							e.stopPropagation()
+							if (this.$data[value])
+								toggle(this.$data[value])
+							else
+								document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
+						}
+					})
+				}
+			}
+		}
+	})
+
+declare module globalThis {
+	const CYDON_NO_TOGGLE: boolean | undefined
 }

@@ -1,5 +1,5 @@
 import { define } from 'cydon'
-import { TableElement } from '../ui'
+import { ListElement } from '../ui'
 
 declare global {
 	interface HTMLElementTagNameMap {
@@ -8,7 +8,7 @@ declare global {
 }
 
 @define('s-table')
-export class STable extends TableElement<{}> {
+export class STable extends ListElement<{}> {
 	keys!: { toString: () => string }[]
 
 	connectedCallback() {

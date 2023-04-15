@@ -4,9 +4,6 @@
 	"packageManager": "pnpm@8.2.0",
 	"version": "0.0.1",
 	"devDependencies": {
-		"@cydon/ui": "workspace:^",
-		"cydon": "workspace:^",
-		"emmetlite": "workspace:^",
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.4",
 		"vite": "^4.2.1"

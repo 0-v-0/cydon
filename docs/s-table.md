@@ -43,11 +43,9 @@ template[shadowroot=open]
 
 s-table.ts
 ```ts
-import { define, CydonOf, Data } from 'cydon'
+import { define } from 'cydon'
 
-const cloneArray = <T extends {}>(arr: T[]) => arr.map(obj => ({ ...obj }))
-
-export class TableElement<T extends {}> extends CydonElement {
+export class ListElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']
 	items: T[] = []
 	private _list: T[] = []
@@ -79,7 +77,7 @@ export class TableElement<T extends {}> extends CydonElement {
 	set list(data) {
 		this._list = data
 		const i = this.pageNum, n = this.perPage
-		this.items = <T[]>cloneArray(data.slice(i * n, i * n + n))
+		this.items = data.slice(i * n, i * n + n)
 	}
 
 	constructor(data?: Data) {
@@ -93,7 +91,7 @@ export class TableElement<T extends {}> extends CydonElement {
 }
 
 @define('s-table')
-class STable extends TableElement<{}> {
+class STable extends ListElement<{}> {
 	connectedCallback() {
 		// 填充数据
 		this.list = [

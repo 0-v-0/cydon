@@ -1,6 +1,6 @@
 // From https://github.com/XboxYan/xy-ui/blob/master/components/xy-tips.js
 
-export default class Tip extends HTMLElement {
+export default class CTip extends HTMLElement {
 	static observedAttributes = ['color']
 
 	constructor() {
@@ -368,10 +368,10 @@ export default class Tip extends HTMLElement {
 	}
 }
 
-customElements.define('c-tip', Tip)
+customElements.define('c-tip', CTip)
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'c-tip': Tip
+		'c-tip': CTip
 	}
 }

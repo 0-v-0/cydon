@@ -6,6 +6,8 @@
 button[@click="alert('Hello')"]{Click me}
 ```
 
+内联表达式中`$e`指向Event对象
+
 当表达式太长时，可以作为方法放到自定义元素类中，方法的第一个参数为事件对象
 ```stylus
 my-element

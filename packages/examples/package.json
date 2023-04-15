@@ -1,6 +1,7 @@
 {
   "private": true,
   "dependencies": {
+    "@cydon/ui": "workspace:^",
     "cydon": "workspace:*",
     "todomvc-app-css": "^2.4.2",
     "todomvc-common": "^1.0.5",

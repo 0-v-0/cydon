@@ -106,7 +106,7 @@ template[shadowroot=open]
   /* … */
 ```
 ## 插槽
-支持Web Components插槽
+插槽属于原生Web Components，不是框架的一部分
 
 my-counter.emt
 ```stylus

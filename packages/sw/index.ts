@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-declare var self: ServiceWorkerGlobalScope
+declare const self: ServiceWorkerGlobalScope
 
 import { decode, encode } from '@ygoe/msgpack'
 

@@ -1,7 +1,7 @@
 import { define } from 'cydon'
 
 @define('c-modal')
-export default class Modal extends HTMLElement {
+export default class CModal extends HTMLElement {
 	constructor() {
 		super()
 		this.addEventListener('click', e => {
@@ -38,6 +38,6 @@ export default class Modal extends HTMLElement {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'c-modal': Modal
+		'c-modal': CModal
 	}
 }
