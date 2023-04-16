@@ -1,6 +1,6 @@
 {
 	"name": "cydon",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "A lightweight library for building fast, reactive web components.",
 	"author": {
 		"name": "0-v-0",
@@ -24,10 +24,10 @@
 	"files": [
 		"dist"
 	],
-	"main": "./dist/cydon.umd.cjs",
+	"main": "dist/cydon.umd.cjs",
 	"unpkg": "dist/cydon.iife.js",
 	"jsdelivr": "dist/cydon.iife.js",
-	"module": "./dist/cydon.js",
+	"module": "dist/cydon.js",
 	"exports": {
 		".": {
 			"import": "./dist/cydon.js",

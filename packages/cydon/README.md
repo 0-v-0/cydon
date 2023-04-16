@@ -1,7 +1,7 @@
 # cydon
 
-[![npm-v](https://img.shields.io/npm/v/fre.svg)](https://npmjs.com/package/cydon)
-[![npm-d](https://img.shields.io/npm/dt/fre.svg)](https://npmjs.com/package/cydon)
+[![npm-v](https://img.shields.io/npm/v/cydon.svg)](https://npmjs.com/package/cydon)
+[![npm-d](https://img.shields.io/npm/dt/cydon.svg)](https://npmjs.com/package/cydon)
 [![brotli](http://img.badgesize.io/https://unpkg.com/cydon/dist/cydon.iife.js?compression=brotli&label=brotli)](https://bundlephobia.com/result?p=cydon)
 
 轻量级响应式框架

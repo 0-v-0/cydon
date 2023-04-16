@@ -3,6 +3,9 @@ import { Data, DataHandler, Directive, DirectiveHandler, Part, Results } from '.
 import { toFunction } from '../util'
 import event from './event'
 
+type Context = Cydon & Data
+type D = Directive | void
+
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
 	const data = cydon.$data
 	let arr = data[value]
@@ -23,7 +26,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 			return true
 		}
 	}
-	const ctxs: (Cydon & Data)[] = []
+
+	const ctxs: Context[] = []
 	const render = (i: number) => {
 		const c = ctxs[i],
 			item = arr[i]
@@ -44,7 +48,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 			let i = parent.childNodes.length / count | 0
 			for (; i < n; ++i) {
 				const target = <DocumentFragment>content.cloneNode(true)
-				const c: Cydon & Data = ctxs[i] = Object.create(cydon)
+				const c: Context = ctxs[i] = Object.create(cydon)
 				setData(c, c, data)
 				if (index)
 					c[index] = i
@@ -105,8 +109,6 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 
 	setCapacity(arr.length)
 }
-
-type D = Directive | void
 
 export const directives: DirectiveHandler[] = [
 	event,
