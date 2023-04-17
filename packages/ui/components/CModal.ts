@@ -1,7 +1,7 @@
 import { define } from 'cydon'
 
 @define('c-modal')
-export default class CModal extends HTMLElement {
+export class CModal extends HTMLElement {
 	constructor() {
 		super()
 		this.addEventListener('click', e => {

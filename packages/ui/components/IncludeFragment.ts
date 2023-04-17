@@ -1,13 +1,13 @@
 // From https://github.com/github/include-fragment-element/blob/main/src/index.ts
 
-import AsyncLoad from './AsyncLoad'
+import { AsyncLoad } from './AsyncLoad'
 
 const loaded = new WeakMap()
 
 // Functional stand in for the W3 spec "queue a task" paradigm
 const task = () => new Promise<void>(resolve => setTimeout(resolve))
 
-export default class IncludeFragmentElement extends AsyncLoad {
+export class IncludeFragment extends AsyncLoad {
 	get src() {
 		const src = this.getAttribute('src')
 		return src ? new URL(src, this.ownerDocument!.baseURI).href : ''
@@ -99,8 +99,8 @@ export default class IncludeFragmentElement extends AsyncLoad {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'include-fragment': IncludeFragmentElement
+		'include-fragment': IncludeFragment
 	}
 }
 
-customElements.define('include-fragment', IncludeFragmentElement)
+customElements.define('include-fragment', IncludeFragment)

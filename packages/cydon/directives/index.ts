@@ -47,7 +47,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 		if (n) {
 			let i = parent.childNodes.length / count | 0
 			for (; i < n; ++i) {
-				const target = <DocumentFragment>content.cloneNode(true)
+				const target = <DocumentFragment>document.importNode(content, true)
 				const c: Context = ctxs[i] = Object.create(cydon)
 				setData(c, c, data)
 				if (index)
@@ -147,7 +147,6 @@ export const directives: DirectiveHandler[] = [
 			return {
 				deps: new Set,
 				f(el: Data & Element) {
-					customElements.upgrade(el)
 					el[name] = func.call(this, el)
 				}
 			}

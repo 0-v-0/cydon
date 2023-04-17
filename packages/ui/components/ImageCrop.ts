@@ -202,7 +202,7 @@ function fireChangeEvent(target: ImageCrop, result: Result) {
 	target.dispatchEvent(new CustomEvent('image-crop-change', { bubbles: true, detail: result }))
 }
 
-export default class ImageCrop extends HTMLElement {
+export class ImageCrop extends HTMLElement {
 	connectedCallback() {
 		if (constructedElements.has(this)) return
 

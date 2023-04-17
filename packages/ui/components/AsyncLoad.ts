@@ -3,7 +3,7 @@ export type Status = 'pending' | 'loaded' | 'error'
 /**
  * async loader component
  */
-export default class AsyncLoad extends HTMLElement {
+export class AsyncLoad extends HTMLElement {
 	static observedAttributes = ['lazy', 'load']
 
 	#status: Status = 'pending'

@@ -4,7 +4,7 @@ import Attachment from '../Attachment'
 
 export { Attachment }
 
-export default class FileAttachment extends HTMLElement {
+export class FileAttachment extends HTMLElement {
 	connectedCallback() {
 		this.addEventListener('dragenter', onDragenter)
 		this.addEventListener('dragover', onDragenter)

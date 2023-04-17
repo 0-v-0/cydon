@@ -1,8 +1,8 @@
 import { define } from 'cydon'
-import CModal from './CModal'
+import { CModal } from './CModal'
 
 @define('c-dropdown')
-export default class CDropdown extends CModal {
+export class CDropdown extends CModal {
 	get open() {
 		return this.ariaExpanded == 'true'
 	}

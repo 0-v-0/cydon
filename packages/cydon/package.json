@@ -1,6 +1,6 @@
 {
 	"name": "cydon",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "A lightweight library for building fast, reactive web components.",
 	"author": {
 		"name": "0-v-0",

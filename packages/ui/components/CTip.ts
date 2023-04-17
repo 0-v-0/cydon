@@ -1,6 +1,6 @@
 // From https://github.com/XboxYan/xy-ui/blob/master/components/xy-tips.js
 
-export default class CTip extends HTMLElement {
+export class CTip extends HTMLElement {
 	static observedAttributes = ['color']
 
 	constructor() {

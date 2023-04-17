@@ -15,7 +15,7 @@ function getNavigationKeyCodes(vertical: boolean): [IncrementKeyCode[], Decremen
 	] : [['ArrowRight'], ['ArrowLeft']]
 }
 
-export default class TabContainer extends HTMLElement {
+export class TabContainer extends HTMLElement {
 	get storageKey() {
 		return this.getAttribute('storage-key')
 	}

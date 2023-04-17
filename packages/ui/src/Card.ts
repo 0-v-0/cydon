@@ -87,7 +87,6 @@ export class CardLink extends CydonElement {
 		super()
 		this.label = this.getAttribute('label') || ''
 		this.target = this.getAttribute('target') || '#'
-		this.bind()
 	}
 }
 
