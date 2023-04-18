@@ -35,7 +35,7 @@
     <div class="$css_class">$msg</div>
     <div>count: $count</div>
     <button @click="count++">+1</button>
-    <button @click="confirm('Are you sure?') && count = 0">reset</button>
+    <button @click="confirm('Are you sure?') && (count = 0)">reset</button>
 </main>
 ```
 

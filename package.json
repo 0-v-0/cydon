@@ -6,11 +6,11 @@
 	"devDependencies": {
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.4",
-		"vite": "^4.2.1"
+		"vite": "^4.2.2"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
-		"update-deps": "pnpm update&&cd ./packages/css&&pnpm update&&cd ../examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
+		"update-deps": "pnpm update&&cd ./packages/examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
 	},
 	"type": "module"
 }
