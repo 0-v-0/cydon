@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@8.2.0",
+  "packageManager": "pnpm@8.3.1",
   "browserslist": [
     "last 4 version",
     "Chrome >= 84",
@@ -26,28 +26,28 @@
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.6",
     "@typescript-eslint/parser": "^5.59.0",
-    "@unocss/transformer-directives": "^0.51.4",
+    "@unocss/transformer-directives": "^0.51.6",
     "autoprefixer": "^10.4.14",
     "clean-css": "^5.3.2",
-    "eslint": "^8.38.0",
-    "postcss": "^8.4.22",
+    "eslint": "^8.39.0",
+    "postcss": "^8.4.23",
     "stylelint": "^14.16.1",
     "stylelint-stylus": "^0.17.1",
     "stylus": "^0.59.0",
-    "terser": "^5.17.0",
+    "terser": "^5.17.1",
     "typedoc": "^0.24.4",
-    "unocss": "^0.51.4",
-    "vite": "^4.2.2",
+    "unocss": "^0.51.6",
+    "vite": "^4.3.1",
     "vite-plugin-emt": "workspace:*",
-    "vite-plugin-inspect": "^0.7.22",
+    "vite-plugin-inspect": "^0.7.24",
     "vite-plugin-progress": "^0.0.7"
   },
   "dependencies": {
     "cydon": "workspace:*"
   },
   "scripts": {
-    "analyze": "cem analyze --globs **/*.ts",
-    "analyze:watch": "cem analyze --globs **/*.ts --watch",
+    "analyze": "cem analyze --globs **/*.ts --fast",
+    "analyze:watch": "cem analyze --globs **/*.ts --fast --watch",
     "build": "vite build",
     "dev": "vite",
     "fix": "stylelint src/*.styl --fix",
