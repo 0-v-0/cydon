@@ -137,7 +137,7 @@ directives.push((attr, attrs, parent) => {
 ```
 
 ### 局部指令
-每个cydon实例都有一个`$directives`字段，默认值为全局的`directives`，通过修改它可以实现局部指令
+每个cydon实例都有一个`$directives`字段，即局部指令处理函数列表，局部指令处理顺序优先于全局指令
 ```js
 this.$directives.push(({ name, value, ownerElement: el }) => {
 	if (name == 'attr') {

@@ -86,7 +86,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		/**
 		 * directives
 		 */
-		$directives = d
+		$directives: typeof d = []
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
@@ -170,7 +170,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		mount(container: Container = <any>this) {
 			const results: Results = []
-			compile(results, container, this.$directives)
+			compile(results, container, this.$directives.concat(d))
 			this.bind(results, container)
 		}
 
