@@ -1,6 +1,6 @@
 import { posix } from 'path'
 import colors from 'picocolors'
-import stylus, { RenderOptions } from 'stylus'
+import { RenderOptions, render } from 'stylus'
 import { EsbuildTransformOptions, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
 
 // https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
@@ -16,7 +16,7 @@ export const inlineStylus = (options?: RenderOptions): Plugin => ({
 	name: 'inline-stylus',
 	transformIndexHtml: html =>
 		html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
-			(_, a, b, s) => a + b + stylus(s, options!))
+			(_, a, b, s) => a + b + render(s, options!))
 })
 
 export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({

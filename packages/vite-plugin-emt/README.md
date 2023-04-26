@@ -44,6 +44,7 @@ export default {
 | 名称         | 类型                                          | 说明                                                                        |
 | ------------ | --------------------------------------------- | --------------------------------------------------------------------------- |
 | alwaysReload | boolean                                       | 开发模式下，当emt文件改变后是否总是重新加载                                 |
+| classy       | boolean                                       | 启用emmet扩展语法（默认值：`true`）                                         |
 | cssProps     | Set\<string>                                  | 将集合内的元素视为CSS属性，渲染为内联样式，传入一个空的集合表示禁用内联样式 |
 | emtLiteral   | boolean                                       | 是否转换emt字面量                                                           |
 | log          | (server: ViteDevServer, file: string) => void | 日志函数，默认重新加载时输出信息到控制台                                    |
@@ -93,7 +94,7 @@ input:
 ```
 output:
 ```html
-<div class="space-x-4 shadow-lg rounded-xl bg-white mx-auto max-w-sm p-6 flex items-center"></div>
+<div class="flex items-center p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg space-x-4"></div>
 ```
 
 ## 预处理器

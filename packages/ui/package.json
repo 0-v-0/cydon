@@ -25,7 +25,7 @@
     "@custom-elements-manifest/analyzer": "^0.8.0",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.6",
-    "@typescript-eslint/parser": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.1",
     "@unocss/transformer-directives": "^0.51.8",
     "autoprefixer": "^10.4.14",
     "clean-css": "^5.3.2",
@@ -37,7 +37,7 @@
     "terser": "^5.17.1",
     "typedoc": "^0.24.6",
     "unocss": "^0.51.8",
-    "vite": "^4.3.1",
+    "vite": "^4.3.2",
     "vite-plugin-emt": "workspace:*",
     "vite-plugin-inspect": "^0.7.24",
     "vite-plugin-progress": "^0.0.7"

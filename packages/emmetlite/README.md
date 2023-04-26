@@ -27,10 +27,10 @@ emmet(input: string, intent?: string) => string
 Parameters:
 - `s`: emmet string
 - `indent`: If null, use the original emmet format. Otherwise, use the indented format with `indent` as a indent unit.
-- `fabbr`: Custom abbreviation function.
 参数：
 - `s`: emmet字符串
 - `indent`: 为空使用原始emmet格式，否则使用以`indent`为缩进单位的缩进格式
+
 ex:
 ```js
 emmet(".a>p") //<div class="a"><p></p></div>
