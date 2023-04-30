@@ -76,11 +76,11 @@ export class IncludeFragment extends AsyncLoad {
 					const tpl = document.createElement('template')
 					tpl.innerHTML = html
 					const canceled = !this.dispatchEvent(
-						new CustomEvent('include-fragment-replace', { cancelable: true, detail: tpl.content })
+						new CustomEvent('fragment-replace', { cancelable: true, detail: tpl.content })
 					)
 					if (!canceled) {
 						this.replaceWith(tpl.content)
-						this.dispatchEvent(new CustomEvent('include-fragment-replaced'))
+						this.dispatchEvent(new CustomEvent('fragment-replaced'))
 					}
 				})
 		}
@@ -100,6 +100,10 @@ export class IncludeFragment extends AsyncLoad {
 declare global {
 	interface HTMLElementTagNameMap {
 		'include-fragment': IncludeFragment
+	}
+	interface HTMLElementEventMap {
+		'fragment-replace': CustomEvent<DocumentFragment>
+		'fragment-replaced': CustomEvent
 	}
 }
 

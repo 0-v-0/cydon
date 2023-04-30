@@ -22,7 +22,7 @@
     "not dead"
   ],
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.8.0",
+    "@custom-elements-manifest/analyzer": "^0.8.1",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.6",
     "@typescript-eslint/parser": "^5.59.1",
@@ -37,7 +37,7 @@
     "terser": "^5.17.1",
     "typedoc": "^0.24.6",
     "unocss": "^0.51.8",
-    "vite": "^4.3.2",
+    "vite": "^4.3.3",
     "vite-plugin-emt": "workspace:*",
     "vite-plugin-inspect": "^0.7.24",
     "vite-plugin-progress": "^0.0.7"

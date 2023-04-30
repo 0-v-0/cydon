@@ -6,7 +6,7 @@
 	"devDependencies": {
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.4",
-		"vite": "^4.3.2"
+		"vite": "^4.3.3"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",

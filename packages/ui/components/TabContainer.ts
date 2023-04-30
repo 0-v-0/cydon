@@ -79,9 +79,11 @@ export class TabContainer extends HTMLElement {
 			if (tab.tabIndex == -1)
 				tab.tabIndex = tab.ariaSelected == 'true' ? 0 : -1
 		}
-		const key = +this.storageKey!
-		if (key >= 0)
-			this.select(key)
+		if (this.storageKey) {
+			const key = sessionStorage.getItem(this.storageKey)
+			if (key != null)
+				this.select(+key)
+		}
 	}
 
 	select(index: number) {

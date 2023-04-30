@@ -6,8 +6,8 @@ export type Status = 'pending' | 'loaded' | 'error'
 export class AsyncLoad extends HTMLElement {
 	static observedAttributes = ['lazy', 'load']
 
-	#status: Status = 'pending'
-	#loader?: Function
+	#status: Status = 'loaded'
+	#loader?: () => any
 	#observer?: IntersectionObserver
 	#slots
 
@@ -76,20 +76,11 @@ export class AsyncLoad extends HTMLElement {
 			this.#observer.observe(this)
 	}
 
-	load() {
+	async load() {
 		try {
-			const val = this.#loader!()
-			if (val instanceof Promise) {
-				this.status = 'pending'
-				return val.then(() => {
-					this.#observer?.unobserve(this)
-					this.status = 'loaded'
-				}, err => {
-					this.#observer?.unobserve(this)
-					this.status = 'error'
-					throw err
-				})
-			}
+			this.#observer?.unobserve(this)
+			this.status = 'pending'
+			const val = await this.#loader!()
 			this.status = 'loaded'
 			return val
 		} catch (e) {
@@ -98,7 +89,7 @@ export class AsyncLoad extends HTMLElement {
 		}
 	}
 
-	createFunc(code: string): Function {
+	createFunc(code: string): () => any {
 		return Function(`with(this){return ${code}}`).bind(this)
 	}
 }
