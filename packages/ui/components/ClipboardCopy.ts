@@ -1,4 +1,4 @@
-import { define } from "cydon"
+import { define } from 'cydon'
 
 // From https://github.com/github/clipboard-copy-element
 export const copyNode = (node: Element) => navigator.clipboard.writeText(node.textContent || '')

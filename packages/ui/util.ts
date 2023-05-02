@@ -19,8 +19,8 @@ export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).
 
 	isRTL = (e: HTMLElement) => (e || document.documentElement).dir == 'rtl'
 
-export const isTargetElement = (element: Node, name: string) =>
-	element.nodeType == 1 /* Node.ELEMENT_NODE */ && (<Element>element).localName == name
+export const isTargetElement = (node: Node, name: string) =>
+	node.nodeType == 1 /* Node.ELEMENT_NODE */ && (<Element>node).localName == name
 
 export const getSlotElementNodes = (slot: HTMLSlotElement) =>
 	slot.assignedNodes().filter(el => el.nodeType == 1 /* Node.ELEMENT_NODE */)

@@ -2,15 +2,13 @@
 
 import { AsyncLoad } from './AsyncLoad'
 
-const loaded = new WeakMap()
-
 // Functional stand in for the W3 spec "queue a task" paradigm
 const task = () => new Promise<void>(resolve => setTimeout(resolve))
 
-export class IncludeFragment extends AsyncLoad {
+export class ImportHTML extends AsyncLoad {
 	get src() {
 		const src = this.getAttribute('src')
-		return src ? new URL(src, this.ownerDocument!.baseURI).href : ''
+		return src ? new URL(src, this.baseURI).href : ''
 	}
 
 	set src(val) { this.setAttribute('src', val) }
@@ -19,26 +17,18 @@ export class IncludeFragment extends AsyncLoad {
 
 	set accept(val) { this.setAttribute('accept', val) }
 
-	private observer?: IntersectionObserver
-
-	private busy?: boolean
+	loading?: boolean
 
 	constructor() {
 		super()
-		this.loader = () => {
-			if (this.busy) return Promise.resolve()
-			this.busy = true
-
-			this.observer?.unobserve(this)
-			const src = this.src
-			let data = loaded.get(this)
-			if (data && data.src == src)
-				data = data.data
+		this.loader = async () => {
+			if (this.loading) return Promise.resolve()
+			this.loading = true
 
 			// We mimic the same event order as <img>, including the spec
 			// which states events must be dispatched after "queue a task".
 			// https://www.w3.org/TR/html52/semantics-embedded-content.html#the-img-element
-			data = src ? task()
+			const data = this.src ? task()
 				.then(() => {
 					this.dispatchEvent(new Event('loadstart'))
 					return this.request()
@@ -70,19 +60,15 @@ export class IncludeFragment extends AsyncLoad {
 						throw error
 					}
 				) : Promise.reject(new Error('missing src'))
-			loaded.set(this, { src, data })
-			return data.then(
-				(html: string) => {
-					const tpl = document.createElement('template')
-					tpl.innerHTML = html
-					const canceled = !this.dispatchEvent(
-						new CustomEvent('fragment-replace', { cancelable: true, detail: tpl.content })
-					)
-					if (!canceled) {
-						this.replaceWith(tpl.content)
-						this.dispatchEvent(new CustomEvent('fragment-replaced'))
-					}
-				})
+			const tpl = document.createElement('template')
+			tpl.innerHTML = await data
+			const canceled = !this.dispatchEvent(
+				new CustomEvent('frag-replace', { cancelable: true, detail: tpl.content })
+			)
+			if (!canceled) {
+				this.replaceWith(tpl.content)
+				this.dispatchEvent(new CustomEvent('frag-replaced'))
+			}
 		}
 	}
 
@@ -99,12 +85,12 @@ export class IncludeFragment extends AsyncLoad {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'include-fragment': IncludeFragment
+		'import-html': ImportHTML
 	}
 	interface HTMLElementEventMap {
-		'fragment-replace': CustomEvent<DocumentFragment>
-		'fragment-replaced': CustomEvent
+		'frag-replace': CustomEvent<DocumentFragment>
+		'frag-replaced': CustomEvent
 	}
 }
 
-customElements.define('include-fragment', IncludeFragment)
+customElements.define('import-html', ImportHTML)

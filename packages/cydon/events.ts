@@ -9,7 +9,7 @@ export const EventOf = <T extends {}, Events extends EventMap>(
 	base: Ctor<T> = <any>Object,
 	events: EventHandlerMap<Events> = <typeof events>{}
 ) => {
-	type Handler<A extends any[] = any[]> = (this: T & Mixin, ...args: A) => void
+	type Handler<A extends any[]> = (this: T & Mixin, ...args: A) => void
 	class Mixin extends (<Ctor<Object>>base) {
 		events = events
 
