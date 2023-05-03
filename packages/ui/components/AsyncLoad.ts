@@ -73,19 +73,22 @@ export class AsyncLoad extends HTMLElement {
 	connectedCallback() {
 		if (this.lazy)
 			observer.observe(this)
+		else
+			this.load()
 	}
 
 	async load() {
-		try {
-			observer.unobserve(this)
-			this.status = 'pending'
-			const val = await this.#loader!()
-			this.status = 'loaded'
-			return val
-		} catch (e) {
-			this.status = 'error'
-			throw e
-		}
+		if (this.status != 'pending')
+			try {
+				observer.unobserve(this)
+				this.status = 'pending'
+				const val = await this.#loader!()
+				this.status = 'loaded'
+				return val
+			} catch (e) {
+				this.status = 'error'
+				throw e
+			}
 	}
 
 	createFunc(code: string): () => any {

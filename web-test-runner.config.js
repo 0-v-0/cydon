@@ -1,4 +1,4 @@
-import { esbuildPlugin } from '@web/dev-server-esbuild'
+import { vitePlugin } from '@remcovaes/web-test-runner-vite-plugin'
 import { playwrightLauncher } from '@web/test-runner-playwright'
 
 export default {
@@ -7,7 +7,7 @@ export default {
 	],
 	files: ['test/*'],
 	nodeResolve: true,
-	plugins: [esbuildPlugin({ ts: true, target: 'es2020' })],
+	plugins: [vitePlugin()],
 	testFramework: {
 		config: {
 			ui: 'tdd',

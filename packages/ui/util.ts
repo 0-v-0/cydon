@@ -1,4 +1,4 @@
-import { directives, Directive } from 'cydon'
+export const delay = <T = void>(ms?: number) => new Promise<T>(resolve => setTimeout(resolve, ms))
 
 export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).disabled
 
@@ -17,7 +17,7 @@ export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).
 			callback()
 	},
 
-	isRTL = (e: HTMLElement) => (e || document.documentElement).dir == 'rtl'
+	isRTL = (e = document.documentElement) => e.dir == 'rtl'
 
 export const isTargetElement = (node: Node, name: string) =>
 	node.nodeType == 1 /* Node.ELEMENT_NODE */ && (<Element>node).localName == name
@@ -27,36 +27,3 @@ export const getSlotElementNodes = (slot: HTMLSlotElement) =>
 
 export const querySlot = (el: Element, name: string) =>
 	el.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)
-
-export const toggle = (e: HTMLElement) => {
-	if ((<any>e).show && (<any>e).hide)
-		e.ariaHidden ? (<any>e).show() : (<any>e).hide()
-	else
-		e.hidden = !e.hidden
-}
-
-if (!globalThis.CYDON_NO_TOGGLE)
-	directives.push(({ name, value }): Directive | void => {
-		if (name == 'c-toggle') {
-			return {
-				f(el) {
-					el.addEventListener('click', e => {
-						const el = <HTMLElement>e.currentTarget
-						if (el.tagName == 'A' || el.tagName == 'AREA')
-							e.preventDefault()
-						if (!isDisabled(el)) {
-							e.stopPropagation()
-							if (this.$data[value])
-								toggle(this.$data[value])
-							else
-								document.body.querySelectorAll<HTMLElement>(value).forEach(toggle)
-						}
-					})
-				}
-			}
-		}
-	})
-
-declare module globalThis {
-	const CYDON_NO_TOGGLE: boolean | undefined
-}
