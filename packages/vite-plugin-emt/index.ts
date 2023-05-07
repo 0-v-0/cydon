@@ -13,6 +13,7 @@ export * from 'emmetlite'
 export * from './simpletpl'
 export * from './util'
 export type { Plugin }
+export type Preprocessor = (s: TemplateStringsArray) => string
 
 type TitleCache = Record<string, {
 	title: string,
@@ -25,7 +26,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 	alwaysReload?: boolean
 	classy?: boolean
 	cssProps?: Set<string>
-	emtLiteral?: boolean
+	literal?: string
 	log?(server: ViteDevServer, file: string): void
 	paths?: string[]
 	root?: string
@@ -52,7 +53,7 @@ export default (config: Option = {}): Plugin => {
 	}
 	const {
 		classy = true,
-		emtLiteral = true,
+		literal = 'emt',
 		log = logger,
 		read = r,
 		render: rend = render,
@@ -131,7 +132,7 @@ export default (config: Option = {}): Plugin => {
 			used?.add(name)
 		}
 	})
-	let used = templated ? new Set<string>() : null
+	const used = templated ? new Set<string>() : null
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
@@ -202,10 +203,10 @@ export default (config: Option = {}): Plugin => {
 		},
 		// parse emt`...`
 		transform(code, id) {
-			if (emtLiteral && (id.endsWith('.js') || id.endsWith('.ts'))) {
+			if (literal && (id.endsWith('.js') || id.endsWith('.ts'))) {
 				const ms = new MagicString(code)
 				return {
-					code: ms.replace(/\bemt\s*`(.*?)(?<!\\)`/gs,
+					code: ms.replace(new RegExp('\\b' + literal + '\\s*`(.*?)(?<!\\\\)`', 'gs'),
 						(_, s) => '`' + emmet(s, '\t') + '`').toString(),
 					map: ms.generateMap({ source: id })
 				}

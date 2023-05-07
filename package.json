@@ -11,7 +11,7 @@
 		"@web/test-runner-playwright": "^0.10.0",
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.4",
-		"vite": "^4.3.4"
+		"vite": "^4.3.5"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",

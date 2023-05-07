@@ -1,3 +1,4 @@
+import MagicString from 'magic-string'
 import { posix } from 'path'
 import colors from 'picocolors'
 import { RenderOptions, render } from 'stylus'
@@ -12,12 +13,31 @@ export const logger = (server: ViteDevServer, file: string) => server.config.log
 	{ clear: true, timestamp: true }
 )
 
-export const inlineStylus = (options?: RenderOptions): Plugin => ({
-	name: 'inline-stylus',
-	transformIndexHtml: html =>
-		html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
-			(_, a, b, s) => a + b + render(s, options!))
-})
+export interface StylusOption extends RenderOptions {
+	literal?: string
+}
+
+export const inlineStylus = (options?: StylusOption): Plugin => {
+	const literal = options?.literal ?? 'styl'
+	return {
+		name: 'inline-stylus',
+		transformIndexHtml: html =>
+			html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
+				(_, a, b, s) => a + b + render(s, options!)),
+		// parse styl`...`
+		transform(code, id) {
+			if (literal && (id.endsWith('.js') || id.endsWith('.ts'))) {
+				const ms = new MagicString(code)
+				return {
+					code: ms.replace(new RegExp('\\b' + literal + '\\s*`(.*?)(?<!\\\\)`', 'gs'),
+						(_, s) => '`' + render(s, options!) + '`').toString(),
+					map: ms.generateMap({ source: id })
+				}
+			}
+			return
+		}
+	}
+}
 
 export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
 	name: 'inline-ts',

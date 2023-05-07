@@ -19,7 +19,7 @@
 		"@ygoe/msgpack": "^1.0.3"
 	},
 	"devDependencies": {
-		"vite": "^4.3.4"
+		"vite": "^4.3.5"
 	},
 	"type": "module"
 }

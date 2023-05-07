@@ -28,7 +28,6 @@ export default {
 	plugins: [
 		emt(/* emt options */),
 		Unocss({
-			mode: 'shadow-dom',
 			transformers: [
 				inlineStylus(/* stylus options */),
 				// other transformers...
@@ -46,7 +45,7 @@ export default {
 | alwaysReload | boolean                                       | 开发模式下，当emt文件改变后是否总是重新加载                                 |
 | classy       | boolean                                       | 启用emmet扩展语法（默认值：`true`）                                         |
 | cssProps     | Set\<string>                                  | 将集合内的元素视为CSS属性，渲染为内联样式，传入一个空的集合表示禁用内联样式 |
-| emtLiteral   | boolean                                       | 是否转换emt字面量                                                           |
+| literal      | string                                        | emt字面量前缀，默认为emt，为空串表示禁用emt字面量                           |
 | log          | (server: ViteDevServer, file: string) => void | 日志函数，默认重新加载时输出信息到控制台                                    |
 | paths        | string[]                                      | 除`root`外的include搜索路径                                                 |
 | read         | (path: string) => string                      | 自定义文件读取函数                                                          |
@@ -97,6 +96,19 @@ output:
 <div class="flex items-center p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg space-x-4"></div>
 ```
 
+`cssProps`中的属性当成内联样式处理
+
+input:
+```styl
+#s
+	p 0
+	width 50%
+```
+output:
+```html
+<div id="s" class="p-0" style="width:50%"></div>
+```
+
 ## 预处理器
 ### Stylus预处理器
 inlineStylus
@@ -107,3 +119,14 @@ inlineStylus
 inlineTS
 
 将所有内联`<script>`当成TypeScript处理
+
+### 预处理器类型声明
+在env.d.ts中加上
+```ts
+import { Preprocessor } from 'vite-plugin-emt'
+
+declare global {
+	declare const emt: Preprocessor, styl: Preprocessor
+}
+```
+若指定了Options.literal，上面代码中的emt和styl需要改为Options.literal指定的名称

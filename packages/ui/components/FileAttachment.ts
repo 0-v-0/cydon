@@ -28,10 +28,7 @@ export class FileAttachment extends HTMLElement {
 	}
 
 	set directory(value) {
-		if (value)
-			this.setAttribute('directory', '')
-		else
-			this.removeAttribute('directory')
+		this.toggleAttribute('directory', value)
 	}
 
 	async attach(transferred: File[] | Attachment[] | FileList | DataTransfer) {

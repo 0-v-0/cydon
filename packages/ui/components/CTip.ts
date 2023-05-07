@@ -321,7 +321,7 @@ export class CTip extends HTMLElement {
 		<slot></slot>`
 	}
 
-	get color() { return this.getAttribute('color') || '' }
+	get color() { return this.getAttribute('color') ?? '' }
 
 	get dir() { return this.getAttribute('dir') || 'top' }
 
@@ -329,7 +329,7 @@ export class CTip extends HTMLElement {
 
 	get type() { return this.getAttribute('tips')! }
 
-	get suffix() { return this.getAttribute('suffix') || '' }
+	get suffix() { return this.getAttribute('suffix') ?? '' }
 
 	get show() { return this.hasAttribute('show') }
 
