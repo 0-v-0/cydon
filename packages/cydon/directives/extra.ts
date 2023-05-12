@@ -13,7 +13,7 @@ export default [cModel, ({ name, value, ownerElement: el }: Attr): D => {
 			deps: new Set,
 			f(el) {
 				const parent = el.parentElement!
-				const anchor = new Text
+				const anchor = new Comment
 				parent.insertBefore(anchor, el);
 				(directive.f = function (el) {
 					const val = func.call(this, el)
@@ -22,10 +22,10 @@ export default [cModel, ({ name, value, ownerElement: el }: Attr): D => {
 						if (val) {
 							this.mount?.(el)
 							if (!el.isConnected)
-								parent.insertBefore(el, anchor)
+								anchor.replaceWith(el)
 						} else {
 							this.unmount?.(el)
-							el.remove()
+							el.replaceWith(anchor)
 						}
 					}
 				}).call(this, el)
@@ -50,6 +50,23 @@ export default [cModel, ({ name, value, ownerElement: el }: Attr): D => {
 			keep: true,
 			f(el) {
 				el.removeAttribute(name)
+			}
+		}
+
+	if (name == 'c-tp')
+		return {
+			f(el: HTMLTemplateElement) {
+				if (import.meta.env.DEV && el.tagName != 'TEMPLATE') {
+					console.warn('c-tp can only be used on <template> element')
+					return
+				}
+				const target: Element | null = value && (value in this ? this[value] :
+					(<ParentNode>el.getRootNode()).querySelector(value))
+				if (target) {
+					target.appendChild(el.content)
+					el.remove()
+				} else
+					el.replaceWith(el.content)
 			}
 		}
 }]

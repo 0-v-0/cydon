@@ -7,6 +7,10 @@ type Context = Cydon & Data
 type D = Directive | void
 
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
+	if (import.meta.env.DEV && el.tagName != 'TEMPLATE') {
+		console.warn('c-for can only be used on <template> element')
+		return
+	}
 	const data = cydon.$data
 	let arr = data[value]
 	if (!Array.isArray(arr)) {
