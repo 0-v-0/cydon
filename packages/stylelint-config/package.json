@@ -5,7 +5,7 @@
 		"lint": "stylelint 'src/*.styl'"
 	},
 	"dependencies": {
-		"stylelint": "^15.6.1",
+		"stylelint": "^15.6.2",
 		"stylelint-config-recess-order": "^4.0.0",
 		"stylelint-stylus": "^0.18.0"
 	},

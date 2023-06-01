@@ -5,4 +5,3 @@ A UI library built with cydon
 ```sh
 npm i @cydon/ui
 ```
-
