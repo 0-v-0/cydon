@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@8.4.0",
+  "packageManager": "pnpm@8.6.10",
   "browserslist": [
     "last 4 version",
     "Chrome >= 84",
@@ -22,24 +22,24 @@
     "not dead"
   ],
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.8.3",
+    "@custom-elements-manifest/analyzer": "^0.8.4",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.6",
-    "@typescript-eslint/parser": "^5.59.8",
-    "@unocss/transformer-directives": "^0.52.7",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@unocss/transformer-directives": "^0.53.6",
     "autoprefixer": "^10.4.14",
     "clean-css": "^5.3.2",
-    "eslint": "^8.41.0",
-    "postcss": "^8.4.24",
+    "eslint": "^8.45.0",
+    "postcss": "^8.4.27",
     "stylelint": "^14.16.1",
     "stylelint-stylus": "^0.17.1",
     "stylus": "^0.59.0",
-    "terser": "^5.17.7",
-    "typedoc": "^0.24.7",
-    "unocss": "^0.52.7",
-    "vite": "^4.3.9",
+    "terser": "^5.19.2",
+    "typedoc": "^0.24.8",
+    "unocss": "^0.53.6",
+    "vite": "^4.4.7",
     "vite-plugin-emt": "workspace:*",
-    "vite-plugin-inspect": "^0.7.28",
+    "vite-plugin-inspect": "^0.7.33",
     "vite-plugin-progress": "^0.0.7"
   },
   "dependencies": {
