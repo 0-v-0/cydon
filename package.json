@@ -7,11 +7,11 @@
 		"@esm-bundle/chai": "4.3.4-fix.0",
 		"@remcovaes/web-test-runner-vite-plugin": "^1.2.0",
 		"@types/mocha": "^10.0.1",
-		"@web/test-runner": "^0.16.1",
+		"@web/test-runner": "^0.17.0",
 		"@web/test-runner-playwright": "^0.10.1",
-		"tsup": "^6.7.0",
+		"tsup": "^7.2.0",
 		"typescript": "^5.1.6",
-		"vite": "^4.4.7"
+		"vite": "^4.4.9"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
