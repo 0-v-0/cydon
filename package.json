@@ -6,12 +6,12 @@
 	"devDependencies": {
 		"@esm-bundle/chai": "4.3.4-fix.0",
 		"@remcovaes/web-test-runner-vite-plugin": "^1.2.0",
-		"@types/mocha": "^10.0.2",
+		"@types/mocha": "^10.0.3",
 		"@web/test-runner": "^0.17.2",
-		"@web/test-runner-playwright": "^0.10.1",
+		"@web/test-runner-playwright": "^0.10.2",
 		"tsup": "^7.2.0",
 		"typescript": "^5.2.2",
-		"vite": "^4.4.11"
+		"vite": "^4.5.0"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
