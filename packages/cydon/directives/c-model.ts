@@ -25,7 +25,7 @@ export default <DirectiveHandler>(({ name, value, ownerElement: el }, attrs): D 
 		if (!set)
 			boundElements.set(event, set = new WeakSet)
 		const getter = toFunction('return ' + value)
-		const setter = Function('$e', '$val', `with(this)${value}=$val`)
+		const setter = Function('$e,$val', `with(this)${value}=$val`)
 		return {
 			deps: new Set,
 			f(el) {

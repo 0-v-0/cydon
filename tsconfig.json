@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"lib": [
-			"es2021",
+			"es2022",
 			"dom",
 			"dom.iterable"
 		],

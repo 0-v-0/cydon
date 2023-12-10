@@ -2,7 +2,7 @@ import { Part, Results, Result, DOMAttr, Container, DirectiveHandler } from './t
 import { toFunction } from './util'
 
 function parse(s: string, attr = '') {
-	const re = /(\$\{.+?})|\$([_a-z]\w*)/gis
+	const re = /(\$\{.+?})|\$([_a-z][\w\.]*)/gis
 	let a = re.exec(s), lastIndex!: number
 	if (!a)
 		return null
@@ -13,7 +13,7 @@ function parse(s: string, attr = '') {
 			start = re.lastIndex - match.length
 		if (start)
 			vals += s.substring(lastIndex, start)
-		vals += expr || '${' + prop + '}'
+		vals += expr || '${this.' + prop + '}'
 		lastIndex = re.lastIndex
 	}
 	if (lastIndex < s.length)

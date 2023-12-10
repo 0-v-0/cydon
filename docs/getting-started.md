@@ -6,6 +6,6 @@ pnpm i cydon
 ```
 
 ## Browser Support
-- Chrome 86+
-- Firefox 86+
-- Safari need requestIdleCallback polyfill
+- Chrome 93+
+- Firefox 92+
+- Safari 15.4+ (need requestIdleCallback polyfill)

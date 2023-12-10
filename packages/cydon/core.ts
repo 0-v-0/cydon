@@ -36,8 +36,8 @@ export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 		proxy = {
 			get: (obj, key: string) => obj[key],
 			set: (obj, key: string, val, receiver) => {
-				const hasOwn = obj.hasOwnProperty(key)
-				if (hasOwn && val == obj[key])
+				const hasOwn = Object.hasOwn(obj, key)
+				if (hasOwn && val === obj[key])
 					return true
 
 				// when setting a property that doesn't exist on current scope,

@@ -4,6 +4,7 @@ A lightweight library for building fast, reactive web components.
 ## 特点
 - 轻量级：~3kB minified & brotli'd
 - 采用模板语法，所见即所得
+- 低内存占用
 - 组件即元素：无虚拟DOM
 - 不错的性能
 
