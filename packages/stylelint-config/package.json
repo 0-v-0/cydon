@@ -6,10 +6,10 @@
 	},
 	"dependencies": {
 		"stylelint": "^15.11.0",
-		"stylelint-config-recess-order": "^4.3.0",
+		"stylelint-config-recess-order": "^4.4.0",
 		"stylelint-stylus": "^0.18.0"
 	},
 	"peerDependencies": {
-		"stylelint": "^15.10.2"
+		"stylelint": "^15.11.0"
 	}
 }

@@ -51,7 +51,7 @@ export function whenAllDefined(node: ParentNode, shadow = true) {
 }
 
 /**
- * convert kebab-case to PascalCase
+ * Convert kebab-case to PascalCase
  * @param s kebab-case string
  * @returns PascalCase
  */

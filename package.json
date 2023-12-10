@@ -1,17 +1,17 @@
 {
 	"name": "@cydon/monorepo",
 	"private": true,
-	"packageManager": "pnpm@8.7.4",
+	"packageManager": "pnpm@8.11.0",
 	"version": "0.1.7",
 	"devDependencies": {
 		"@esm-bundle/chai": "4.3.4-fix.0",
-		"@remcovaes/web-test-runner-vite-plugin": "^1.2.0",
-		"@types/mocha": "^10.0.4",
-		"@web/test-runner": "^0.17.3",
-		"@web/test-runner-playwright": "^0.10.3",
-		"tsup": "^7.2.0",
-		"typescript": "^5.2.2",
-		"vite": "^4.5.0"
+		"@remcovaes/web-test-runner-vite-plugin": "^1.2.1",
+		"@types/mocha": "^10.0.6",
+		"@web/test-runner": "^0.18.0",
+		"@web/test-runner-playwright": "^0.11.0",
+		"tsup": "^8.0.1",
+		"typescript": "^5.3.3",
+		"vite": "^5.0.7"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",

@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin-emt",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "emt support for vite",
 	"author": {
 		"name": "0-v-0",
@@ -18,7 +18,7 @@
 		"node": ">=16"
 	},
 	"scripts": {
-		"build": "vite build && tsup index.ts --dts-only"
+		"build": "vite build && tsup index.ts --format esm --dts-only"
 	},
 	"dependencies": {
 		"emmetlite": "workspace:*",
@@ -26,10 +26,10 @@
 		"magic-string": "^0.30.5",
 		"picocolors": "^1.0.0",
 		"stylus": "^0.61.0",
-		"vite": "^4.5.0"
+		"vite": "^5.0.7"
 	},
 	"peerDependencies": {
-		"vite": "^4.5.0"
+		"vite": "^5.0.7"
 	},
 	"devDependencies": {
 		"@types/stylus": "^0.48.42"
