@@ -134,7 +134,7 @@ function onChange(event: Event) {
 	const id = container.getAttribute('input')
 	if (input.id == id) {
 		const files = input.files
-		if (files && files.length) {
+		if (files?.length) {
 			container.attach(files)
 			input.value = ''
 		}
