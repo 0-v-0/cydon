@@ -2,7 +2,7 @@
 	"name": "@cydon/monorepo",
 	"private": true,
 	"packageManager": "pnpm@8.12.0",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"devDependencies": {
 		"@esm-bundle/chai": "4.3.4-fix.0",
 		"@remcovaes/web-test-runner-vite-plugin": "^1.2.1",
@@ -11,7 +11,7 @@
 		"@web/test-runner-playwright": "^0.11.0",
 		"tsup": "^8.0.1",
 		"typescript": "^5.3.3",
-		"vite": "^5.0.7"
+		"vite": "^5.0.10"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",

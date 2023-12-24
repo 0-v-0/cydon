@@ -17,7 +17,7 @@
   "packageManager": "pnpm@8.12.0",
   "browserslist": [
     "last 4 version",
-    "Chrome >= 84",
+    "Chrome >= 93",
     "not opera > 0",
     "not dead"
   ],
@@ -25,11 +25,9 @@
     "@custom-elements-manifest/analyzer": "^0.9.0",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.11",
-    "@typescript-eslint/parser": "^6.13.2",
     "@unocss/transformer-directives": "^0.58.0",
     "autoprefixer": "^10.4.16",
     "clean-css": "^5.3.3",
-    "eslint": "^8.55.0",
     "postcss": "^8.4.32",
     "stylelint": "^15.11.0",
     "stylelint-stylus": "^0.18.0",
@@ -37,7 +35,7 @@
     "terser": "^5.26.0",
     "typedoc": "^0.25.4",
     "unocss": "^0.58.0",
-    "vite": "^5.0.7",
+    "vite": "^5.0.10",
     "vite-plugin-emt": "workspace:*",
     "vite-plugin-inspect": "^0.8.1",
     "vite-plugin-progress": "^0.0.7"
@@ -51,8 +49,8 @@
     "build": "vite build",
     "dev": "vite",
     "fix": "stylelint src/*.styl --fix",
-    "lint": "pnpm lint:eslint && stylelint src/*.styl",
-    "lint:eslint": "eslint **/*.ts"
+    "lint": "pnpm lint:oxlint && stylelint src/*.styl",
+    "lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts"
   },
   "stylelint": {
     "extends": "@cydon/stylelint-config"
