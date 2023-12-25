@@ -1,7 +1,5 @@
-import { assert, expect } from '@esm-bundle/chai'
-import { ImportHTML, delay } from '../packages/ui'
-
-const beforeAll = setup, afterAll = teardown, it = test
+import { expect, it, afterAll, beforeAll, suite, assert, afterEach } from 'vitest'
+import { ImportHTML, delay } from '..'
 
 const headers = {
 	'Content-Type': 'text/html; charset=utf-8'
@@ -46,10 +44,17 @@ const lazyTest = (el: HTMLElement) =>
 		}),
 		delay(100)
 	])
+function newDiv(html: string) {
+	const div = document.createElement('div')
+	div.innerHTML = html
+	return div
+}
 
-function hiddenDiv() {
+function hiddenDiv(html = '') {
 	const div = document.createElement('div')
 	div.hidden = true
+	if (html)
+		div.innerHTML = html
 	return div
 }
 
@@ -61,9 +66,11 @@ suite('import-html-element', () => {
 			return Promise.resolve(responses[new URL(req.url).pathname](req))
 		}
 	})
+	afterEach(() => {
+		document.body.innerHTML = ''
+	})
 	afterAll(() => {
 		window.fetch = originalFetch
-		document.body.innerHTML = ''
 	})
 
 	it('create from document.createElement & constructor', () => {
@@ -84,9 +91,7 @@ suite('import-html-element', () => {
 	})
 
 	it('manually call load', () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html src="/hello"></import-html>'
-
+		const div = newDiv('<import-html src="/hello"></import-html>')
 		return (<ImportHTML>div.firstChild).load().then(
 			() => expect(div.innerHTML).eq('<div id="replaced">hello</div>'),
 			() => assert(false)
@@ -97,15 +102,11 @@ suite('import-html-element', () => {
 		const el = new ImportHTML
 		el.setAttribute('src', '/fragment')
 
-		return el.load().then(
-			() => assert(false),
-			err => expect(err).match(/the server responded with a status of 406/)
-		)
+		expect(el.load()).rejects.toMatch(/the server responded with a status of 406/)
 	})
 
 	it('replaces element on 200 status', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html src="/hello">loading</import-html>'
+		const div = newDiv('<import-html src="/hello">loading</import-html>')
 		document.body.appendChild(div)
 		await when(div.firstChild!, 'load')
 
@@ -114,7 +115,7 @@ suite('import-html-element', () => {
 	})
 
 	it('does not replace element if it has no parent', async () => {
-		const div = document.createElement('div')
+		const div = newDiv('<import-html>loading</import-html>')
 		div.innerHTML = '<import-html>loading</import-html>'
 		const fail = () => assert(false)
 		addEventListener('unhandledrejection', fail)
@@ -139,33 +140,13 @@ suite('import-html-element', () => {
 	})
 
 	it('replaces with several new elements on 200 status', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html src="/one-two">loading</import-html>'
+		const div = newDiv('<import-html src="/one-two">loading</import-html>')
 		document.body.appendChild(div)
 		await when(div.firstChild!, 'load')
 
 		expect(query('import-html')).eq(null)
 		expect(byId('one').textContent).eq('one')
 		expect(byId('two').textContent).eq('two')
-	})
-
-	it('error event is not cancelable or bubbles', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html src="/boom">loading</import-html>'
-		document.body.appendChild(div)
-
-		const event = await when(div.firstChild!, 'error')
-		assert(!event.bubbles)
-		assert(!event.cancelable)
-	})
-
-	it('sets status to "error" on 500 status', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html src="/boom">loading</import-html>'
-		document.body.appendChild(div)
-
-		await when(div.firstChild!, 'error')
-		return expect(query('import-html')?.status).eq('error')
 	})
 
 	it('fires replaced event', async () => {
@@ -238,8 +219,7 @@ suite('import-html-element', () => {
 	})
 
 	it('sets status to "pending" while loading', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html lazy src="/slow-hello">loading</import-html>'
+		const div = newDiv('<import-html lazy src="/slow-hello">loading</import-html>')
 		document.body.appendChild(div)
 
 		const el = <ImportHTML>div.firstChild
@@ -248,8 +228,7 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy loads if already visible on page', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html lazy src="/hello">loading</import-html>'
+		const div = newDiv('<import-html lazy src="/hello">loading</import-html>')
 		document.body.appendChild(div)
 		await when(div.firstChild!, 'frag-replaced')
 		expect(query('import-html')).eq(null)
@@ -257,22 +236,19 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy does not load if not visible on page', () => {
-		const div = hiddenDiv()
-		div.innerHTML = '<import-html lazy src="/hello">loading</import-html>'
+		const div = hiddenDiv('<import-html lazy src="/hello">loading</import-html>')
 		document.body.appendChild(div)
 		return lazyTest(div)
 	})
 
 	it('lazy does not load when src is changed', () => {
-		const div = hiddenDiv()
-		div.innerHTML = '<import-html lazy src="">loading</import-html>';
+		const div = hiddenDiv('<import-html lazy src="">loading</import-html>');
 		(<ImportHTML>document.body.appendChild(div).firstChild).src = '/hello'
 		return lazyTest(div)
 	})
 
 	it('lazy loads as soon as element visible on page', async () => {
-		const div = hiddenDiv()
-		div.innerHTML = '<import-html lazy src="/hello">loading</import-html>'
+		const div = hiddenDiv('<import-html lazy src="/hello">loading</import-html>')
 		document.body.appendChild(div)
 		const handler = () => assert(false, 'Load occured too early')
 		div.firstChild!.addEventListener('load', handler)
@@ -286,8 +262,7 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy does not observably change during load cycle', async () => {
-		const div = document.createElement('div')
-		div.innerHTML = '<import-html lazy src="/hello">loading</import-html>'
+		const div = newDiv('<import-html lazy src="/hello">loading</import-html>')
 		const el = <ImportHTML>div.firstChild
 		document.body.appendChild(div)
 
@@ -296,8 +271,7 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy can be switched to eager to load', async () => {
-		const div = hiddenDiv()
-		div.innerHTML = '<import-html lazy src="/hello">loading</import-html>'
+		const div = hiddenDiv('<import-html lazy src="/hello">loading</import-html>')
 		document.body.appendChild(div)
 		const handler = () => assert(false, 'Load occured too early')
 		const el = <ImportHTML>div.firstChild
@@ -312,8 +286,7 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy wont load twice even if load is manually called', async () => {
-		const div = hiddenDiv()
-		div.innerHTML = '<import-html lazy src="/slow-hello">loading</import-html>'
+		const div = hiddenDiv('<import-html lazy src="/slow-hello">loading</import-html>')
 		document.body.appendChild(div)
 		let loadCount = 0
 		const el = <ImportHTML>div.firstChild
@@ -340,5 +313,22 @@ suite('import-html-element', () => {
 		expect(loadCount).eq(1, 'Load occured too many times')
 		expect(query('import-html')).eq(null)
 		expect(byId('replaced').textContent).eq('hello')
+	})
+
+	it('error event is not cancelable or bubbles', async () => {
+		const div = newDiv('<import-html src="/boom">loading</import-html>')
+		document.body.appendChild(div)
+
+		const event = await when(div.firstChild!, 'error')
+		assert(!event.bubbles)
+		assert(!event.cancelable)
+	})
+
+	it('sets status to "error" on 500 status', async () => {
+		const div = newDiv('<import-html src="/boom">loading</import-html>')
+		document.body.appendChild(div)
+
+		await when(div.firstChild!, 'error')
+		return expect(query('import-html')?.status).eq('error')
 	})
 })

@@ -111,14 +111,36 @@ output:
 
 ## 预处理器
 ### Stylus预处理器
-inlineStylus
+inlineStylus：将所有`Shadow DOM`内的style标签的内容视为stylus处理，再将生成的css交给unocss处理
 
-将所有`Shadow DOM`内的style标签的内容视为stylus处理，再将生成的css交给unocss处理
+使用：
+```ts
+import { inlineStylus } from 'vite-plugin-emt'
+
+export default defineConfig({
+	// …
+	plugins: [
+		inlineStylus(),
+		// …
+	],
+})
+```
 
 ### TypeScript预处理器
-inlineTS
+inlineTS：将所有内联`<script>`当成TypeScript处理
 
-将所有内联`<script>`当成TypeScript处理
+使用：
+```ts
+import { inlineTS } from 'vite-plugin-emt'
+
+export default defineConfig({
+	// …
+	plugins: [
+		inlineTS(),
+		// …
+	],
+})
+```
 
 ### 预处理器类型声明
 在env.d.ts中加上

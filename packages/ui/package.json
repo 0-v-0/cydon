@@ -1,7 +1,7 @@
 {
   "name": "@cydon/ui",
   "private": true,
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "UI component library for Cydon",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@8.12.0",
+  "packageManager": "pnpm@8.12.1",
   "browserslist": [
     "last 4 version",
     "Chrome >= 93",
@@ -26,11 +26,13 @@
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.11",
     "@unocss/transformer-directives": "^0.58.0",
+    "@vitest/browser": "^1.1.0",
     "autoprefixer": "^10.4.16",
     "clean-css": "^5.3.3",
+    "playwright": "^1.40.1",
     "postcss": "^8.4.32",
-    "stylelint": "^15.11.0",
-    "stylelint-stylus": "^0.18.0",
+    "stylelint": "^16.0.2",
+    "stylelint-stylus": "^1.0.0",
     "stylus": "^0.62.0",
     "terser": "^5.26.0",
     "typedoc": "^0.25.4",
@@ -50,7 +52,8 @@
     "dev": "vite",
     "fix": "stylelint src/*.styl --fix",
     "lint": "pnpm lint:oxlint && stylelint src/*.styl",
-    "lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts"
+    "lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts",
+    "test": "pnpm vitest run"
   },
   "stylelint": {
     "extends": "@cydon/stylelint-config"

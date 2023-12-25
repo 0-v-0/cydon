@@ -48,7 +48,7 @@ export class ImportHTML extends AsyncLoad {
 				// the `load()` promise to resolve _before_ these
 				// events are fired.
 				delay().then(() => {
-					this.dispatchEvent(new Event('error'))
+					this.dispatchEvent(new ErrorEvent('error', { error: err }))
 					this.dispatchEvent(new Event('loadend'))
 				})
 				throw err

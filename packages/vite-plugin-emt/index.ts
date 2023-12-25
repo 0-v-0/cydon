@@ -46,7 +46,7 @@ export default (config: Option = {}): Plugin => {
 		return html.replace(/@unocss-placeholder/g, match => {
 			let classes = ''
 			const re = / class="(.+?)"/gs
-			for (let a: string[] | null; a = re.exec(html);)
+			for (let a: string[] | null; (a = re.exec(html));)
 				classes += a[1] + ' '
 			return (classes &&= '/* ' + classes + '*/ ') + match
 		})
@@ -155,7 +155,7 @@ export default (config: Option = {}): Plugin => {
 							line = line.substring(5).trimStart()
 							if (line[0] == '{') {
 								let a: string[] | null
-								if (a = /\{(.*)}\*/.exec(line)) {
+								if ((a = /\{(.*)}\*/.exec(line))) {
 									data.doc_title = a[1]
 									titles[url] = { title: a[1], time }
 									rl.close()
@@ -206,7 +206,7 @@ export default (config: Option = {}): Plugin => {
 			if (literal && (id.endsWith('.js') || id.endsWith('.ts'))) {
 				const ms = new MagicString(code)
 				return {
-					code: ms.replace(new RegExp('\\b' + literal + '\\s*`(.*?)(?<!\\\\)`', 'gs'),
+					code: ms.replace(RegExp('\\b' + literal + '\\s*`(.*?)(?<!\\\\)`', 'gs'),
 						(_, s) => '`' + emmet(s, '\t') + '`').toString(),
 					map: ms.generateMap({ source: id })
 				}

@@ -73,6 +73,16 @@ export default defineConfig(({ mode }) => {
 			}
 		},
 		build,
-		plugins
+		plugins,
+		test: {
+			browser: {
+				enabled: true,
+				headless: true,
+				name: 'chromium',
+				provider: 'playwright'
+			},
+			dangerouslyIgnoreUnhandledErrors: true,
+			maxConcurrency: 1,
+		}
 	}
 })
