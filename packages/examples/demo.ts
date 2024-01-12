@@ -9,7 +9,7 @@ declare global {
 
 @define('s-table')
 export class STable extends ListElement<{}> {
-	keys!: { toString: () => string }[]
+	keys!: { toString(): string }[]
 
 	connectedCallback() {
 		this.list = [

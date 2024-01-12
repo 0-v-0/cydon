@@ -152,6 +152,7 @@ export const directives: DirectiveHandler[] = [
 				deps: new Set,
 				f(el: Data & Element) {
 					el[name] = func.call(this, el)
+					el.updateValue?.(name)
 				}
 			}
 		}

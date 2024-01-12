@@ -56,4 +56,4 @@ export function whenAllDefined(node: ParentNode, shadow = true) {
  * @returns PascalCase
  */
 export const toPascalCase = (s: string) =>
-	s.replace(/([^-]{2,})-?/g, (_, s) => s[0].toUpperCase() + s.substring(1).toLowerCase())
+	s.replace(/([^-]+)-?/g, (_, s) => s[0].toUpperCase() + s.substring(1).toLowerCase())

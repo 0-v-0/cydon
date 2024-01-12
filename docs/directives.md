@@ -80,7 +80,12 @@
 - 当`cond1`,`cond2`为假：`class=""`
 
 ### .*prop*
-DOM对象属性绑定
+DOM对象属性绑定，属性值为一个表达式
+
+**e.g.**
+```html
+<option .selected="count == input.value" value="$count">$count</option>
+```
 
 ### c-cloak
 用于隐藏尚未完成编译的 DOM 模板，该属性在组件初始化后被移除

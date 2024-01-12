@@ -20,8 +20,6 @@ type TitleCache = Record<string, {
 	time: number
 }>
 
-type TemplateCache = Record<string, string>
-
 export interface Option extends Omit<Plugin, 'name'> {
 	alwaysReload?: boolean
 	classy?: boolean
@@ -36,8 +34,6 @@ export interface Option extends Omit<Plugin, 'name'> {
 	templated?: boolean
 	writeHtml?: boolean
 }
-
-const tplCache: TemplateCache = {}
 
 export default (config: Option = {}): Plugin => {
 	const r = (path: string) => {
@@ -125,7 +121,7 @@ export default (config: Option = {}): Plugin => {
 				}
 			}
 		if (name) {
-			const content = tplCache[name] ??= read!(resolveAll(name, false))
+			const content = read!(resolveAll(name, false))
 			prop.content = (used?.has(name) ?
 				content.replace(/<script [^>]*?type="module"[^>]*?>.*?<\/script>/gis, '') :
 				content) + prop.content
@@ -190,11 +186,6 @@ export default (config: Option = {}): Plugin => {
 		},
 		handleHotUpdate({ file, server }) {
 			if (file.endsWith('.emt')) {
-				const name = basename(file, '.emt')
-				if (name.includes('-')) {
-					delete tplCache[name]
-					tplCache[name] = read!(file)
-				}
 				server.ws.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
 				log(server, file)
 				return []
