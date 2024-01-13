@@ -22,13 +22,17 @@ function walk(el: ParentNode, callback: (shadow: ShadowRoot) => void) {
 export function autoload(node: ParentNode, loader = load, shadow = true, listen = true) {
 	const results: Promise<any>[] = []
 	!<undefined>function walkAndLoad(node: ParentNode) {
-		for (const c of node.querySelectorAll(':not(:defined)'))
-			results.push(loader(toPascalCase(c.getAttribute('is') || c.tagName)))
+		for (const child of node.children)
+			walkAndLoad(child)
+		if (node.nodeType == 1 /* Element */ && (<Element>node).matches(':not(:defined)'))
+			results.push(loader(toPascalCase((<Element>node).getAttribute('is')
+				|| (<Element>node).tagName)))
 		if (shadow)
 			walk(node, walkAndLoad)
 		if (listen)
 			for (const frag of node.querySelectorAll('import-html'))
-				frag.addEventListener('frag-replace', e => autoload(e.detail, loader, shadow, true), { once: true })
+				frag.addEventListener('frag-replace',
+					e => autoload(e.detail, loader, shadow, true), { once: true })
 	}(node)
 	return Promise.all(results)
 }

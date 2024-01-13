@@ -24,10 +24,12 @@ export type Part = {
 }
 
 export type Target = Part & {
-	node: Element | Text
+	/** node */
+	n: Element | Text
 	/** dependencies */
 	deps: Dep
-	data: Data
+	/** data */
+	x: Data
 }
 
 export type AttrMap = Map<string | symbol, Part>
@@ -36,7 +38,8 @@ export type AttrMap = Map<string | symbol, Part>
 export type Result = Results & {
 	/** shadow root */
 	s?: ShadowRoot
-	e?: string[] // [value, key, index]
+	/** [value, key, index] */
+	e?: string[]
 } | Partial<Part>
 
 export type Results = (AttrMap | Result | number)[]

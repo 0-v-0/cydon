@@ -21,7 +21,7 @@ export const define = (tagName: string, options?: ElementDefinitionOptions) =>
  * @param f the function
  * @param node bound node of the cydon instance
  */
-export function watch(cydon: Cydon, f: Target['f'], node: Target['node'] = <any>cydon) {
+export function watch(cydon: Cydon, f: Target['f'], node: Target['n'] = <any>cydon) {
 	const target = cydon.bindNode(node, {
 		deps: new Set,
 		f

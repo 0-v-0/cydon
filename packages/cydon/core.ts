@@ -15,7 +15,7 @@ import {
  * @param target
  * @returns whether the node has been updated
  */
-function update({ a, node, data, f }: Target) {
+function update({ a, n: node, x: data, f }: Target) {
 	let val: string
 	if (node.nodeType == 3/* Node.TEXT_NODE */) {
 		val = f.call(data, <Element>node.parentNode)
@@ -142,9 +142,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 * @param part
 		 * @returns target object
 		 */
-		bindNode(node: Target['node'], part: Part) {
+		bindNode(node: Target['n'], part: Part) {
 			const target: Target = Object.create(part)
-			target.node = node
+			target.n = node
 			let proxy: Handler | undefined
 			const deps = part.deps
 			if (deps) {
@@ -159,7 +159,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 					})
 				this.$targets.add(target)
 			}
-			target.data = deps ? new Proxy(this.$data, proxy!) : this.data
+			target.x = deps ? new Proxy(this.$data, proxy!) : this.data
 			update(target)
 			return target
 		}
@@ -181,7 +181,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		unmount(el: Container | null = <any>this) {
 			const targets = this.$targets
 			for (const target of targets) {
-				const node = target.node
+				const node = target.n
 				if (el ? el.contains(node) : !node.isConnected)
 					targets.delete(target)
 			}
