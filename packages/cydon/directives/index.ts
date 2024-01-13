@@ -35,10 +35,16 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const render = (i: number) => {
 		const c = ctxs[i],
 			item = arr[i]
-		if (c[key])
-			Object.assign(c[key], item) // update data
-		else
-			c[key] = new Proxy({ ...item }, ph)
+		if (typeof item == 'object') {
+			if (c[key])
+				Object.assign(c[key], item) // update data
+			else
+				c[key] = new Proxy({ ...item }, ph)
+		} else {
+			c[key] = item
+			cydon.updateValue(key)
+			cydon.updateValue(value)
+		}
 	}
 	/**
 	 * Sets the capacity of the parent element to display the given number of items.

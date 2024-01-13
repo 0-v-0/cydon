@@ -1,7 +1,7 @@
 {
   "name": "@cydon/ui",
   "private": true,
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "UI component library for Cydon",
   "repository": {
     "type": "git",
