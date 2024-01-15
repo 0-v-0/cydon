@@ -19,7 +19,7 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 		const isCheckbox = (<Input>el).type == 'checkbox'
 		const isRadio = (<Input>el).type == 'radio'
 		const isSelect = el.tagName == 'SELECT'
-		const event = name != 'c-model' || isSelect || isCheckbox ? 'change' : 'input'
+		const event = name != 'c-model' || isSelect || isRadio || isCheckbox ? 'change' : 'input'
 
 		let set = boundElements.get(event)
 		if (!set)
@@ -38,13 +38,13 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 					}
 					el.addEventListener(event, () => {
 						if (!composing.has(el)) {
-							const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
-								[...(<HTMLSelectElement>el).selectedOptions].map(
-									option => option.value || option.text) :
-								isCheckbox ?
-									(<Input>el).checked :
-									(<Input>el).value
-							setter.call(el[context], el, newVal)
+							setter.call(el[context], el,
+								isSelect && (<HTMLSelectElement>el).multiple ?
+									[...(<HTMLSelectElement>el).selectedOptions].map(
+										option => option.value || option.text) :
+									isCheckbox ?
+										(<Input>el).checked :
+										(<Input>el).value)
 						}
 					})
 					set!.add(el)
@@ -55,6 +55,9 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 					(<Input>el).checked = val == (<Input>el).value
 				else if (isCheckbox)
 					(<Input>el).checked = val
+				else if (isSelect && (<HTMLSelectElement>el).multiple)
+					for (const option of (<HTMLSelectElement>el).options)
+						option.selected = val.includes(option.value || option.text)
 				else
 					(<Input>el).value = val
 			}
