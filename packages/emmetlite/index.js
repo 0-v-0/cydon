@@ -312,7 +312,7 @@ function zencode(input) {
 				} else {
 					lastGroup.length = 0;
 					[buffer, tag, p, content = ''] =
-						/((?:[^[{\s]+(?:(?<=\$)\{[^}]+})?)*)(?:\[(.+?)])?(?:\{(.+)})?/s.exec(token)
+						/((?:[^[{\s]+(?:(?<=\$)\{[^}]+})?)*)(?:\[(.+?(?:".*?".*?)*)])?(?:\{(.+)})?/s.exec(token)
 					if (p)
 						attr.push(p.replace(/([^=\s]+)(=?)('[^']*'|"[^"]*"|[^"'\s]*)/g,
 							(m, attr, s, c) => (aabbr[attr] || attr) + s +

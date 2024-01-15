@@ -18,8 +18,8 @@ importers:
         specifier: ^5.0.11
         version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
       vitest:
-        specifier: ^1.1.3
-        version: 1.1.3(@vitest/browser@1.1.3)(stylus@0.62.0)(terser@5.26.0)
+        specifier: ^1.2.0
+        version: 1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0)
 
   packages/cydon: {}
 
@@ -88,8 +88,8 @@ importers:
         specifier: ^0.58.3
         version: 0.58.3
       '@vitest/browser':
-        specifier: ^1.1.3
-        version: 1.1.3(playwright@1.40.1)(vitest@1.1.3)
+        specifier: ^1.2.0
+        version: 1.2.0(playwright@1.40.1)(vitest@1.2.0)
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.33)
@@ -738,8 +738,8 @@ packages:
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==, tarball: https://registry.npmmirror.com/@iconify/types/-/types-2.0.0.tgz}
     dev: true
 
-  /@iconify/utils@2.1.14:
-    resolution: {integrity: sha512-9pKIntkbLbjVVFxH32td21Am3AGGJfyI2KY2d8yDQxkZe4BBZtufJI8NgcamFn8B5QKLU9ai2VMo8OEov8jAtw==, tarball: https://registry.npmmirror.com/@iconify/utils/-/utils-2.1.14.tgz}
+  /@iconify/utils@2.1.15:
+    resolution: {integrity: sha512-8chdk3NhkYiqIVxPRBPN5wGnVYaTqc8XUagCNez84Ex7yK/oNrj1XINVn7zv+JljqZbF6r5B/bd1gRNlMSwYhg==, tarball: https://registry.npmmirror.com/@iconify/utils/-/utils-2.1.15.tgz}
     dependencies:
       '@antfu/install-pkg': 0.1.1
       '@antfu/utils': 0.7.7
@@ -951,7 +951,7 @@ packages:
   /@types/clean-css@4.2.11:
     resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==, tarball: https://registry.npmmirror.com/@types/clean-css/-/clean-css-4.2.11.tgz}
     dependencies:
-      '@types/node': 20.11.0
+      '@types/node': 20.11.1
       source-map: 0.6.1
     dev: true
 
@@ -962,8 +962,8 @@ packages:
     resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==, tarball: https://registry.npmmirror.com/@types/node/-/node-10.17.60.tgz}
     dev: true
 
-  /@types/node@20.11.0:
-    resolution: {integrity: sha512-o9bjXmDNcF7GbM4CNQpmi+TutCgap/K3w1JyKgxAjqx41zp9qlIAVFi0IhCNsJcXolEqLWhbFbEeL0PvYm4pcQ==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.0.tgz}
+  /@types/node@20.11.1:
+    resolution: {integrity: sha512-DsXojJUES2M+FE8CpptJTKpg+r54moV9ZEncPstni1WHFmTcCzeFLnMFfyhCVS8XNOy/OQG+8lVxRLRrVHmV5A==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.1.tgz}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -971,7 +971,7 @@ packages:
   /@types/stylus@0.48.42:
     resolution: {integrity: sha512-CPGlr5teL4sqdap+EOowMifLuNGeIoLwc0VQ7u/BPxo+ocqiNa5jeVt0H0IVBblEh6ZwX1sGpIQIFnSSr8NBQA==, tarball: https://registry.npmmirror.com/@types/stylus/-/stylus-0.48.42.tgz}
     dependencies:
-      '@types/node': 20.11.0
+      '@types/node': 20.11.1
     dev: true
 
   /@unocss/astro@0.58.3(vite@5.0.11):
@@ -1063,7 +1063,7 @@ packages:
   /@unocss/preset-icons@0.58.3:
     resolution: {integrity: sha512-SA4Eu4rOQ9+zUgIyK6RacS01ygm0PJWkqKlD8ccrBqEyZapqiU+vLL+v6X8YVjoZjR+5CVgcMD5Km7zEQgqXQw==, tarball: https://registry.npmmirror.com/@unocss/preset-icons/-/preset-icons-0.58.3.tgz}
     dependencies:
-      '@iconify/utils': 2.1.14
+      '@iconify/utils': 2.1.15
       '@unocss/core': 0.58.3
       ofetch: 1.3.3
     transitivePeerDependencies:
@@ -1188,8 +1188,8 @@ packages:
       - rollup
     dev: true
 
-  /@vitest/browser@1.1.3(playwright@1.40.1)(vitest@1.1.3):
-    resolution: {integrity: sha512-ksI0V8YqonFYfjVYMPTvDR84i7ix7QPL2Sc8G2mHirVGAf4jJS3uC/CsifRLe5/E2r8QUhHbAdZQpvMCqBJV5w==, tarball: https://registry.npmmirror.com/@vitest/browser/-/browser-1.1.3.tgz}
+  /@vitest/browser@1.2.0(playwright@1.40.1)(vitest@1.2.0):
+    resolution: {integrity: sha512-egA2juStgiDDiHSjw5dloOj9pG+Au1azleKBxEs8E8dafkfQbr5FxswhsAryXdT29kb8EU479wET0KQz3NUSsQ==, tarball: https://registry.npmmirror.com/@vitest/browser/-/browser-1.2.0.tgz}
     peerDependencies:
       playwright: '*'
       safaridriver: '*'
@@ -1203,45 +1203,45 @@ packages:
       webdriverio:
         optional: true
     dependencies:
-      '@vitest/utils': 1.1.3
+      '@vitest/utils': 1.2.0
       magic-string: 0.30.5
       playwright: 1.40.1
       sirv: 2.0.4
-      vitest: 1.1.3(@vitest/browser@1.1.3)(stylus@0.62.0)(terser@5.26.0)
+      vitest: 1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0)
     dev: true
 
-  /@vitest/expect@1.1.3:
-    resolution: {integrity: sha512-MnJqsKc1Ko04lksF9XoRJza0bGGwTtqfbyrsYv5on4rcEkdo+QgUdITenBQBUltKzdxW7K3rWh+nXRULwsdaVg==, tarball: https://registry.npmmirror.com/@vitest/expect/-/expect-1.1.3.tgz}
+  /@vitest/expect@1.2.0:
+    resolution: {integrity: sha512-H+2bHzhyvgp32o7Pgj2h9RTHN0pgYaoi26Oo3mE+dCi1PAqV31kIIVfTbqMO3Bvshd5mIrJLc73EwSRrbol9Lw==, tarball: https://registry.npmmirror.com/@vitest/expect/-/expect-1.2.0.tgz}
     dependencies:
-      '@vitest/spy': 1.1.3
-      '@vitest/utils': 1.1.3
-      chai: 4.4.0
+      '@vitest/spy': 1.2.0
+      '@vitest/utils': 1.2.0
+      chai: 4.4.1
     dev: true
 
-  /@vitest/runner@1.1.3:
-    resolution: {integrity: sha512-Va2XbWMnhSdDEh/OFxyUltgQuuDRxnarK1hW5QNN4URpQrqq6jtt8cfww/pQQ4i0LjoYxh/3bYWvDFlR9tU73g==, tarball: https://registry.npmmirror.com/@vitest/runner/-/runner-1.1.3.tgz}
+  /@vitest/runner@1.2.0:
+    resolution: {integrity: sha512-vaJkDoQaNUTroT70OhM0NPznP7H3WyRwt4LvGwCVYs/llLaqhoSLnlIhUClZpbF5RgAee29KRcNz0FEhYcgxqA==, tarball: https://registry.npmmirror.com/@vitest/runner/-/runner-1.2.0.tgz}
     dependencies:
-      '@vitest/utils': 1.1.3
+      '@vitest/utils': 1.2.0
       p-limit: 5.0.0
       pathe: 1.1.2
     dev: true
 
-  /@vitest/snapshot@1.1.3:
-    resolution: {integrity: sha512-U0r8pRXsLAdxSVAyGNcqOU2H3Z4Y2dAAGGelL50O0QRMdi1WWeYHdrH/QWpN1e8juWfVKsb8B+pyJwTC+4Gy9w==, tarball: https://registry.npmmirror.com/@vitest/snapshot/-/snapshot-1.1.3.tgz}
+  /@vitest/snapshot@1.2.0:
+    resolution: {integrity: sha512-P33EE7TrVgB3HDLllrjK/GG6WSnmUtWohbwcQqmm7TAk9AVHpdgf7M3F3qRHKm6vhr7x3eGIln7VH052Smo6Kw==, tarball: https://registry.npmmirror.com/@vitest/snapshot/-/snapshot-1.2.0.tgz}
     dependencies:
       magic-string: 0.30.5
       pathe: 1.1.2
       pretty-format: 29.7.0
     dev: true
 
-  /@vitest/spy@1.1.3:
-    resolution: {integrity: sha512-Ec0qWyGS5LhATFQtldvChPTAHv08yHIOZfiNcjwRQbFPHpkih0md9KAbs7TfeIfL7OFKoe7B/6ukBTqByubXkQ==, tarball: https://registry.npmmirror.com/@vitest/spy/-/spy-1.1.3.tgz}
+  /@vitest/spy@1.2.0:
+    resolution: {integrity: sha512-MNxSAfxUaCeowqyyGwC293yZgk7cECZU9wGb8N1pYQ0yOn/SIr8t0l9XnGRdQZvNV/ZHBYu6GO/W3tj5K3VN1Q==, tarball: https://registry.npmmirror.com/@vitest/spy/-/spy-1.2.0.tgz}
     dependencies:
       tinyspy: 2.2.0
     dev: true
 
-  /@vitest/utils@1.1.3:
-    resolution: {integrity: sha512-Dyt3UMcdElTll2H75vhxfpZu03uFpXRCHxWnzcrFjZxT1kTbq8ALUYIeBgGolo1gldVdI0YSlQRacsqxTwNqwg==, tarball: https://registry.npmmirror.com/@vitest/utils/-/utils-1.1.3.tgz}
+  /@vitest/utils@1.2.0:
+    resolution: {integrity: sha512-FyD5bpugsXlwVpTcGLDf3wSPYy8g541fQt14qtzo8mJ4LdEpDKZ9mQy2+qdJm2TZRpjY5JLXihXCgIxiRJgi5g==, tarball: https://registry.npmmirror.com/@vitest/utils/-/utils-1.2.0.tgz}
     dependencies:
       diff-sequences: 29.6.3
       estree-walker: 3.0.3
@@ -1421,7 +1421,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.629
+      electron-to-chromium: 1.4.630
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -1459,8 +1459,8 @@ packages:
     resolution: {integrity: sha512-ff5BdakGe2P3SQsMsiqmt1Lc8221NR1VzHj5jXN5vBny9A6fpze94HiVV/n7XRosOlsShJcvMv5mdnpjOGCEgg==, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001576.tgz}
     dev: true
 
-  /chai@4.4.0:
-    resolution: {integrity: sha512-x9cHNq1uvkCdU+5xTkNh5WtgD4e4yDFCsp9jVc7N7qVeKeftv3gO/ZrviX5d+3ZfxdYnZXZYujjRInu1RogU6A==, tarball: https://registry.npmmirror.com/chai/-/chai-4.4.0.tgz}
+  /chai@4.4.1:
+    resolution: {integrity: sha512-13sOfMv2+DWduEU+/xbun3LScLoqN17nBeTLUsmDfKdoiC1fr0n9PU4guu4AhRcOVFk/sW8LyZWHuhWtQZiF+g==, tarball: https://registry.npmmirror.com/chai/-/chai-4.4.1.tgz}
     engines: {node: '>=4'}
     dependencies:
       assertion-error: 1.1.0
@@ -1730,8 +1730,8 @@ packages:
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==, tarball: https://registry.npmmirror.com/eastasianwidth/-/eastasianwidth-0.2.0.tgz}
 
-  /electron-to-chromium@1.4.629:
-    resolution: {integrity: sha512-5UUkr3k3CZ/k+9Sw7vaaIMyOzMC0XbPyprKI3n0tbKDqkzTDOjK4izm7DxlkueRMim6ZZQ1ja9F7hoFVplHihA==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.629.tgz}
+  /electron-to-chromium@1.4.630:
+    resolution: {integrity: sha512-osHqhtjojpCsACVnuD11xO5g9xaCyw7Qqn/C2KParkMv42i8jrJJgx3g7mkHfpxwhy9MnOJr8+pKOdZ7qzgizg==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.630.tgz}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -3392,8 +3392,8 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==, tarball: https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz}
 
-  /vite-node@1.1.3(stylus@0.62.0)(terser@5.26.0):
-    resolution: {integrity: sha512-BLSO72YAkIUuNrOx+8uznYICJfTEbvBAmWClY3hpath5+h1mbPS5OMn42lrTxXuyCazVyZoDkSRnju78GiVCqA==, tarball: https://registry.npmmirror.com/vite-node/-/vite-node-1.1.3.tgz}
+  /vite-node@1.2.0(stylus@0.62.0)(terser@5.26.0):
+    resolution: {integrity: sha512-ETnQTHeAbbOxl7/pyBck9oAPZZZo+kYnFt1uQDD+hPReOc+wCjXw4r4jHriBRuVDB5isHmPXxrfc1yJnfBERqg==, tarball: https://registry.npmmirror.com/vite-node/-/vite-node-1.2.0.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     dependencies:
@@ -3485,8 +3485,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitest@1.1.3(@vitest/browser@1.1.3)(stylus@0.62.0)(terser@5.26.0):
-    resolution: {integrity: sha512-2l8om1NOkiA90/Y207PsEvJLYygddsOyr81wLQ20Ra8IlLKbyQncWsGZjnbkyG2KwwuTXLQjEPOJuxGMG8qJBQ==, tarball: https://registry.npmmirror.com/vitest/-/vitest-1.1.3.tgz}
+  /vitest@1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0):
+    resolution: {integrity: sha512-Ixs5m7BjqvLHXcibkzKRQUvD/XLw0E3rvqaCMlrm/0LMsA0309ZqYvTlPzkhh81VlEyVZXFlwWnkhb6/UMtcaQ==, tarball: https://registry.npmmirror.com/vitest/-/vitest-1.2.0.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3510,15 +3510,15 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@vitest/browser': 1.1.3(playwright@1.40.1)(vitest@1.1.3)
-      '@vitest/expect': 1.1.3
-      '@vitest/runner': 1.1.3
-      '@vitest/snapshot': 1.1.3
-      '@vitest/spy': 1.1.3
-      '@vitest/utils': 1.1.3
+      '@vitest/browser': 1.2.0(playwright@1.40.1)(vitest@1.2.0)
+      '@vitest/expect': 1.2.0
+      '@vitest/runner': 1.2.0
+      '@vitest/snapshot': 1.2.0
+      '@vitest/spy': 1.2.0
+      '@vitest/utils': 1.2.0
       acorn-walk: 8.3.2
       cac: 6.7.14
-      chai: 4.4.0
+      chai: 4.4.1
       debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
@@ -3530,7 +3530,7 @@ packages:
       tinybench: 2.5.1
       tinypool: 0.8.1
       vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
-      vite-node: 1.1.3(stylus@0.62.0)(terser@5.26.0)
+      vite-node: 1.2.0(stylus@0.62.0)(terser@5.26.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

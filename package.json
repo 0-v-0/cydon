@@ -7,7 +7,7 @@
 		"tsup": "^8.0.1",
 		"typescript": "^5.3.3",
 		"vite": "^5.0.11",
-		"vitest": "^1.1.3"
+		"vitest": "^1.2.0"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
