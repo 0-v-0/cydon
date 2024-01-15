@@ -122,7 +122,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 
 export const directives: DirectiveHandler[] = [
 	event,
-	({ name, value }): D => {
+	(name, value): D => {
 		if (name == 'ref')
 			return {
 				f(el) {
@@ -174,7 +174,7 @@ export const directives: DirectiveHandler[] = [
 	 *
 	 * NOTE: This differs from Vue
 	 */
-	({ name, value, ownerElement: el }, map): D => {
+	(name, value, el, attrs): D => {
 		if (name[0] == ':') {
 			name = name.substring(1)
 			if (!name)
@@ -195,9 +195,9 @@ export const directives: DirectiveHandler[] = [
 				}
 				code += `if(${val.trim()})$v+=" ${key.trim()}";`
 			}
-			let attr = map.get(name)
+			let attr = attrs.get(name)
 			if (!attr)
-				map.set(name, attr = <Part>{ a: name, deps: new Set })
+				attrs.set(name, attr = <Part>{ a: name, deps: new Set })
 			attr.f = toFunction(code + `return $v`)
 		}
 	}

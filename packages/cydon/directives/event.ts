@@ -25,7 +25,7 @@ const listener = (e: Event) => {
 		}
 }
 
-export default <DirectiveHandler>(({ name, value }, _, parent): D => {
+export default <DirectiveHandler>((name, value, _el, _, parent): D => {
 	// bind event
 	if (name[0] == '@') {
 		const arr = name.substring(1).split('.'),

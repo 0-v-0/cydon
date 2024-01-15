@@ -117,7 +117,7 @@ import { directives } from 'cydon'
 
 当返回的对象不存在deps属性时：
 ```js
-directives.push((attr, attrs, parent) => {
+directives.push((name, value, el, attrs, parent) => {
 	// 模板编译时执行
 	// …
 
@@ -131,7 +131,7 @@ directives.push((attr, attrs, parent) => {
 
 当返回的对象存在deps属性时：
 ```js
-directives.push((attr, attrs, parent) => {
+directives.push((name, value, el, attrs, parent) => {
 	// 模板编译时执行
 	// …
 
@@ -154,7 +154,7 @@ directives.push((attr, attrs, parent) => {
 ### 局部指令
 每个cydon实例都有一个`$directives`字段，即局部指令处理函数列表，局部指令处理顺序优先于全局指令
 ```js
-this.$directives.push(({ name, value, ownerElement: el }) => {
+this.$directives.push((name, value, el) => {
 	if (name == 'attr') {
 		//...
 	}
@@ -166,7 +166,7 @@ this.$directives.push(({ name, value, ownerElement: el }) => {
 ### to-remove
 带有该属性的元素将在页面加载完成时被自动删除
 ```js
-directives.push(({ name, ownerElement: el }) => {
+directives.push((name, value, el) => {
 	if (name == 'to-remove')
 		return {
 			f(el) {
@@ -179,7 +179,7 @@ directives.push(({ name, ownerElement: el }) => {
 ### c-text
 更新元素的文本内容
 ```ts
-({ name, value }): Directive | void => {
+(name, value): Directive | void => {
 	if (name == 'c-text') {
 		const func = toFunction('return ' + value)
 		return {

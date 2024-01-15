@@ -10,10 +10,6 @@ export type Container = Element | DocumentFragment
 
 export type DOM = HTMLElement | MathMLElement | SVGElement
 
-export type DOMAttr = Attr & {
-	ownerElement: Element
-}
-
 export type Part = {
 	/** attribute name */
 	a?: string
@@ -53,9 +49,15 @@ export interface Directive extends Part {
 
 /**
  * Directive handling function
- * @param attr DOM attribute
+ * @param name attribute name
+ * @param value attribute value
+ * @param el element
  * @param attrs bound attributes
  * @param parent parent node (presents if in c-for)
  */
-export type DirectiveHandler =
-	(attr: DOMAttr, attrs: AttrMap, parent?: ParentNode) => Directive | void
+export type DirectiveHandler = (
+	name: string,
+	value: string,
+	el: Element,
+	attrs: AttrMap,
+	parent?: ParentNode) => Directive | void

@@ -1,4 +1,4 @@
-import { DOM, Directive } from '../type'
+import { DOM, Directive, DirectiveHandler } from '../type'
 import { toFunction } from '../util'
 import cModel from './c-model'
 
@@ -6,7 +6,7 @@ type D = Directive | void
 
 export const lastValue = Symbol('lastValue')
 
-export default [cModel, ({ name, value, ownerElement: el }: Attr): D => {
+export default <DirectiveHandler[]>[cModel, (name, value, el): D => {
 	if (name == 'c-if') {
 		const func = toFunction('return ' + value)
 		const directive: Directive = {

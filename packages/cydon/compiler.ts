@@ -1,4 +1,4 @@
-import { Part, Results, Result, DOMAttr, Container, DirectiveHandler } from './type'
+import { Part, Results, Result, Container, DirectiveHandler } from './type'
 import { toFunction } from './util'
 
 function parse(s: string, attr = '') {
@@ -30,12 +30,11 @@ export function compile(results: Results, el: Container,
 	directives: DirectiveHandler[], level = 0, i = 0, parent?: ParentNode) {
 	let result: Results[number] | undefined
 	if (level) {
-		const attrs = (<Element>el).attributes
+		const attrs = (<Element>el).getAttributeNames?.()
 		// Find pattern in attributes
 		if (attrs) {
-			const exp = attrs[<any>'c-for']
-			if (exp) {
-				const val = exp.value
+			const val = (<Element>el).getAttribute('c-for')
+			if (val != null) {
 				if (val) {
 					const [key, value] = val.split(';')
 					if (import.meta.env.DEV && !value) {
@@ -50,30 +49,26 @@ export function compile(results: Results, el: Container,
 				return // skip children
 			}
 
-			next: for (let i = 0; i < attrs.length;) {
-				const attr = <DOMAttr>attrs[i],
-					name = attr.name
+			next: for (const name of attrs) {
+				const value = (<Element>el).getAttribute(name)!
 				for (const handler of directives) {
-					const data = handler(attr, map, parent)
+					const data = handler(name, value, <Element>el, map, parent)
 					if (data) {
 						map.set(name, <Part>data)
-						if (data.keep)
-							++i
-						else
+						if (!data.keep)
 							(<Element>el).removeAttribute(name)
 						continue next
 					}
 				}
-				const parts = parse(attr.value, name)
+				const parts = parse(value, name)
 				if (parts)
 					map.set(name, parts)
-				++i
 			}
 			if (map.size) {
 				results.push(level << 22 | i, result = map)
 				map = new Map
 			}
-			const tagName = (<Element>el).tagName.toLowerCase()
+			const tagName = (<Element>el).localName
 			if (tagName == 'textarea' || customElements.get(tagName)?.prototype.updateValue)
 				return // skip cydon elements
 		}

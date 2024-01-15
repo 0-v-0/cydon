@@ -7,7 +7,7 @@ type Input = HTMLInputElement
 
 export const composing = new WeakSet<EventTarget>
 
-export default <DirectiveHandler>(({ name, value, ownerElement: el }, attrs): D => {
+export default <DirectiveHandler>((name, value, el, attrs): D => {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
 		attrs.set(Symbol(), {
