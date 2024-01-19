@@ -16,10 +16,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+        version: 5.0.11(stylus@0.62.0)(terser@5.27.0)
       vitest:
-        specifier: ^1.2.0
-        version: 1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0)
+        specifier: ^1.2.1
+        version: 1.2.1(@vitest/browser@1.2.1)(stylus@0.62.0)(terser@5.27.0)
 
   packages/cydon: {}
 
@@ -45,19 +45,19 @@ importers:
     devDependencies:
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+        version: 5.0.11(stylus@0.62.0)(terser@5.27.0)
 
   packages/stylelint-config:
     dependencies:
       stylelint:
-        specifier: ^16.1.0
-        version: 16.1.0(typescript@5.3.3)
+        specifier: ^16.2.0
+        version: 16.2.0(typescript@5.3.3)
       stylelint-config-recess-order:
         specifier: ^4.4.0
-        version: 4.4.0(stylelint@16.1.0)
+        version: 4.4.0(stylelint@16.2.0)
       stylelint-stylus:
         specifier: ^1.0.0
-        version: 1.0.0(stylelint@16.1.0)
+        version: 1.0.0(stylelint@16.2.0)
 
   packages/sw:
     dependencies:
@@ -67,7 +67,7 @@ importers:
     devDependencies:
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+        version: 5.0.11(stylus@0.62.0)(terser@5.27.0)
 
   packages/ui:
     dependencies:
@@ -88,32 +88,32 @@ importers:
         specifier: ^0.58.3
         version: 0.58.3
       '@vitest/browser':
-        specifier: ^1.2.0
-        version: 1.2.0(playwright@1.40.1)(vitest@1.2.0)
+        specifier: ^1.2.1
+        version: 1.2.1(playwright@1.41.0)(vitest@1.2.1)
       autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.16(postcss@8.4.33)
+        specifier: ^10.4.17
+        version: 10.4.17(postcss@8.4.33)
       clean-css:
         specifier: ^5.3.3
         version: 5.3.3
       playwright:
-        specifier: ^1.40.1
-        version: 1.40.1
+        specifier: ^1.41.0
+        version: 1.41.0
       postcss:
         specifier: ^8.4.33
         version: 8.4.33
       stylelint:
-        specifier: ^16.1.0
-        version: 16.1.0(typescript@5.3.3)
+        specifier: ^16.2.0
+        version: 16.2.0(typescript@5.3.3)
       stylelint-stylus:
         specifier: ^1.0.0
-        version: 1.0.0(stylelint@16.1.0)
+        version: 1.0.0(stylelint@16.2.0)
       stylus:
         specifier: ^0.62.0
         version: 0.62.0
       terser:
-        specifier: ^5.26.0
-        version: 5.26.0
+        specifier: ^5.27.0
+        version: 5.27.0
       typedoc:
         specifier: ^0.25.7
         version: 0.25.7(typescript@5.3.3)
@@ -122,7 +122,7 @@ importers:
         version: 0.58.3(postcss@8.4.33)(vite@5.0.11)
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+        version: 5.0.11(stylus@0.62.0)(terser@5.27.0)
       vite-plugin-emt:
         specifier: workspace:*
         version: link:../vite-plugin-emt
@@ -152,7 +152,7 @@ importers:
         version: 0.62.0
       vite:
         specifier: ^5.0.11
-        version: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+        version: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     devDependencies:
       '@types/stylus':
         specifier: ^0.48.42
@@ -951,7 +951,7 @@ packages:
   /@types/clean-css@4.2.11:
     resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==, tarball: https://registry.npmmirror.com/@types/clean-css/-/clean-css-4.2.11.tgz}
     dependencies:
-      '@types/node': 20.11.1
+      '@types/node': 20.11.5
       source-map: 0.6.1
     dev: true
 
@@ -962,8 +962,8 @@ packages:
     resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==, tarball: https://registry.npmmirror.com/@types/node/-/node-10.17.60.tgz}
     dev: true
 
-  /@types/node@20.11.1:
-    resolution: {integrity: sha512-DsXojJUES2M+FE8CpptJTKpg+r54moV9ZEncPstni1WHFmTcCzeFLnMFfyhCVS8XNOy/OQG+8lVxRLRrVHmV5A==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.1.tgz}
+  /@types/node@20.11.5:
+    resolution: {integrity: sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.5.tgz}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -971,7 +971,7 @@ packages:
   /@types/stylus@0.48.42:
     resolution: {integrity: sha512-CPGlr5teL4sqdap+EOowMifLuNGeIoLwc0VQ7u/BPxo+ocqiNa5jeVt0H0IVBblEh6ZwX1sGpIQIFnSSr8NBQA==, tarball: https://registry.npmmirror.com/@types/stylus/-/stylus-0.48.42.tgz}
     dependencies:
-      '@types/node': 20.11.1
+      '@types/node': 20.11.5
     dev: true
 
   /@unocss/astro@0.58.3(vite@5.0.11):
@@ -985,7 +985,7 @@ packages:
       '@unocss/core': 0.58.3
       '@unocss/reset': 0.58.3
       '@unocss/vite': 0.58.3(vite@5.0.11)
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -1183,13 +1183,13 @@ packages:
       chokidar: 3.5.3
       fast-glob: 3.3.2
       magic-string: 0.30.5
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
     dev: true
 
-  /@vitest/browser@1.2.0(playwright@1.40.1)(vitest@1.2.0):
-    resolution: {integrity: sha512-egA2juStgiDDiHSjw5dloOj9pG+Au1azleKBxEs8E8dafkfQbr5FxswhsAryXdT29kb8EU479wET0KQz3NUSsQ==, tarball: https://registry.npmmirror.com/@vitest/browser/-/browser-1.2.0.tgz}
+  /@vitest/browser@1.2.1(playwright@1.41.0)(vitest@1.2.1):
+    resolution: {integrity: sha512-jhaQ15zWYAwz8anXgmLW0yAVLCXdT8RFv7LeW9bg7sMlvGJaTCTIHaHWFvCdADF/i62+22tnrzgiiqSnApjXtA==, tarball: https://registry.npmmirror.com/@vitest/browser/-/browser-1.2.1.tgz}
     peerDependencies:
       playwright: '*'
       safaridriver: '*'
@@ -1203,45 +1203,45 @@ packages:
       webdriverio:
         optional: true
     dependencies:
-      '@vitest/utils': 1.2.0
+      '@vitest/utils': 1.2.1
       magic-string: 0.30.5
-      playwright: 1.40.1
+      playwright: 1.41.0
       sirv: 2.0.4
-      vitest: 1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0)
+      vitest: 1.2.1(@vitest/browser@1.2.1)(stylus@0.62.0)(terser@5.27.0)
     dev: true
 
-  /@vitest/expect@1.2.0:
-    resolution: {integrity: sha512-H+2bHzhyvgp32o7Pgj2h9RTHN0pgYaoi26Oo3mE+dCi1PAqV31kIIVfTbqMO3Bvshd5mIrJLc73EwSRrbol9Lw==, tarball: https://registry.npmmirror.com/@vitest/expect/-/expect-1.2.0.tgz}
+  /@vitest/expect@1.2.1:
+    resolution: {integrity: sha512-/bqGXcHfyKgFWYwIgFr1QYDaR9e64pRKxgBNWNXPefPFRhgm+K3+a/dS0cUGEreWngets3dlr8w8SBRw2fCfFQ==, tarball: https://registry.npmmirror.com/@vitest/expect/-/expect-1.2.1.tgz}
     dependencies:
-      '@vitest/spy': 1.2.0
-      '@vitest/utils': 1.2.0
+      '@vitest/spy': 1.2.1
+      '@vitest/utils': 1.2.1
       chai: 4.4.1
     dev: true
 
-  /@vitest/runner@1.2.0:
-    resolution: {integrity: sha512-vaJkDoQaNUTroT70OhM0NPznP7H3WyRwt4LvGwCVYs/llLaqhoSLnlIhUClZpbF5RgAee29KRcNz0FEhYcgxqA==, tarball: https://registry.npmmirror.com/@vitest/runner/-/runner-1.2.0.tgz}
+  /@vitest/runner@1.2.1:
+    resolution: {integrity: sha512-zc2dP5LQpzNzbpaBt7OeYAvmIsRS1KpZQw4G3WM/yqSV1cQKNKwLGmnm79GyZZjMhQGlRcSFMImLjZaUQvNVZQ==, tarball: https://registry.npmmirror.com/@vitest/runner/-/runner-1.2.1.tgz}
     dependencies:
-      '@vitest/utils': 1.2.0
+      '@vitest/utils': 1.2.1
       p-limit: 5.0.0
       pathe: 1.1.2
     dev: true
 
-  /@vitest/snapshot@1.2.0:
-    resolution: {integrity: sha512-P33EE7TrVgB3HDLllrjK/GG6WSnmUtWohbwcQqmm7TAk9AVHpdgf7M3F3qRHKm6vhr7x3eGIln7VH052Smo6Kw==, tarball: https://registry.npmmirror.com/@vitest/snapshot/-/snapshot-1.2.0.tgz}
+  /@vitest/snapshot@1.2.1:
+    resolution: {integrity: sha512-Tmp/IcYEemKaqAYCS08sh0vORLJkMr0NRV76Gl8sHGxXT5151cITJCET20063wk0Yr/1koQ6dnmP6eEqezmd/Q==, tarball: https://registry.npmmirror.com/@vitest/snapshot/-/snapshot-1.2.1.tgz}
     dependencies:
       magic-string: 0.30.5
       pathe: 1.1.2
       pretty-format: 29.7.0
     dev: true
 
-  /@vitest/spy@1.2.0:
-    resolution: {integrity: sha512-MNxSAfxUaCeowqyyGwC293yZgk7cECZU9wGb8N1pYQ0yOn/SIr8t0l9XnGRdQZvNV/ZHBYu6GO/W3tj5K3VN1Q==, tarball: https://registry.npmmirror.com/@vitest/spy/-/spy-1.2.0.tgz}
+  /@vitest/spy@1.2.1:
+    resolution: {integrity: sha512-vG3a/b7INKH7L49Lbp0IWrG6sw9j4waWAucwnksPB1r1FTJgV7nkBByd9ufzu6VWya/QTvQW4V9FShZbZIB2UQ==, tarball: https://registry.npmmirror.com/@vitest/spy/-/spy-1.2.1.tgz}
     dependencies:
       tinyspy: 2.2.0
     dev: true
 
-  /@vitest/utils@1.2.0:
-    resolution: {integrity: sha512-FyD5bpugsXlwVpTcGLDf3wSPYy8g541fQt14qtzo8mJ4LdEpDKZ9mQy2+qdJm2TZRpjY5JLXihXCgIxiRJgi5g==, tarball: https://registry.npmmirror.com/@vitest/utils/-/utils-1.2.0.tgz}
+  /@vitest/utils@1.2.1:
+    resolution: {integrity: sha512-bsH6WVZYe/J2v3+81M5LDU8kW76xWObKIURpPrOXm2pjBniBu2MERI/XP60GpS4PHU3jyK50LUutOwrx4CyHUg==, tarball: https://registry.npmmirror.com/@vitest/utils/-/utils-1.2.1.tgz}
     dependencies:
       diff-sequences: 29.6.3
       estree-walker: 3.0.3
@@ -1359,15 +1359,15 @@ packages:
     engines: {node: '>= 4.5.0'}
     hasBin: true
 
-  /autoprefixer@10.4.16(postcss@8.4.33):
-    resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==, tarball: https://registry.npmmirror.com/autoprefixer/-/autoprefixer-10.4.16.tgz}
+  /autoprefixer@10.4.17(postcss@8.4.33):
+    resolution: {integrity: sha512-/cpVNRLSfhOtcGflT13P2794gVSgmPgTR+erw5ifnMLZb0UnSlkK4tquLmkd3BhA+nLo5tX8Cu0upUsGKvKbmg==, tarball: https://registry.npmmirror.com/autoprefixer/-/autoprefixer-10.4.17.tgz}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.22.2
-      caniuse-lite: 1.0.30001576
+      caniuse-lite: 1.0.30001579
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -1420,8 +1420,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.630
+      caniuse-lite: 1.0.30001579
+      electron-to-chromium: 1.4.639
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
     dev: true
@@ -1455,8 +1455,8 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==, tarball: https://registry.npmmirror.com/callsites/-/callsites-3.1.0.tgz}
     engines: {node: '>=6'}
 
-  /caniuse-lite@1.0.30001576:
-    resolution: {integrity: sha512-ff5BdakGe2P3SQsMsiqmt1Lc8221NR1VzHj5jXN5vBny9A6fpze94HiVV/n7XRosOlsShJcvMv5mdnpjOGCEgg==, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001576.tgz}
+  /caniuse-lite@1.0.30001579:
+    resolution: {integrity: sha512-u5AUVkixruKHJjw/pj9wISlcMpgFWzSrczLZbrqBSxukQixmg0SJ5sZTpvaFvxU0HoQKd4yoyAogyrAz9pzJnA==, tarball: https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001579.tgz}
     dev: true
 
   /chai@4.4.1:
@@ -1730,8 +1730,8 @@ packages:
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==, tarball: https://registry.npmmirror.com/eastasianwidth/-/eastasianwidth-0.2.0.tgz}
 
-  /electron-to-chromium@1.4.630:
-    resolution: {integrity: sha512-osHqhtjojpCsACVnuD11xO5g9xaCyw7Qqn/C2KParkMv42i8jrJJgx3g7mkHfpxwhy9MnOJr8+pKOdZ7qzgizg==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.630.tgz}
+  /electron-to-chromium@1.4.639:
+    resolution: {integrity: sha512-CkKf3ZUVZchr+zDpAlNLEEy2NJJ9T64ULWaDgy3THXXlPVPkLu3VOs9Bac44nebVtdwl2geSj6AxTtGDOxoXhg==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.639.tgz}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -2622,18 +2622,18 @@ packages:
       pathe: 1.1.1
     dev: true
 
-  /playwright-core@1.40.1:
-    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==, tarball: https://registry.npmmirror.com/playwright-core/-/playwright-core-1.40.1.tgz}
+  /playwright-core@1.41.0:
+    resolution: {integrity: sha512-UGKASUhXmvqm2Lxa1fNr8sFwAtqjpgBRr9jQ7XBI8Rn5uFiEowGUGwrruUQsVPIom4bk7Lt+oLGpXobnXzrBIw==, tarball: https://registry.npmmirror.com/playwright-core/-/playwright-core-1.41.0.tgz}
     engines: {node: '>=16'}
     hasBin: true
     dev: true
 
-  /playwright@1.40.1:
-    resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==, tarball: https://registry.npmmirror.com/playwright/-/playwright-1.40.1.tgz}
+  /playwright@1.41.0:
+    resolution: {integrity: sha512-XOsfl5ZtAik/T9oek4V0jAypNlaCNzuKOwVhqhgYT3os6kH34PzbRb74F0VWcLYa5WFdnmxl7qyAHBXvPv7lqQ==, tarball: https://registry.npmmirror.com/playwright/-/playwright-1.41.0.tgz}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright-core: 1.40.1
+      playwright-core: 1.41.0
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
@@ -2978,7 +2978,7 @@ packages:
   /style-search@0.1.0:
     resolution: {integrity: sha512-Dj1Okke1C3uKKwQcetra4jSuk0DqbzbYtXipzFlFMZtowbF1x7BKJwB9AayVMyFARvU8EDrZdcax4At/452cAg==, tarball: https://registry.npmmirror.com/style-search/-/style-search-0.1.0.tgz}
 
-  /stylelint-config-html@1.1.0(postcss-html@1.6.0)(stylelint@16.1.0):
+  /stylelint-config-html@1.1.0(postcss-html@1.6.0)(stylelint@16.2.0):
     resolution: {integrity: sha512-IZv4IVESjKLumUGi+HWeb7skgO6/g4VMuAYrJdlqQFndgbj6WJAXPhaysvBiXefX79upBdQVumgYcdd17gCpjQ==, tarball: https://registry.npmmirror.com/stylelint-config-html/-/stylelint-config-html-1.1.0.tgz}
     engines: {node: ^12 || >=14}
     peerDependencies:
@@ -2986,28 +2986,28 @@ packages:
       stylelint: '>=14.0.0'
     dependencies:
       postcss-html: 1.6.0
-      stylelint: 16.1.0(typescript@5.3.3)
+      stylelint: 16.2.0(typescript@5.3.3)
 
-  /stylelint-config-recess-order@4.4.0(stylelint@16.1.0):
+  /stylelint-config-recess-order@4.4.0(stylelint@16.2.0):
     resolution: {integrity: sha512-Q99kvZyIM/aoPEV4dRDkzD3fZLzH0LXi+pawCf1r700uUeF/PHQ5PZXjwFUuGrWhOzd1N+cuVm+OUGsY2fRN5A==, tarball: https://registry.npmmirror.com/stylelint-config-recess-order/-/stylelint-config-recess-order-4.4.0.tgz}
     peerDependencies:
       stylelint: '>=15'
     dependencies:
-      stylelint: 16.1.0(typescript@5.3.3)
-      stylelint-order: 6.0.4(stylelint@16.1.0)
+      stylelint: 16.2.0(typescript@5.3.3)
+      stylelint-order: 6.0.4(stylelint@16.2.0)
     dev: false
 
-  /stylelint-order@6.0.4(stylelint@16.1.0):
+  /stylelint-order@6.0.4(stylelint@16.2.0):
     resolution: {integrity: sha512-0UuKo4+s1hgQ/uAxlYU4h0o0HS4NiQDud0NAUNI0aa8FJdmYHA5ZZTFHiV5FpmE3071e9pZx5j0QpVJW5zOCUA==, tarball: https://registry.npmmirror.com/stylelint-order/-/stylelint-order-6.0.4.tgz}
     peerDependencies:
       stylelint: ^14.0.0 || ^15.0.0 || ^16.0.1
     dependencies:
       postcss: 8.4.33
       postcss-sorting: 8.0.2(postcss@8.4.33)
-      stylelint: 16.1.0(typescript@5.3.3)
+      stylelint: 16.2.0(typescript@5.3.3)
     dev: false
 
-  /stylelint-stylus@1.0.0(stylelint@16.1.0):
+  /stylelint-stylus@1.0.0(stylelint@16.2.0):
     resolution: {integrity: sha512-Sd9PY5ndU09PbH61ojs6yZ3HausS9OE7TgWwl8kZfwTQTTbYqCmk4Vy4wIWvDisN+C8jeHr3TBddlCQZg2yGMw==, tarball: https://registry.npmmirror.com/stylelint-stylus/-/stylelint-stylus-1.0.0.tgz}
     engines: {node: ^12 || >=14}
     peerDependencies:
@@ -3027,14 +3027,14 @@ packages:
       postcss-value-parser: 4.2.0
       semver: 7.5.4
       style-search: 0.1.0
-      stylelint: 16.1.0(typescript@5.3.3)
-      stylelint-config-html: 1.1.0(postcss-html@1.6.0)(stylelint@16.1.0)
+      stylelint: 16.2.0(typescript@5.3.3)
+      stylelint-config-html: 1.1.0(postcss-html@1.6.0)(stylelint@16.2.0)
       svg-tags: 1.0.0
     transitivePeerDependencies:
       - supports-color
 
-  /stylelint@16.1.0(typescript@5.3.3):
-    resolution: {integrity: sha512-Sh1rRV0lN1qxz/QsuuooLWsIZ/ona7NKw/fRZd6y6PyXYdD2W0EAzJ8yJcwSx4Iw/muz0CF09VZ+z4EiTAcKmg==, tarball: https://registry.npmmirror.com/stylelint/-/stylelint-16.1.0.tgz}
+  /stylelint@16.2.0(typescript@5.3.3):
+    resolution: {integrity: sha512-gwqU5AkIb52wrAzzn+359S3NIJDMl02TXLUaV2tzA/L6jUdpTwNt+MCxHlc8+Hb2bUHlYVo92YeSIryF2gJthA==, tarball: https://registry.npmmirror.com/stylelint/-/stylelint-16.2.0.tgz}
     engines: {node: '>=18.12.0'}
     hasBin: true
     dependencies:
@@ -3151,8 +3151,8 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  /terser@5.26.0:
-    resolution: {integrity: sha512-dytTGoE2oHgbNV9nTzgBEPaqAWvcJNl66VZ0BkJqlvp71IjO8CxdBx/ykCNb47cLnCmCvRZ6ZR0tLkqvZCdVBQ==, tarball: https://registry.npmmirror.com/terser/-/terser-5.26.0.tgz}
+  /terser@5.27.0:
+    resolution: {integrity: sha512-bi1HRwVRskAjheeYl291n3JC4GgO/Ty4z1nVs5AAsmonJulGxpSektecnNedrwK9C7vpvVtcX3cw00VSLt7U2A==, tarball: https://registry.npmmirror.com/terser/-/terser-5.27.0.tgz}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -3174,12 +3174,12 @@ packages:
       any-promise: 1.3.0
     dev: true
 
-  /tinybench@2.5.1:
-    resolution: {integrity: sha512-65NKvSuAVDP/n4CqH+a9w2kTlLReS9vhsAP06MWx+/89nMinJyB2icyl58RIcqCmIggpojIGeuJGhjU1aGMBSg==, tarball: https://registry.npmmirror.com/tinybench/-/tinybench-2.5.1.tgz}
+  /tinybench@2.6.0:
+    resolution: {integrity: sha512-N8hW3PG/3aOoZAN5V/NSAEDz0ZixDSSt5b/a05iqtpgfLWMSVuCo7w0k2vVvEjdrIoeGqZzweX2WlyioNIHchA==, tarball: https://registry.npmmirror.com/tinybench/-/tinybench-2.6.0.tgz}
     dev: true
 
-  /tinypool@0.8.1:
-    resolution: {integrity: sha512-zBTCK0cCgRROxvs9c0CGK838sPkeokNGdQVUUwHAbynHFlmyJYj825f/oRs528HaIJ97lo0pLIlDUzwN+IorWg==, tarball: https://registry.npmmirror.com/tinypool/-/tinypool-0.8.1.tgz}
+  /tinypool@0.8.2:
+    resolution: {integrity: sha512-SUszKYe5wgsxnNOVlBYO6IC+8VGWdVGZWAqUxp3UErNBtptZvWbwyUOyzNL59zigz2rCA92QiL3wvG+JDSdJdQ==, tarball: https://registry.npmmirror.com/tinypool/-/tinypool-0.8.2.tgz}
     engines: {node: '>=14.0.0'}
     dev: true
 
@@ -3361,7 +3361,7 @@ packages:
       '@unocss/transformer-directives': 0.58.3
       '@unocss/transformer-variant-group': 0.58.3
       '@unocss/vite': 0.58.3(vite@5.0.11)
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -3392,8 +3392,8 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==, tarball: https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz}
 
-  /vite-node@1.2.0(stylus@0.62.0)(terser@5.26.0):
-    resolution: {integrity: sha512-ETnQTHeAbbOxl7/pyBck9oAPZZZo+kYnFt1uQDD+hPReOc+wCjXw4r4jHriBRuVDB5isHmPXxrfc1yJnfBERqg==, tarball: https://registry.npmmirror.com/vite-node/-/vite-node-1.2.0.tgz}
+  /vite-node@1.2.1(stylus@0.62.0)(terser@5.27.0):
+    resolution: {integrity: sha512-fNzHmQUSOY+y30naohBvSW7pPn/xn3Ib/uqm+5wAJQJiqQsU0NBR78XdRJb04l4bOFKjpTWld0XAfkKlrDbySg==, tarball: https://registry.npmmirror.com/vite-node/-/vite-node-1.2.1.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     dependencies:
@@ -3401,7 +3401,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3431,7 +3431,7 @@ packages:
       open: 9.1.0
       picocolors: 1.0.0
       sirv: 2.0.4
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -3446,10 +3446,10 @@ packages:
       picocolors: 1.0.0
       progress: 2.0.3
       rd: 2.0.1
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
     dev: true
 
-  /vite@5.0.11(stylus@0.62.0)(terser@5.26.0):
+  /vite@5.0.11(stylus@0.62.0)(terser@5.27.0):
     resolution: {integrity: sha512-XBMnDjZcNAw/G1gEiskiM1v6yzM4GE5aMGvhWTlHAYYhxb7S3/V1s3m2LDHa8Vh6yIWYYB0iJwsEaS523c4oYA==, tarball: https://registry.npmmirror.com/vite/-/vite-5.0.11.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -3481,12 +3481,12 @@ packages:
       postcss: 8.4.33
       rollup: 4.9.5
       stylus: 0.62.0
-      terser: 5.26.0
+      terser: 5.27.0
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitest@1.2.0(@vitest/browser@1.2.0)(stylus@0.62.0)(terser@5.26.0):
-    resolution: {integrity: sha512-Ixs5m7BjqvLHXcibkzKRQUvD/XLw0E3rvqaCMlrm/0LMsA0309ZqYvTlPzkhh81VlEyVZXFlwWnkhb6/UMtcaQ==, tarball: https://registry.npmmirror.com/vitest/-/vitest-1.2.0.tgz}
+  /vitest@1.2.1(@vitest/browser@1.2.1)(stylus@0.62.0)(terser@5.27.0):
+    resolution: {integrity: sha512-TRph8N8rnSDa5M2wKWJCMnztCZS9cDcgVTQ6tsTFTG/odHJ4l5yNVqvbeDJYJRZ6is3uxaEpFs8LL6QM+YFSdA==, tarball: https://registry.npmmirror.com/vitest/-/vitest-1.2.1.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3510,12 +3510,12 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@vitest/browser': 1.2.0(playwright@1.40.1)(vitest@1.2.0)
-      '@vitest/expect': 1.2.0
-      '@vitest/runner': 1.2.0
-      '@vitest/snapshot': 1.2.0
-      '@vitest/spy': 1.2.0
-      '@vitest/utils': 1.2.0
+      '@vitest/browser': 1.2.1(playwright@1.41.0)(vitest@1.2.1)
+      '@vitest/expect': 1.2.1
+      '@vitest/runner': 1.2.1
+      '@vitest/snapshot': 1.2.1
+      '@vitest/spy': 1.2.1
+      '@vitest/utils': 1.2.1
       acorn-walk: 8.3.2
       cac: 6.7.14
       chai: 4.4.1
@@ -3527,10 +3527,10 @@ packages:
       picocolors: 1.0.0
       std-env: 3.7.0
       strip-literal: 1.3.0
-      tinybench: 2.5.1
-      tinypool: 0.8.1
-      vite: 5.0.11(stylus@0.62.0)(terser@5.26.0)
-      vite-node: 1.2.0(stylus@0.62.0)(terser@5.26.0)
+      tinybench: 2.6.0
+      tinypool: 0.8.2
+      vite: 5.0.11(stylus@0.62.0)(terser@5.27.0)
+      vite-node: 1.2.1(stylus@0.62.0)(terser@5.27.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
