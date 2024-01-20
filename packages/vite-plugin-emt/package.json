@@ -26,10 +26,10 @@
 		"magic-string": "^0.30.5",
 		"picocolors": "^1.0.0",
 		"stylus": "^0.62.0",
-		"vite": "^5.0.11"
+		"vite": "^5.0.12"
 	},
 	"peerDependencies": {
-		"vite": "^5.0.11"
+		"vite": "^5.0.12"
 	},
 	"devDependencies": {
 		"@types/stylus": "^0.48.42"
