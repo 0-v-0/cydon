@@ -16,10 +16,9 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 			}
 		})
 
-		const isCheckbox = (<Input>el).type == 'checkbox'
-		const isRadio = (<Input>el).type == 'radio'
 		const isSelect = el.tagName == 'SELECT'
-		const event = name != 'c-model' || isSelect || isRadio || isCheckbox ? 'change' : 'input'
+		const event = name != 'c-model' || isSelect ||
+		(<Input>el).type == 'radio' || (<Input>el).type == 'checkbox' ? 'change' : 'input'
 
 		let set = boundElements.get(event)
 		if (!set)
@@ -42,7 +41,7 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 								isSelect && (<HTMLSelectElement>el).multiple ?
 									[...(<HTMLSelectElement>el).selectedOptions].map(
 										option => option.value || option.text) :
-									isCheckbox ?
+										(<Input>el).type == 'checkbox' ?
 										(<Input>el).checked :
 										(<Input>el).value)
 						}
@@ -51,9 +50,9 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 				}
 				// Two-way binding
 				const val = getter.call(this, el)
-				if (isRadio)
+				if ((<Input>el).type == 'radio')
 					(<Input>el).checked = val == (<Input>el).value
-				else if (isCheckbox)
+				else if ((<Input>el).type == 'checkbox')
 					(<Input>el).checked = val
 				else if (isSelect && (<HTMLSelectElement>el).multiple)
 					for (const option of (<HTMLSelectElement>el).options)
