@@ -37,7 +37,7 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 7. 行尾的`}`和`)`和同级标签间的`+`可省略（不推荐），但`]`和`[`之间的`+`不可省略
 8. 支持多行注释(`{ ... }*`)
 9. 不包含空格的属性值可省略引号，会自动添加双引号，单引号会被保留 ex: `A comment img[src='1.webp' alt="foo bar" width=300](hr`→`<img src='1.webp' alt="foo bar" width="300"><hr>`
-10. 支持属性中包含`[`和`]`（若属性值包含不成对的括号，需要加上双引号），如:
+10. 支持属性中包含`[`和`]`（若属性值包含空白字符或不成对的括号，需要加上双引号），如:
 	- `a[data-a=[[] data-b=[]]]{foo{1}}b[data-a=[] data-b=[]]{bar{2}`→`<a data-a="[[]" data-b="[]]">foo{1}</a><b data-a="[]" data-b="[]">bar{2</b>`
 	- `a[data-a=[ data-b=]]+b[data-a=] data-b=[]`→`<a data-a="[" data-b="]"></a><b data-a="]" data-b="["></b>`
 11. 支持自定义默认元素、自定义标签名缩写、自定义属性缩写、自定义扩展属性

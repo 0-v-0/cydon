@@ -18,7 +18,7 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 
 		const isSelect = el.tagName == 'SELECT'
 		const event = name != 'c-model' || isSelect ||
-		(<Input>el).type == 'radio' || (<Input>el).type == 'checkbox' ? 'change' : 'input'
+			(<Input>el).type == 'radio' || (<Input>el).type == 'checkbox' ? 'change' : 'input'
 
 		let set = boundElements.get(event)
 		if (!set)
@@ -37,13 +37,14 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 					}
 					el.addEventListener(event, () => {
 						if (!composing.has(el)) {
+							const newVal = isSelect && (<HTMLSelectElement>el).multiple ?
+								[...(<HTMLSelectElement>el).selectedOptions].map(
+									option => option.value || option.text) :
+								(<Input>el).type == 'checkbox' ?
+									(<Input>el).checked :
+									(<Input>el).value
 							setter.call(el[context], el,
-								isSelect && (<HTMLSelectElement>el).multiple ?
-									[...(<HTMLSelectElement>el).selectedOptions].map(
-										option => option.value || option.text) :
-										(<Input>el).type == 'checkbox' ?
-										(<Input>el).checked :
-										(<Input>el).value)
+								typeof getter.call(this, el) == 'number' ? +newVal : newVal)
 						}
 					})
 					set!.add(el)

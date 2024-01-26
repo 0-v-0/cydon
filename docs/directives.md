@@ -23,7 +23,9 @@
 - `<textarea>`
 - components
 
-修饰符：`.lazy` ——监听`change`事件而不是`input`
+当绑定的变量类型为`number`时，赋值时将自动转换为`number`类型
+
+修饰符：`.lazy` ——监听`change`事件而不是`input`，对于`<select>`、`input type=radio`和`input type=checkbox`来说总是监听`change`事件，因此无需这个修饰符
 
 注意在`<textarea>`中是不支持插值表达式的，请使用`.value`或`c-model`来替代
 
