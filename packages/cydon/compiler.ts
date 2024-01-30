@@ -26,6 +26,15 @@ function parse(s: string, attr = '') {
 }
 
 let map = new Map<string, Part>()
+/**
+ * Compile a node and its children
+ * @param results The compiled results
+ * @param el The node to compile
+ * @param directives The directive handlers
+ * @param level The level of the node
+ * @param i The index of the node
+ * @param parent The parent node (presents if in c-for)
+ */
 export function compile(results: Results, el: Container,
 	directives: DirectiveHandler[], level = 0, i = 0, parent?: ParentNode) {
 	let result: Results[number] | undefined
@@ -48,7 +57,7 @@ export function compile(results: Results, el: Container,
 				}
 				return // skip children
 			}
-
+			// Find directives
 			next: for (const name of attrs) {
 				const value = (<Element>el).getAttribute(name)!
 				for (const handler of directives) {
