@@ -114,7 +114,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 				items = new Proxy(arr, handler)
 				items.length = v.length
 			}
-		}
+		},
+		configurable: true
 	})
 
 	setCapacity(arr.length)
