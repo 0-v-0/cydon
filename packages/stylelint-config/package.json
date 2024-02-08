@@ -6,7 +6,7 @@
 	},
 	"dependencies": {
 		"stylelint": "^16.2.1",
-		"stylelint-config-recess-order": "^4.4.0",
+		"stylelint-config-recess-order": "^4.6.0",
 		"stylelint-stylus": "^1.0.0"
 	},
 	"peerDependencies": {

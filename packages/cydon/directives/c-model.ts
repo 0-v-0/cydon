@@ -5,6 +5,7 @@ import { toFunction } from '../util'
 type D = Directive | void
 type Input = HTMLInputElement
 
+/** elements that are composing */
 export const composing = new WeakSet<EventTarget>
 
 export default <DirectiveHandler>((name, value, el, attrs): D => {
@@ -55,10 +56,13 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 					(<Input>el).checked = val == (<Input>el).value
 				else if ((<Input>el).type == 'checkbox')
 					(<Input>el).checked = val
-				else if (isSelect && (<HTMLSelectElement>el).multiple)
-					for (const option of (<HTMLSelectElement>el).options)
-						option.selected = val.includes(option.value || option.text)
-				else
+				else if (isSelect) {
+					if ((<HTMLSelectElement>el).multiple)
+						for (const option of (<HTMLSelectElement>el).options)
+							option.selected = val.includes(option.value || option.text)
+					else
+						queueMicrotask(() => (<Input>el).value = val)
+				} else
 					(<Input>el).value = val
 			}
 		}
