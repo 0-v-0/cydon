@@ -15,8 +15,8 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
       vite:
-        specifier: ^5.0.12
-        version: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+        specifier: ^5.1.0
+        version: 5.1.0(stylus@0.62.0)(terser@5.27.0)
       vitest:
         specifier: ^1.2.2
         version: 1.2.2(@vitest/browser@1.2.2)(stylus@0.62.0)(terser@5.27.0)
@@ -44,8 +44,8 @@ importers:
         version: link:../vite-plugin-emt
     devDependencies:
       vite:
-        specifier: ^5.0.12
-        version: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+        specifier: ^5.1.0
+        version: 5.1.0(stylus@0.62.0)(terser@5.27.0)
 
   packages/stylelint-config:
     dependencies:
@@ -66,8 +66,8 @@ importers:
         version: 1.0.3
     devDependencies:
       vite:
-        specifier: ^5.0.12
-        version: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+        specifier: ^5.1.0
+        version: 5.1.0(stylus@0.62.0)(terser@5.27.0)
 
   packages/ui:
     dependencies:
@@ -119,19 +119,19 @@ importers:
         version: 0.25.7(typescript@5.3.3)
       unocss:
         specifier: ^0.58.5
-        version: 0.58.5(postcss@8.4.35)(vite@5.0.12)
+        version: 0.58.5(postcss@8.4.35)(vite@5.1.0)
       vite:
-        specifier: ^5.0.12
-        version: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+        specifier: ^5.1.0
+        version: 5.1.0(stylus@0.62.0)(terser@5.27.0)
       vite-plugin-emt:
         specifier: workspace:*
         version: link:../vite-plugin-emt
       vite-plugin-inspect:
         specifier: ^0.8.3
-        version: 0.8.3(vite@5.0.12)
+        version: 0.8.3(vite@5.1.0)
       vite-plugin-progress:
         specifier: ^0.0.7
-        version: 0.0.7(vite@5.0.12)
+        version: 0.0.7(vite@5.1.0)
 
   packages/vite-plugin-emt:
     dependencies:
@@ -151,8 +151,8 @@ importers:
         specifier: ^0.62.0
         version: 0.62.0
       vite:
-        specifier: ^5.0.12
-        version: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+        specifier: ^5.1.0
+        version: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     devDependencies:
       '@types/stylus':
         specifier: ^0.48.42
@@ -952,7 +952,7 @@ packages:
   /@types/clean-css@4.2.11:
     resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==, tarball: https://registry.npmmirror.com/@types/clean-css/-/clean-css-4.2.11.tgz}
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.17
       source-map: 0.6.1
     dev: true
 
@@ -963,8 +963,8 @@ packages:
     resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==, tarball: https://registry.npmmirror.com/@types/node/-/node-10.17.60.tgz}
     dev: true
 
-  /@types/node@20.11.16:
-    resolution: {integrity: sha512-gKb0enTmRCzXSSUJDq6/sPcqrfCv2mkkG6Jt/clpn5eiCbKTY+SgZUxo+p8ZKMof5dCp9vHQUAB7wOUTod22wQ==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.16.tgz}
+  /@types/node@20.11.17:
+    resolution: {integrity: sha512-QmgQZGWu1Yw9TDyAP9ZzpFJKynYNeOvwMJmaxABfieQoVoiVOS6MN1WSpqpRcbeA5+RW82kraAVxCCJg+780Qw==, tarball: https://registry.npmmirror.com/@types/node/-/node-20.11.17.tgz}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -972,10 +972,10 @@ packages:
   /@types/stylus@0.48.42:
     resolution: {integrity: sha512-CPGlr5teL4sqdap+EOowMifLuNGeIoLwc0VQ7u/BPxo+ocqiNa5jeVt0H0IVBblEh6ZwX1sGpIQIFnSSr8NBQA==, tarball: https://registry.npmmirror.com/@types/stylus/-/stylus-0.48.42.tgz}
     dependencies:
-      '@types/node': 20.11.16
+      '@types/node': 20.11.17
     dev: true
 
-  /@unocss/astro@0.58.5(vite@5.0.12):
+  /@unocss/astro@0.58.5(vite@5.1.0):
     resolution: {integrity: sha512-LtuVnj8oFAK9663OVhQO8KpdJFiOyyPsYfnOZlDCOFK3gHb/2WMrzdBwr1w8LoQF3bDedkFMKirVF7gWjyZiaw==, tarball: https://registry.npmmirror.com/@unocss/astro/-/astro-0.58.5.tgz}
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0
@@ -985,8 +985,8 @@ packages:
     dependencies:
       '@unocss/core': 0.58.5
       '@unocss/reset': 0.58.5
-      '@unocss/vite': 0.58.5(vite@5.0.12)
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      '@unocss/vite': 0.58.5(vite@5.1.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -1169,7 +1169,7 @@ packages:
       '@unocss/core': 0.58.5
     dev: true
 
-  /@unocss/vite@0.58.5(vite@5.0.12):
+  /@unocss/vite@0.58.5(vite@5.1.0):
     resolution: {integrity: sha512-p4o1XNX1rvjmoUqSSdua8XyWNg/d+YUChDd2L/xEty+6j2qv0wUaohs3UQ87vWlv632/UmgdX+2MbrgtqthCtw==, tarball: https://registry.npmmirror.com/@unocss/vite/-/vite-0.58.5.tgz}
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0
@@ -1184,7 +1184,7 @@ packages:
       chokidar: 3.6.0
       fast-glob: 3.3.2
       magic-string: 0.30.7
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -1238,7 +1238,7 @@ packages:
   /@vitest/spy@1.2.2:
     resolution: {integrity: sha512-k9Gcahssw8d7X3pSLq3e3XEu/0L78mUkCjivUqCQeXJm9clfXR/Td8+AP+VC1O6fKPIDLcHDTAmBOINVuv6+7g==, tarball: https://registry.npmmirror.com/@vitest/spy/-/spy-1.2.2.tgz}
     dependencies:
-      tinyspy: 2.2.0
+      tinyspy: 2.2.1
     dev: true
 
   /@vitest/utils@1.2.2:
@@ -1410,7 +1410,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001585
-      electron-to-chromium: 1.4.661
+      electron-to-chromium: 1.4.662
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.3)
     dev: true
@@ -1714,8 +1714,8 @@ packages:
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==, tarball: https://registry.npmmirror.com/eastasianwidth/-/eastasianwidth-0.2.0.tgz}
 
-  /electron-to-chromium@1.4.661:
-    resolution: {integrity: sha512-AFg4wDHSOk5F+zA8aR+SVIOabu7m0e7BiJnigCvPXzIGy731XENw/lmNxTySpVFtkFEy+eyt4oHhh5FF3NjQNw==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.661.tgz}
+  /electron-to-chromium@1.4.662:
+    resolution: {integrity: sha512-gfl1XVWTQmPHhqEG0kN77SpUxaqPpMb9r83PT4gvKhg7P3irSxru3lW85RxvK1uI1j2CAcTWPjG/HbE0IP/Rtg==, tarball: https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.662.tgz}
     dev: true
 
   /emoji-regex@8.0.0:
@@ -3142,8 +3142,8 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: true
 
-  /tinyspy@2.2.0:
-    resolution: {integrity: sha512-d2eda04AN/cPOR89F7Xv5bK/jrQEhmcLFe6HFldoeO9AJtps+fqEnh486vnT/8y4bw38pSyxDcTCAq+Ks2aJTg==, tarball: https://registry.npmmirror.com/tinyspy/-/tinyspy-2.2.0.tgz}
+  /tinyspy@2.2.1:
+    resolution: {integrity: sha512-KYad6Vy5VDWV4GH3fjpseMQ/XU2BhIYP7Vzd0LG44qRWm/Yt2WCOTicFdvmgo6gWaqooMQCawTtILVQJupKu7A==, tarball: https://registry.npmmirror.com/tinyspy/-/tinyspy-2.2.1.tgz}
     engines: {node: '>=14.0.0'}
     dev: true
 
@@ -3287,7 +3287,7 @@ packages:
     engines: {node: '>= 10.0.0'}
     dev: true
 
-  /unocss@0.58.5(postcss@8.4.35)(vite@5.0.12):
+  /unocss@0.58.5(postcss@8.4.35)(vite@5.1.0):
     resolution: {integrity: sha512-0g4P6jLgRRNnhscxw7nQ9RHGrKJ1UPPiHPet+YT3TXUcmy4mTiYgo9+kGQf5bjyrzsELJ10cT6Qz2y6g9Tls4g==, tarball: https://registry.npmmirror.com/unocss/-/unocss-0.58.5.tgz}
     engines: {node: '>=14'}
     peerDependencies:
@@ -3299,7 +3299,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      '@unocss/astro': 0.58.5(vite@5.0.12)
+      '@unocss/astro': 0.58.5(vite@5.1.0)
       '@unocss/cli': 0.58.5
       '@unocss/core': 0.58.5
       '@unocss/extractor-arbitrary-variants': 0.58.5
@@ -3318,8 +3318,8 @@ packages:
       '@unocss/transformer-compile-class': 0.58.5
       '@unocss/transformer-directives': 0.58.5
       '@unocss/transformer-variant-group': 0.58.5
-      '@unocss/vite': 0.58.5(vite@5.0.12)
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      '@unocss/vite': 0.58.5(vite@5.1.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - postcss
       - rollup
@@ -3354,7 +3354,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.2
       picocolors: 1.0.0
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3366,7 +3366,7 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-inspect@0.8.3(vite@5.0.12):
+  /vite-plugin-inspect@0.8.3(vite@5.1.0):
     resolution: {integrity: sha512-SBVzOIdP/kwe6hjkt7LSW4D0+REqqe58AumcnCfRNw4Kt3mbS9pEBkch+nupu2PBxv2tQi69EQHQ1ZA1vgB/Og==, tarball: https://registry.npmmirror.com/vite-plugin-inspect/-/vite-plugin-inspect-0.8.3.tgz}
     engines: {node: '>=14'}
     peerDependencies:
@@ -3385,13 +3385,13 @@ packages:
       perfect-debounce: 1.0.0
       picocolors: 1.0.0
       sirv: 2.0.4
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
     dev: true
 
-  /vite-plugin-progress@0.0.7(vite@5.0.12):
+  /vite-plugin-progress@0.0.7(vite@5.1.0):
     resolution: {integrity: sha512-zyvKdcc/X+6hnw3J1HVV1TKrlFKC4Rh8GnDnWG/2qhRXjqytTcM++xZ+SAPnoDsSyWl8O93ymK0wZRgHAoglEQ==, tarball: https://registry.npmmirror.com/vite-plugin-progress/-/vite-plugin-progress-0.0.7.tgz}
     engines: {node: '>=14', pnpm: '>=7.0.0'}
     peerDependencies:
@@ -3400,11 +3400,11 @@ packages:
       picocolors: 1.0.0
       progress: 2.0.3
       rd: 2.0.1
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
     dev: true
 
-  /vite@5.0.12(stylus@0.62.0)(terser@5.27.0):
-    resolution: {integrity: sha512-4hsnEkG3q0N4Tzf1+t6NdN9dg/L3BM+q8SWgbSPnJvrgH2kgdyzfVJwbR1ic69/4uMJJ/3dqDZZE5/WwqW8U1w==}
+  /vite@5.1.0(stylus@0.62.0)(terser@5.27.0):
+    resolution: {integrity: sha512-STmSFzhY4ljuhz14bg9LkMTk3d98IO6DIArnTY6MeBwiD1Za2StcQtz7fzOUnRCqrHSD5+OS2reg4HOz1eoLnw==, tarball: https://registry.npmmirror.com/vite/-/vite-5.1.0.tgz}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3483,7 +3483,7 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.6.0
       tinypool: 0.8.2
-      vite: 5.0.12(stylus@0.62.0)(terser@5.27.0)
+      vite: 5.1.0(stylus@0.62.0)(terser@5.27.0)
       vite-node: 1.2.2(stylus@0.62.0)(terser@5.27.0)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
