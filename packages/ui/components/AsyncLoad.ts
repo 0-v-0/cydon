@@ -26,7 +26,7 @@ export const observer = new IntersectionObserver(
 export class AsyncLoad extends HTMLElement {
 	static observedAttributes = ['lazy', 'load']
 
-	#status: Status = 'loaded'
+	#status: Status = 'pending'
 	#loader?: () => any
 	#slots
 
@@ -36,8 +36,10 @@ export class AsyncLoad extends HTMLElement {
 	set status(val: string) {
 		console.assert(val == 'pending' || val == 'loaded' || val == 'error')
 		this.#status = <Status>val
-		if (val == 'pending')
+		if (val == 'pending') {
 			val = ''
+			observer.observe(this)
+		}
 		for (const slot of this.#slots)
 			slot.style.display = slot.name == val ? '' : 'none'
 	}
@@ -78,17 +80,16 @@ export class AsyncLoad extends HTMLElement {
 	}
 
 	async load() {
-		if (this.status != 'pending')
-			try {
-				observer.unobserve(this)
-				this.status = 'pending'
-				const val = await this.#loader!()
-				this.status = 'loaded'
-				return val
-			} catch (e) {
-				this.status = 'error'
-				throw e
-			}
+		try {
+			this.status = 'pending'
+			observer.unobserve(this)
+			const val = await this.#loader!()
+			this.status = 'loaded'
+			return val
+		} catch (e) {
+			this.status = 'error'
+			throw e
+		}
 	}
 
 	createFunc(code: string): () => any {
