@@ -69,20 +69,21 @@
 		abbr[tabbr[x]] = x
 	for (x in aabbr)
 		aab[aabbr[x]] = x
-	function convert(elem, parent) {
-		let str = '', tag = elem.tagName
+	function convert(el, parent) {
+		let str = '', tag = el.tagName
 		if (!tag)
 			return str
 		tag = tag.toLowerCase()
 		let flag = true, i, len, children, val
 
-		if (elem.id)
-			str += '#' + elem.id
-		val = elem.className.trim()
+		if (el.id)
+			str += '#' + el.id
+		val = el.className
+		val = (val.baseVal ?? val).trim()
 		if (val.length)
 			str += '.' + val.replace(/\s+/g, '.')
 
-		for (let attr of elem.attributes) {
+		for (let attr of el.attributes) {
 			if (!/\b(class|id)\b/.test(attr.name)) {
 				if (flag) {
 					str += '['
@@ -99,7 +100,7 @@
 
 		if (!flag) str += ']'
 
-		children = elem.childNodes
+		children = el.childNodes
 		len = children.length
 		let childRets = [], ch, c
 		for (i = 0; i < len; i++) {
@@ -127,7 +128,7 @@
 			if (ch)
 				childRets.push(ch)
 		}
-		if (!len && elem.content && (ch = convert(elem.content, tag))) // template
+		if (!len && el.content && (ch = convert(el.content, tag))) // template
 			childRets.push(ch)
 		if (!str || tag != (itags[parent] || 'div'))
 			str = (abbr[tag] || tag) + str
@@ -144,10 +145,10 @@
 		}
 		return str.replace(/(\^|\+)\+/g, '$1'); // TODO: Remove this hack
 	}
-	o.html2emmet = function (elem, indent, type = 'text/html') {
-		let e = elem
+	o.html2emmet = function (el, indent, type = 'text/html') {
+		let e = el
 		if (e.split)
-			e = new DOMParser().parseFromString(elem, type).childNodes[0]
+			e = new DOMParser().parseFromString(el, type).childNodes[0]
 		e = convert(e).replace(/\n/g, '').replace('html>head+body>', '').replace(/\^\+|\+\^|>\^/g, '^').replace(/\^+$/, '')
 		return indent ? tabize(e, indent) : e
 	}
