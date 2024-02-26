@@ -37,7 +37,7 @@ my-counter[value=1]
 
 my-counter.emt:
 ```styl
-template[shadowroot=open]
+template[shadowrootmode=open]
 	style[lang=styl]{
 		button
 			padding 0.3em
@@ -61,7 +61,7 @@ script[type=module]{
 equivalent HTML:
 ```html
 <my-counter value="1">
-    <template shadowroot="open">
+    <template shadowrootmode="open">
         <style>
             button {
                 padding: 0.3em;

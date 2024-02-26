@@ -1,4 +1,4 @@
-template[shadowroot=open]
+template[shadowrootmode=open]
 	style{
 		:host
 			flex 1 1 auto

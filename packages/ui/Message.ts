@@ -72,7 +72,8 @@ export const
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		msg.timer = setTimeout(() => msg.open = false, duration)
+		if (duration >= 0)
+			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	},
 
@@ -82,7 +83,8 @@ export const
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		msg.timer = setTimeout(() => msg.open = false, duration)
+		if (duration >= 0)
+			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	},
 
@@ -92,7 +94,8 @@ export const
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		msg.timer = setTimeout(() => msg.open = false, duration)
+		if (duration >= 0)
+			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	},
 
@@ -102,17 +105,18 @@ export const
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		msg.timer = setTimeout(() => msg.open = false, duration)
+		if (duration >= 0)
+			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	},
 
-	loading = (text = '', duration = 0) => {
+	loading = (text = '', duration = -1) => {
 		const msg = create()
 		msg.type = 'loading'
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		if (duration)
+		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	},
@@ -122,7 +126,7 @@ export const
 		msg.textContent = text
 		msg.clientWidth
 		msg.open = true
-		if (duration)
+		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	}

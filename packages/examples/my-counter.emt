@@ -1,4 +1,4 @@
-template[shadowroot=open]
+template[shadowrootmode=open]
 	style[lang=styl]{
 		button
 			padding 0.3em

@@ -12,7 +12,7 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 | 标签名 | 元素 | `span` | `<span></span>` |
 | `.` | 类 | `.block` | `<div class="block"></div>` |
 | `#` | id | `#t_01` | `<div id="t_01"></div>` |
-| `>` | 子元素 | `div>span` | `<div><span></span></div>` |
+| `>` | 子节点 | `div>span` | `<div><span></span></div>` |
 | `+` | 兄弟节点 | `div+span` | `<div></div><span></span>` |
 | `^` | 节点爬升 | `div>a^span` | `<div><a></a></div><span></span>` |
 | `[]` | 属性 | `input[type=checkbox checked]` | `<input type="checkbox" checked>` |
@@ -24,7 +24,7 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 推荐顺序：元素名+id+类+属性+内容+数量，如：`tag-name#id.class[attr=value]{content}*2`
 
 与Emmet官方语法区别：
-1. 属性以空格间隔，不支持一个标签带多个[]
+1. 多个属性以空格分隔，不支持一个标签带多个[]
 	- `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]`→`<tag class="classes separated by dots and" id="id" attributes="sepearated by" spaces></tag>`
 	- `a[href=#][data-b=b]`→`<a href="#][data-b=b"></a>`
 2. 不支持HTML标签： `<h1>1</h1>`→`<h1><h1></h1></h1>`
@@ -36,7 +36,7 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 	- `ul>.{a}`→`<ul>a</ul>`
 7. 行尾的`}`和`)`和同级标签间的`+`可省略（不推荐），但`]`和`[`之间的`+`不可省略
 8. 支持多行注释(`{ ... }*`)
-9. 不包含空格的属性值可省略引号，会自动添加双引号，单引号会被保留 ex: `A comment img[src='1.webp' alt="foo bar" width=300](hr`→`<img src='1.webp' alt="foo bar" width="300"><hr>`
+9. 不包含空格的属性值可省略引号，会自动添加双引号，单引号会被保留 ex: `A comment img[src='1.avif' alt="foo bar" width=300](hr`→`<img src='1.avif' alt="foo bar" width="300"><hr>`
 10. 支持属性中包含`[`和`]`（若属性值包含空白字符或不成对的括号，需要加上双引号），如:
 	- `a[data-a=[[] data-b=[]]]{foo{1}}b[data-a=[] data-b=[]]{bar{2}`→`<a data-a="[[]" data-b="[]]">foo{1}</a><b data-a="[]" data-b="[]">bar{2</b>`
 	- `a[data-a=[ data-b=]]+b[data-a=] data-b=[]`→`<a data-a="[" data-b="]"></a><b data-a="]" data-b="["></b>`

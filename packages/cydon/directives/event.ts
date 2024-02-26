@@ -5,6 +5,7 @@ import { toFunction } from '../util'
 export const boundElements = new Map<string, WeakSet<Node>>()
 /** context of event handler */
 export const context = Symbol()
+/** event handlers by event type */
 const handlers = new Map<string, symbol>()
 
 type D = Directive | void

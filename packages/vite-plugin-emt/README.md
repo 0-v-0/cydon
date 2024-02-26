@@ -86,14 +86,12 @@ input:
 	p 6
 	max-w sm
 	mx auto
-	bg white
-	rounded xl
 	shadow lg
 	space x 4
 ```
 output:
 ```html
-<div class="flex items-center p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg space-x-4"></div>
+<div class="flex items-center p-6 max-w-sm mx-auto shadow-lg space-x-4"></div>
 ```
 
 `cssProps`中的属性当成内联样式处理

@@ -8,7 +8,7 @@ s-table[per-page=5]
 
 s-table.emt
 ```stylus
-template[shadowroot=open]
+template[shadowrootmode=open]
 	style[lang=styl]{
 		.wrapper
 			margin 1em

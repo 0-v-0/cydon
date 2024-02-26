@@ -1,4 +1,4 @@
-template[shadowroot=open]
+template[shadowrootmode=open]
 	style{
 		a
 			margin-left var(--card-link-left-margin, 1.25rem)

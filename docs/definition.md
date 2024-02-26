@@ -99,7 +99,7 @@ import MyCounter from './my-counter'
 ## 局部样式
 利用原生Shadow DOM实现样式隔离
 ```stylus
-template[shadowroot=open]
+template[shadowrootmode=open]
   style{
     /* … */
   }
@@ -110,7 +110,7 @@ template[shadowroot=open]
 
 my-counter.emt
 ```stylus
-template[shadowroot=open]
+template[shadowrootmode=open]
 		{$value}
 		slot[name=increase]
 			button[@click=value++]{+1}

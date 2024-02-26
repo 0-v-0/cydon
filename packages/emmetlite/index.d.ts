@@ -11,13 +11,13 @@ export type StringMap = {
 	[x: string]: string
 }
 
-export type TagProcFunc = (prop: TagProp) => boolean | void
+export type TagProcess = (prop: TagProp) => boolean | void
 
 export const itags: StringMap,
 	tabbr: StringMap,
 	aabbr: StringMap,
 	eabbr: StringMap,
-	tagProcs: TagProcFunc[]
+	tagProcs: TagProcess[]
 
 const emmet: (input: string, intent?: string) => string
 export default emmet
