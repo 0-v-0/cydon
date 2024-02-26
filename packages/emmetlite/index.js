@@ -1,4 +1,4 @@
-/* emmetLite v0.0.2 */
+/* emmetLite v0.0.5 */
 
 export const itags = {// default elements
 	audio: 'source',
@@ -217,8 +217,10 @@ function zencode(input) {
 		return ''
 	}
 	input = input.replace(/<!--.*?-->/gs, '')
-	let tokens = [], buffer, tagList = [], groups = [], lastGroup = [], result = [],
-		c, l = 0, i = 0, len = input.length, g = 0, n = 0
+	let tokens = [], buffer, tagList = [],
+		groups = [], lastGroup = [], result = [],
+		c, l = 0, i = 0, len = input.length,
+		g = 0, n = 0, bracketAsToken = 1
 	for (; i < len; i++) {
 		c = input[i]
 		switch (c) {
@@ -230,12 +232,17 @@ function zencode(input) {
 				if (l < 1)
 					l--
 				break
+			case ' ':
+			case ':':
+				bracketAsToken = 0
+				break
 			case '+':
 			case '>':
 			case '^':
+				bracketAsToken = 1
 			case '(':
 			case ')':
-				if (!l) {
+				if (!l && bracketAsToken) {
 					if (g < n)
 						tokens.push(input.slice(g, n))
 					g = n + 1
