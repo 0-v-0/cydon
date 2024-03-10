@@ -1,5 +1,5 @@
 /*
- * Cydon v0.1.6
+ * Cydon v0.1.9
  * https://github.com/0-v-0/cydon
  */
 
@@ -86,7 +86,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		/**
 		 * directives
 		 */
-		$directives: typeof d = []
+		$directives = d
 
 		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
@@ -170,7 +170,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		mount(container: Container = <any>this) {
 			const results: Results = []
-			compile(results, container, this.$directives.concat(d))
+			compile(results, container, this.$directives)
 			this.bind(results, container)
 		}
 

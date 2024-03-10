@@ -4,7 +4,7 @@ import { define } from 'cydon'
 export const copyNode = (node: Element) => navigator.clipboard.writeText(node.textContent || '')
 export const copyText = (text: string) => navigator.clipboard.writeText(text)
 
-async function copy(button: HTMLElement) {
+async function copy(button: Element) {
 	const id = button.getAttribute('for')
 	const text = button.getAttribute('value'),
 		trigger = () =>
@@ -25,12 +25,12 @@ async function copy(button: HTMLElement) {
 	}
 }
 
-function copyTarget(content: Element) {
-	if (content instanceof HTMLInputElement || content instanceof HTMLTextAreaElement)
-		return copyText(content.value)
-	if (content instanceof HTMLAnchorElement && content.href)
-		return copyText(content.href)
-	return copyNode(content)
+function copyTarget(el: Element) {
+	if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)
+		return copyText(el.value)
+	if (el instanceof HTMLAnchorElement && el.href)
+		return copyText(el.href)
+	return copyNode(el)
 }
 
 function keydown(event: KeyboardEvent) {
@@ -49,7 +49,7 @@ export class ClipboardCopy extends HTMLElement {
 		super()
 		this.addEventListener('click', event => {
 			const button = event.currentTarget
-			if (button instanceof HTMLElement)
+			if (button instanceof Element)
 				copy(button)
 		})
 		this.addEventListener('focus', event =>
@@ -58,7 +58,7 @@ export class ClipboardCopy extends HTMLElement {
 			(<HTMLElement>event.currentTarget).removeEventListener('keydown', keydown))
 	}
 
-	connectedCallback(): void {
+	connectedCallback() {
 		if (this.tabIndex < 0)
 			this.tabIndex = 0
 
@@ -66,7 +66,7 @@ export class ClipboardCopy extends HTMLElement {
 			this.setAttribute('role', 'button')
 	}
 
-	get value(): string {
+	get value() {
 		return this.getAttribute('value') || ''
 	}
 

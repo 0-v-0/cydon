@@ -1,4 +1,4 @@
-export type Status = 'pending' | 'loaded' | 'error'
+export type Status = '' | 'pending' | 'loaded' | 'error'
 
 export const observer = new IntersectionObserver(
 	entries => {
@@ -30,18 +30,20 @@ export class AsyncLoad extends HTMLElement {
 	#loader?: () => any
 	#slots
 
-	get status(): Status {
+	get status() {
 		return this.#status
 	}
-	set status(val: string) {
-		console.assert(val == 'pending' || val == 'loaded' || val == 'error')
-		this.#status = <Status>val
+	set status(val: Status) {
 		if (val == 'pending') {
 			val = ''
-			observer.observe(this)
 		}
-		for (const slot of this.#slots)
+		console.assert(val == '' || val == 'loaded' || val == 'error')
+		this.#status = val
+		if (!val)
+			observer.observe(this)
+		for (const slot of this.#slots) {
 			slot.style.display = slot.name == val ? '' : 'none'
+		}
 	}
 
 	get lazy() { return this.hasAttribute('lazy') }
@@ -90,6 +92,12 @@ export class AsyncLoad extends HTMLElement {
 			this.status = 'error'
 			throw e
 		}
+	}
+
+	retry(e: Event) {
+		e.preventDefault()
+		if (this.status == 'error')
+			this.status = 'pending'
 	}
 
 	createFunc(code: string): () => any {

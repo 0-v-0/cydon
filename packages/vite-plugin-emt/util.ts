@@ -1,5 +1,5 @@
 import MagicString from 'magic-string'
-import { posix } from 'path'
+import { basename, posix } from 'path'
 import colors from 'picocolors'
 import { RenderOptions, render } from 'stylus'
 import { EsbuildTransformOptions, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
@@ -42,8 +42,11 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
 	name: 'inline-ts',
 	transform(code, id) {
-		if (id.includes('html-proxy&') && id.endsWith('.js'))
-			return transformWithEsbuild(code, id.slice(0, -3) + '.ts', options)
+		if (id.includes('html-proxy&') && id.endsWith('.js')) {
+			// TODO: support tsconfig.json
+			return transformWithEsbuild(code,
+				basename(id.replace(/\?.+/, '')) + '.ts', options)
+		}
 		return
 	}
 })
