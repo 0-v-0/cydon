@@ -1,66 +1,22 @@
 # Cydon
+
+[![npm-v](https://img.shields.io/npm/v/cydon.svg)](https://npmjs.com/package/cydon)
+[![npm-d](https://img.shields.io/npm/dt/cydon.svg)](https://npmjs.com/package/cydon)
+[![brotli](http://img.badgesize.io/https://unpkg.com/cydon/dist/cydon.iife.js?compression=brotli&label=brotli)](https://bundlephobia.com/result?p=cydon)
+
 A lightweight library for building fast, reactive web components.
 
-## 特点
-- 轻量级：~3kB minified & brotli'd
-- 采用模板语法，所见即所得
-- 低内存占用
-- 组件即元素：无虚拟DOM
-- 不错的性能
+## Features
+- No dependencies
+- No virtual DOM, components are just DOM elements
+- Performant and ultra-lightweight: ~3kB minified & brotli'd
+- Intuitive and WYSIWYG: use HTML-based template syntax
+- Simple: only provide minimalistic API required to implement reactivity of web components
 
-# Usage
-
-## basic
+## Preview
+HTML:
 ```html
-<div class="card">$msg</div>
-<div class="$css_class">$msg</div>
-<script type="module">
-    import { Cydon } from 'cydon'
-
-    const app = new Cydon({
-        msg: 'Hello world',
-        css_class: 'bold red'
-    })
-    app.mount(document.body)
-    const { data } = app
-    data.msg = 'foo'
-    data.css_class = 'bar'
-</script>
-```
-
-## a simple counter
-
-index.emt:
-```styl
-my-counter[value=1]
-```
-
-my-counter.emt:
-```styl
-template[shadowrootmode=open]
-	style[lang=styl]{
-		button
-			padding 0.3em
-		.wrapper
-			display flex
-			align-items center
-	}
-	.wrapper
-		{$value}
-        button[@click=value++]{+1}
-        button[@click=value--]{-1}
-script[type=module]{
-	import { CydonElement, define } from 'cydon'
-
-	@define('my-counter')
-	class MyCounter extends CydonElement {
-		value = +this.getAttribute('value')!
-	}
-}
-```
-equivalent HTML:
-```html
-<my-counter value="1">
+<my-pagination page="1">
     <template shadowrootmode="open">
         <style>
             button {
@@ -71,14 +27,57 @@ equivalent HTML:
                 align-items: center;
             }
         </style>
-        <div class="wrapper">
-            $value
-            <button @click="value++">+1</button>
-            <button @click="value--">-1</button>
+        <!-- Watch callback -->
+        <div class="wrapper" :="console.log('page No. is', page)">
+            <!-- Event binding -->
+            <button @click="page--">Prev</button>
+            <!-- Two-way binding -->
+            <select c-model="perPage" title="items per page">
+                <template c-for="n; perPages">
+                    <!-- DOM prop binding, attr binding and text interpolation -->
+                    <option .selected="perPage == n" value="$n">$n</option>
+                </template>
+            </select>
+            <span>
+                per page
+                <!-- text interpolation using expressions -->
+                ${(page-1)*perPage+!!total}-${Math.min(page*perPage,total)} / $total
+            </span>
+            <button @click="page++">Next</button>
         </div>
     </template>
-    <script type="module">
-        /* ... */
-    </script>
-</my-counter>
+</my-pagination>
 ```
+TypeScript:
+```ts
+import { CydonElement, define } from 'cydon'
+
+@define('my-pagination')
+export class MyPagination extends CydonElement {
+	static observedAttributes = ['page']
+
+	perPages = [5, 10, 20, 50]
+	perPage = 10
+	page = 1
+	total = 42
+
+	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
+		if (name == 'page')
+			this.page = +newVal
+	}
+}
+```
+
+## Directives
+- Builtin directives: `c-for`, `ref`, etc.
+- Extra directives: `c-model`, `c-if`, `c-show`, `c-cloak`, `c-tp`
+- Event Modifiers: `.once`, `.passive`, `.capture`, `.away`
+- Custom directives, including global and local directives
+
+## Documentation
+https://0-v-0.github.io/cydon/
+
+
+## Examples
+- [ToDo MVC](https://github.com/0-v-0/cydon/blob/main/packages/examples/todo-mvc.html)
+- [JS Framework Benchmark](https://github.com/krausest/js-framework-benchmark/tree/master/frameworks/non-keyed/cydon)
