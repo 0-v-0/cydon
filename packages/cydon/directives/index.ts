@@ -6,11 +6,12 @@ import event from './event'
 type Context = Cydon & Data
 type D = Directive | void
 
-export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [value, key, index]: string[]) {
+export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & { e?: string[] }) {
 	if (import.meta.env.DEV && el.tagName != 'TEMPLATE') {
 		console.warn('c-for can only be used on <template> element')
 		return
 	}
+	const [value, key, index] = results.e!
 	const data = cydon.$data
 	let arr = data[value]
 	if (!Array.isArray(arr)) {
@@ -81,7 +82,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results, [v
 	const handler: ProxyHandler<any> = {
 		get: (obj, p) => typeof p == 'string' && +p == <any>p &&
 			ctxs[<any>p]?.[key] || obj[p],
-		set: (obj, p, val) => {
+		set(obj, p, val) {
 			if (p == 'length')
 				setCapacity(obj.length = +val)
 			else {

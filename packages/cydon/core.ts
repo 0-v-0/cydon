@@ -28,6 +28,7 @@ function update({ a, n: node, x: data, f }: Target) {
 	}
 }
 
+/** data proxies */
 const proxies = new WeakMap<Dep | Data, Handler>()
 
 export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
@@ -35,7 +36,7 @@ export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 	if (!proxy) {
 		proxy = {
 			get: (obj, key: string) => obj[key],
-			set: (obj, key: string, val, receiver) => {
+			set(obj, key: string, val, receiver) {
 				const hasOwn = Object.hasOwn(obj, key)
 				if (hasOwn && val === obj[key])
 					return true
@@ -109,7 +110,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 							this.bind(result, shadow)
 						} else {
 							const p = node.parentNode!
-							for_(this, <HTMLTemplateElement>node, result, result.e!)
+							for_(this, <HTMLTemplateElement>node, result)
 							node = p
 							n = stack.pop()!
 							l--
@@ -151,7 +152,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 				proxy = proxies.get(deps)
 				if (!proxy)
 					proxies.set(deps, proxy = {
-						get: (obj, key, receiver) => {
+						get(obj, key, receiver) {
 							if (typeof key == 'string')
 								deps.add(key)
 							return Reflect.get(obj, key, receiver)

@@ -87,7 +87,7 @@ export function compile(results: Results, el: Container,
 		r.s = s
 		results.push(i, result = r)
 	}
-	let node: Node | null = el.firstChild
+	let node = el.firstChild
 	if (node && !result)
 		results.push(i)
 	i += 1 << N

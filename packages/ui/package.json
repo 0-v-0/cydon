@@ -1,7 +1,7 @@
 {
   "name": "@cydon/ui",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.1.9",
   "description": "UI component library for Cydon",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "stylelint-stylus": "^1.0.0",
     "stylus": "^0.62.0",
     "terser": "^5.29.1",
-    "typedoc": "^0.25.11",
+    "typedoc": "^0.25.12",
     "unocss": "^0.58.5",
     "vite": "^5.1.5",
     "vite-plugin-emt": "workspace:*",
