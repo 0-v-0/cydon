@@ -37,7 +37,7 @@
     "terser": "^5.29.2",
     "typedoc": "^0.25.12",
     "unocss": "^0.58.6",
-    "vite": "^5.2.2",
+    "vite": "^5.2.6",
     "vite-plugin-emt": "workspace:*",
     "vite-plugin-inspect": "^0.8.3",
     "vite-plugin-progress": "^0.0.7"
