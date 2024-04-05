@@ -16,7 +16,7 @@
 		"cydon"
 	],
 	"homepage": "https://github.com/0-v-0/cydon#readme",
-	"packageManager": "pnpm@8.15.4",
+	"packageManager": "pnpm@8.15.6",
 	"scripts": {
 		"build": "vite build && tsup index.ts --format esm --dts-only"
 	},

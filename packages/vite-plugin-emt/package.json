@@ -23,10 +23,10 @@
 	"dependencies": {
 		"emmetlite": "workspace:*",
 		"known-css-properties": "^0.29.0",
-		"magic-string": "^0.30.8",
+		"magic-string": "^0.30.9",
 		"picocolors": "^1.0.0",
 		"stylus": "^0.62.0",
-		"vite": "^5.2.6"
+		"vite": "^5.2.8"
 	},
 	"peerDependencies": {
 		"vite": "^5.1.4"
