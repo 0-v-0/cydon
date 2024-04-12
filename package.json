@@ -5,9 +5,9 @@
 	"version": "0.1.9",
 	"devDependencies": {
 		"tsup": "^8.0.2",
-		"typescript": "^5.4.4",
+		"typescript": "^5.4.5",
 		"vite": "^5.2.8",
-		"vitest": "^1.4.0"
+		"vitest": "^1.5.0"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
