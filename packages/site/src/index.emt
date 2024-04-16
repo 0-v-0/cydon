@@ -1,0 +1,48 @@
+title{Cydon | 基于Web Components的轻量级MVVM库}*
+.hero.bg-base-200
+	.hero-content.flex-col.lg:flex-row
+		img.rounded-lg.shadow-2xl.mr-8[src="./img/example.svg" title="code example"]
+		div
+			h1.text-5xl.font-bold{Cydon}
+			p.text-lg.py-6{基于Web Components的轻量级MVVM库}
+			a.btn.btn-primary[href=./docs.html]{学习Cydon}
+				text-transform none
+section
+	.box
+		.flex.justify-center
+			strong{轻量级}
+		.icon{🚀}
+		p{核心代码不到600行，Brotli压缩后仅3KB}
+	.box
+		.flex.justify-center
+			strong{无虚拟DOM}
+		.icon{🔩}
+		p{在原生Web Components上构建，无虚拟DOM，调试时不需要安装特定Devtools扩展}
+	.box
+		.flex.justify-center
+			strong{无需编译}
+		.icon{🔌}
+		p{开箱即用，无需编译，基于Proxy实现响应式，可动态追踪属性变更，更加灵活}
+section
+	.box
+		.flex.justify-center
+			strong{动静分离}
+		.icon{🏹}
+		p{DOM结构与逻辑分离，更易维护}
+	.box
+		.flex.justify-center
+			strong{易于上手}
+		.icon{🔧}
+		p{API设计简单，无需学习新的语法，只需了解Web Components即可}
+	.box
+		.flex.justify-center
+			strong{渐进式加载}
+		.icon{🧰}
+		p{内置指令支持按需加载，无需一次性加载所有指令及修饰符}
+section
+	.w-100.p-8
+		p{Cydon使用一种全新的方法来构建Web应用程序，它不依赖于虚拟DOM，而是在绑定阶段将所有DOM可变部分收集起来，维护一个变量名到DOM可变部分的关系，并采用异步更新的方法更新DOM。}
+		p{与使用虚拟（virtual）DOM 差异对比不同，在更新DOM时，由于在绑定阶段已经收集了可变部分，因而无需遍历(v)DOM树，只需按顺序更新变化的部分即可，这使得Cydon在性能和体积上都有很大的优势。}
+	.mockup-code
+		pre[data-prefix="&#36;"]
+			code{pnpm i cydon}

@@ -2,5 +2,6 @@ coverage
 dist
 node_modules
 *.log
+*.map
 custom-elements.json
-benchmarks/css
+packages/site/src/index.html

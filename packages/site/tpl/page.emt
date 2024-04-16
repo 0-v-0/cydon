@@ -1,0 +1,16 @@
+!
+html[l=zh]
+	head
+		meta[charset=utf-8]
+		meta[name=viewport content="width=device-width,initial-scale=1.0"]
+		meta[name=keywords content=cydon,MVVM]
+		meta[name=description content="Cydon，基于Web Components的轻量级MVVM库"]
+		meta[property=og:title content=$doc_title]
+		meta[property=og:description content="Cydon，基于Web Components的轻量级MVVM库"]
+		meta[property=og:type content=website]
+		meta[property=og:site_name content=Cydon]
+		title{$doc_title}
+		link:css[href=./main.styl]
+	.
+		{${include(REQUEST_PATH)}}
+		script[type=module src=./app.ts]
