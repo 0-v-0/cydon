@@ -14,7 +14,6 @@
   "bugs": {
     "url": "https://github.com/0-v-0/cydon/issues"
   },
-  "packageManager": "pnpm@9.0.0",
   "browserslist": [
     "last 4 version",
     "Chrome >= 93",
@@ -25,21 +24,21 @@
     "@custom-elements-manifest/analyzer": "^0.9.4",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.11",
-    "@unocss/transformer-directives": "^0.59.3",
+    "@unocss/transformer-directives": "^0.59.4",
     "@vitest/browser": "^1.5.0",
     "autoprefixer": "^10.4.19",
     "clean-css": "^5.3.3",
     "playwright": "^1.43.1",
     "postcss": "^8.4.38",
-    "stylelint": "^16.3.1",
+    "stylelint": "^16.4.0",
     "stylelint-stylus": "^1.0.0",
     "stylus": "^0.62.0",
-    "terser": "^5.30.3",
+    "terser": "^5.30.4",
     "typedoc": "^0.25.13",
-    "unocss": "^0.59.3",
-    "vite": "^5.2.9",
+    "unocss": "^0.59.4",
+    "vite": "^5.2.10",
     "vite-plugin-emt": "workspace:*",
-    "vite-plugin-inspect": "^0.8.3",
+    "vite-plugin-inspect": "^0.8.4",
     "vite-plugin-progress": "^0.0.7"
   },
   "dependencies": {

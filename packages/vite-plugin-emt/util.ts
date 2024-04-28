@@ -21,6 +21,7 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 	const literal = options?.literal ?? 'styl'
 	return {
 		name: 'inline-stylus',
+		enforce: 'pre',
 		transformIndexHtml: html =>
 			html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
 				(_, a, b, s) => a + b + render(s, options!)),
@@ -32,6 +33,11 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 					code: ms.replace(new RegExp('\\b' + literal + '\\s*`(.*?)(?<!\\\\)`', 'gs'),
 						(_, s) => '`' + render(s, options!) + '`').toString(),
 					map: ms.generateMap({ source: id })
+				}
+			}
+			if (id.includes('&direct') && id.endsWith('.css')) {
+				return {
+					code: render(code, options!)
 				}
 			}
 			return

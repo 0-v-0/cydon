@@ -1,5 +1,8 @@
 # emmetlite
 
+[![npm-v](https://img.shields.io/npm/v/emmetlite.svg)](https://npmjs.com/package/emmetlite)
+[![npm-d](https://img.shields.io/npm/dt/emmetlite.svg)](https://npmjs.com/package/emmetlite)
+
 Emmet implementation in javascript
 一个轻量级的emmet实现
 
