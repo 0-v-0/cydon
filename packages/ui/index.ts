@@ -1,7 +1,4 @@
-export * from './components'
 export * from './util'
-
-export const load = (name: string) => import(`./components/${name}.ts`)
 
 function walk(el: ParentNode, callback: (shadow: ShadowRoot) => void) {
 	const shadowRoot = (<Element>el).shadowRoot
@@ -11,6 +8,8 @@ function walk(el: ParentNode, callback: (shadow: ShadowRoot) => void) {
 		walk(child, callback)
 }
 
+export type Loader = (name: string) => Promise<any>
+
 /**
  * Auto load custom elements
  * @param node The root node to search for custom elements to load
@@ -19,7 +18,7 @@ function walk(el: ParentNode, callback: (shadow: ShadowRoot) => void) {
  * @param listen Whether or not to listen for import-html events
  * @returns A promise that resolves when all custom elements are loaded
  */
-export function autoload(node: ParentNode, loader = load, shadow = true, listen = true) {
+export function autoload(node: ParentNode, loader: Loader, shadow = true, listen = true) {
 	const results: Promise<any>[] = []
 	!<undefined>function walkAndLoad(node: ParentNode) {
 		for (const child of node.children)

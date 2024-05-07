@@ -30,7 +30,7 @@
 		"vite-plugin-emt": "workspace:*",
 		"vite-plugin-inspect": "^0.8.4",
 		"vite-plugin-minify": "^1.5.2",
-		"vitest": "^1.5.3"
+		"vitest": "^1.6.0"
 	},
 	"dependencies": {
 		"cydon": "workspace:*"
