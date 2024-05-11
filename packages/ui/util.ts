@@ -12,12 +12,10 @@ export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).
 
 	onDOMContentLoaded = (callback: (ev?: Event) => any) => {
 		if (document.readyState == 'loading')
-			document.addEventListener('DOMContentLoaded', callback)
+			addEventListener('DOMContentLoaded', callback)
 		else
 			callback()
-	},
-
-	isRTL = (e = document.documentElement) => e.dir == 'rtl'
+	}
 
 export const isTargetElement = (node: Node, name: string) =>
 	node.nodeType == 1 /* Node.ELEMENT_NODE */ && (<Element>node).localName == name

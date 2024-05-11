@@ -7,7 +7,7 @@ import directives from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
 import { presetDaisy } from 'unocss-preset-daisy'
 
-function useCredentials() {
+function removeCrossorigin() {
 	return {
 		name: 'remove crossorigin',
 		transformIndexHtml(html: string) {
@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => {
 				directives({ varStyle: false })
 			]
 		}),
-		useCredentials()
+		removeCrossorigin()
 	]
 	plugins.push(dev ? Inspect() : minify({
 		removeAttributeQuotes: true

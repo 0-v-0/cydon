@@ -89,7 +89,6 @@ export const itags = {// default elements
 		ak: 'accesskey',
 		autocap: 'autocapitalize',
 		ce: 'contenteditable',
-		d: 'dir',
 		dr: 'draggable',
 		dz: 'dropzone',
 		n: 'name',

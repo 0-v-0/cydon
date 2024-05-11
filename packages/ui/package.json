@@ -21,7 +21,7 @@
     "not dead"
   ],
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.9.8",
+    "@custom-elements-manifest/analyzer": "^0.10.2",
     "@cydon/stylelint-config": "workspace:^",
     "@types/clean-css": "^4.2.11",
     "@unocss/transformer-directives": "^0.59.4",
