@@ -56,13 +56,18 @@ if (!messageContent) {
 }
 
 const create = () => {
+	let msg
 	for (const c of messageContent.children) {
-		const msg = <Message>c;
-		msg.timer && clearTimeout(msg.timer)
-		if (msg.open === false)
-			return msg
+		const m = <Message>c;
+		if (!m.open) {
+			msg = m
+			break
+		}
 	}
-	return messageContent.appendChild(new Message)
+	if (!msg)
+		msg = messageContent.appendChild(new Message)
+	msg.open = true
+	return msg
 }
 
 export const
@@ -71,7 +76,6 @@ export const
 		msg.type = 'info'
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
@@ -82,7 +86,6 @@ export const
 		msg.type = 'success'
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
@@ -93,7 +96,6 @@ export const
 		msg.type = 'error'
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
@@ -104,7 +106,6 @@ export const
 		msg.type = 'warning'
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
@@ -115,7 +116,6 @@ export const
 		msg.type = 'loading'
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
@@ -125,7 +125,6 @@ export const
 		const msg = create()
 		msg.textContent = text
 		msg.clientWidth
-		msg.open = true
 		if (duration >= 0)
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
