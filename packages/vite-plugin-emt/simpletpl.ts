@@ -4,7 +4,7 @@ export type Data = Record<string, any>
 
 export type Render = (str: string, data?: Data, maxDepth?: number) => string
 
-export let appdata: Data[] = []
+let appdata: Data[] = []
 
 const flatten = (obj: any[]) => obj.length && obj.join ? '\0' + obj.join('\0')
 	: Object.getOwnPropertyNames(obj).join('\0')

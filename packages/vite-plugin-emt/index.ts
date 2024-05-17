@@ -129,40 +129,40 @@ export default (config: Option = {}): Plugin => {
 		}
 	})
 	const used = templated ? new Set<string>() : null
+	const titles: TitleCache = {}
+	async function getData(url: string, path: string) {
+		const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
+			time = (await fs.stat(path)).mtime.getTime()
+		if (url in titles && time == titles[url].time)
+			data.doc_title = titles[url].title
+		else {
+			const rl = readline.createInterface({
+				input: createReadStream(path),
+				crlfDelay: Infinity
+			})
+			rl.on('line', line => {
+				line = line.trimStart()
+				if (line.startsWith('title')) {
+					line = line.substring(5).trimStart()
+					if (line[0] == '{') {
+						let a: string[] | null
+						if ((a = /\{(.*)}\*/.exec(line))) {
+							data.doc_title = a[1]
+							titles[url] = { title: a[1], time }
+							rl.close()
+						}
+					}
+				}
+			})
+			await events.once(rl, 'close')
+		}
+		return data
+	}
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
 		configureServer(server: ViteDevServer) {
 			root = res(root || server.config.root)
-			const titles: TitleCache = {}
-			async function getData(url: string, path: string) {
-				const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
-					time = (await fs.stat(path)).mtime.getTime()
-				if (url in titles && time == titles[url].time)
-					data.doc_title = titles[url].title
-				else {
-					const rl = readline.createInterface({
-						input: createReadStream(path),
-						crlfDelay: Infinity
-					})
-					rl.on('line', line => {
-						line = line.trimStart()
-						if (line.startsWith('title')) {
-							line = line.substring(5).trimStart()
-							if (line[0] == '{') {
-								let a: string[] | null
-								if ((a = /\{(.*)}\*/.exec(line))) {
-									data.doc_title = a[1]
-									titles[url] = { title: a[1], time }
-									rl.close()
-								}
-							}
-						}
-					})
-					await events.once(rl, 'close')
-				}
-				return data
-			}
 			server.middlewares.use(async (req, res, next) => {
 				// if not emt, next it
 				const url = req.originalUrl?.substring(1) || 'index.emt'
@@ -186,7 +186,7 @@ export default (config: Option = {}): Plugin => {
 		},
 		handleHotUpdate({ file, server }) {
 			if (file.endsWith('.emt')) {
-				server.ws.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
+				server.hot.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
 				log(server, file)
 				return []
 			}
