@@ -1,5 +1,5 @@
 import { define } from 'cydon'
-import { ListElement } from '../ui'
+import { ListElement } from '../ui/components'
 
 declare global {
 	interface HTMLElementTagNameMap {
@@ -9,7 +9,7 @@ declare global {
 
 @define('s-table')
 export class STable extends ListElement<{}> {
-	keys!: { toString(): string }[]
+	keys!: string[]
 
 	connectedCallback() {
 		this.list = [
@@ -110,7 +110,7 @@ export class STable extends ListElement<{}> {
 				iron: '6%',
 			},
 		]
-		this.keys = Object.keys(this.list[0]).map(x => ({ toString: () => x }))
+		this.keys = Object.keys(this.list[0])
 		super.connectedCallback()
 	}
 }
