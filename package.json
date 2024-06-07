@@ -3,14 +3,14 @@
 	"private": true,
 	"version": "0.1.9",
 	"devDependencies": {
-		"tsup": "^8.0.2",
+		"tsup": "^8.1.0",
 		"typescript": "^5.4.5",
-		"vite": "^5.2.11",
+		"vite": "^5.2.13",
 		"vitest": "^1.6.0"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
-		"update-deps": "pnpm update&&cd ./packages/examples&&pnpm update&&cd ../stylelint-config&&pnpm update&&cd ../sw&&pnpm update&&cd ../ui&&pnpm update&&cd ../vite-plugin-emt&&pnpm update"
+		"update-deps": "pnpx taze -Ir"
 	},
 	"type": "module"
 }
