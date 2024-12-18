@@ -3,11 +3,11 @@ import { basename, resolve as res } from 'path'
 import readline from 'readline'
 import events from 'events'
 import MagicString from 'magic-string'
-import { createReadStream, existsSync, promises as fs, readFileSync, writeFile } from 'fs'
+import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
 import { Plugin, ViteDevServer } from 'vite'
 import { Data, Render, render } from './simpletpl'
 import { all } from 'known-css-properties'
-import { logger } from './util'
+import { logger, transformStylusHtml } from './util'
 
 export * from 'emmetlite'
 export * from './simpletpl'
@@ -175,9 +175,19 @@ export default (config: Option = {}): Plugin => {
 
 				used?.clear()
 				const data = await getData(url, path)
-				const content = rend(include('doc_title' in data ? tplFile : path), data)
-				if (writeHtml)
-					writeFile(data.DOCUMENT_ROOT + '/' + basename(url, '.emt') + '.html', content, _ => { })
+				let content = rend(include('doc_title' in data ? tplFile : path), data)
+				content = transformStylusHtml()(content)
+				if (writeHtml) {
+					(async () => {
+						const output = data.DOCUMENT_ROOT + '/' + basename(url, '.emt') + '.html'
+						let old
+						try {
+							old = await fs.readFile(output, 'utf8')
+						} catch { }
+						if (old != content)
+							fs.writeFile(output, content)
+					})()
+				}
 				res.setHeader('Content-Type', 'text/html; charset=utf-8')
 				res.end('doc_title' in data ?
 					await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl) :

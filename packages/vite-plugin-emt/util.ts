@@ -2,7 +2,7 @@ import MagicString from 'magic-string'
 import { basename, posix } from 'path'
 import colors from 'picocolors'
 import { RenderOptions, render } from 'stylus'
-import { EsbuildTransformOptions, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
+import { EsbuildTransformOptions as EsbuildOpt, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
 
 // https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
 const getShortName = (file: string, root: string) =>
@@ -22,9 +22,7 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 	return {
 		name: 'inline-stylus',
 		enforce: 'pre',
-		transformIndexHtml: html =>
-			html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
-				(_, a, b, s) => a + b + render(s, options!)),
+		transformIndexHtml: transformStylusHtml(options),
 		// parse styl`...`
 		transform(code, id) {
 			if (literal && (id.endsWith('.js') || id.endsWith('.ts'))) {
@@ -45,7 +43,7 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 	}
 }
 
-export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
+export const inlineTS = (options?: EsbuildOpt): Plugin => ({
 	name: 'inline-ts',
 	transform(code, id) {
 		if (id.includes('html-proxy&') && id.endsWith('.js')) {
@@ -56,3 +54,8 @@ export const inlineTS = (options?: EsbuildTransformOptions): Plugin => ({
 		return
 	}
 })
+
+export function transformStylusHtml(options?: StylusOption): ((input: string) => string) {
+	return html => html.replace(/(<style[^>]*)\slang=(?:"styl"|'styl')([^>]*?>)(.*?)(?=<\/style>)/gs,
+		(_, a, b, s) => a + b + render(s, options!))
+}
