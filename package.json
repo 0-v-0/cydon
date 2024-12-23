@@ -5,12 +5,12 @@
 	"devDependencies": {
 		"tsup": "^8.3.5",
 		"typescript": "^5.7.2",
-		"vite": "^6.0.3",
+		"vite": "^6.0.5",
 		"vitest": "^2.1.8"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
-		"update-deps": "pnpx taze -Ir"
+		"update-deps": "pnpx taze -i -r -w"
 	},
 	"type": "module"
 }
