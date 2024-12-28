@@ -13,7 +13,7 @@ export * from 'emmetlite'
 export * from './simpletpl'
 export * from './util'
 export type { Plugin }
-export type Preprocessor = (s: TemplateStringsArray) => string
+export type Preprocessor = (s: TemplateStringsArray, ...args: any[]) => string
 
 type TitleCache = Record<string, {
 	title: string,
@@ -80,9 +80,9 @@ export default (config: Option = {}): Plugin => {
 			}
 		})
 	}
-	const resolve = (p: string, base = root!, throwOnErr = false) => {
+	const resolve = (p: string, base = root, throwOnErr = false) => {
 		let i = p.indexOf('?')
-		p = res(process.cwd(), base, i < 0 ? p : p.substring(0, i))
+		p = res(process.cwd(), base || '.', i < 0 ? p : p.substring(0, i))
 		let fullPath = p
 		if (!existsSync(fullPath)) {
 			fullPath += '.emt'
