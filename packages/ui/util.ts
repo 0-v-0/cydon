@@ -10,18 +10,9 @@ export const isDisabled = (el: Element) => !el || el.nodeType != 1 || (<any>el).
 	,
 	reflow = (element: HTMLElement) => element.offsetHeight,
 
-	onDOMContentLoaded = (callback: (ev?: Event) => any) => {
+	onDOMContentLoaded = (callback: (ev?: Event) => void) => {
 		if (document.readyState == 'loading')
 			addEventListener('DOMContentLoaded', callback)
 		else
 			callback()
 	}
-
-export const isTargetElement = (node: Node, name: string) =>
-	node.nodeType == 1 /* Node.ELEMENT_NODE */ && (<Element>node).localName == name
-
-export const getSlotElementNodes = (slot: HTMLSlotElement) =>
-	slot.assignedNodes().filter(el => el.nodeType == 1 /* Node.ELEMENT_NODE */)
-
-export const querySlot = (el: Element, name: string) =>
-	el.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`)

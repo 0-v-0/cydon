@@ -16,9 +16,10 @@ function hashchange(oldURL = location.href) {
 		old.close()
 	if (target && !target.open) {
 		target.addEventListener('close', () => {
-			if (parse(location.hash) == target.id) {
+			const id = parse(location.hash)
+			if (id == target.id) {
 				history.back()
-				if (parse(location.hash) == parse(hash))
+				if (id == parse(hash))
 					location.hash = ''
 			}
 		}, { once: true })
@@ -28,11 +29,11 @@ function hashchange(oldURL = location.href) {
 
 document.addEventListener('click', (e: MouseEvent) => {
 	const el = <Element>e.target
-	if (el.tagName == 'DIALOG' && !el.hasAttribute('blocked')) {
+	if (el instanceof HTMLDialogElement && !el.hasAttribute('blocked')) {
 		const r = el.getBoundingClientRect()
 		if (e.x < r.left || e.x > r.right ||
 			e.y < r.top || e.y > r.bottom)
-			(<HTMLDialogElement>el).close()
+			el.close()
 	}
 })
 

@@ -1,62 +1,62 @@
 {
-  "name": "@cydon/ui",
-  "private": true,
-  "version": "0.1.9",
-  "description": "UI component library for Cydon",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/0-v-0/cydon",
-    "directory": "packages/ui"
-  },
-  "keywords": [
-    "cydon"
-  ],
-  "bugs": {
-    "url": "https://github.com/0-v-0/cydon/issues"
-  },
-  "browserslist": [
-    "last 4 version",
-    "Chrome >= 93",
-    "not opera > 0",
-    "not dead"
-  ],
-  "devDependenciyes": {
-    "@custom-elements-manifest/analyzer": "^0.10.3",
-    "@cydon/stylelint-config": "workspace:^",
-    "@types/clean-css": "^4.2.11",
-    "@unocss/transformer-directives": "^0.65.1",
-    "@vitest/browser": "^2.0.5",
-    "autoprefixer": "^10.4.20",
-    "clean-css": "^5.3.3",
-    "playwright": "^1.46.0",
-    "postcss": "^8.4.41",
-    "stylelint": "^16.11.0",
-    "stylelint-stylus": "^1.0.0",
-    "stylus": "^0.64.0",
-    "terser": "^5.36.0",
-    "typedoc": "^0.26.5",
-    "unocss": "^0.65.1",
-    "vite": "^6.0.0",
-    "vite-plugin-emt": "workspace:*",
-    "vite-plugin-inspect": "^0.8.5",
-    "vite-plugin-progress": "^0.0.7"
-  },
-  "dependencies": {
-    "cydon": "workspace:*"
-  },
-  "scripts": {
-    "analyze": "cem analyze --globs **/*.ts --fast",
-    "analyze:watch": "cem analyze --globs **/*.ts --fast --watch",
-    "build": "vite build",
-    "dev": "vite",
-    "fix": "stylelint src/*.styl --fix",
-    "lint": "pnpm lint:oxlint && stylelint src/*.styl",
-    "lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts",
-    "test": "pnpm vitest run"
-  },
-  "stylelint": {
-    "extends": "@cydon/stylelint-config"
-  },
-  "type": "module",
-  "customElements": "custom-elements.json"
+	"name": "@cydon/ui",
+	"private": true,
+	"version": "0.1.9",
+	"description": "UI component library for Cydon",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/ui"
+	},
+	"keywords": [
+		"cydon"
+	],
+	"bugs": {
+		"url": "https://github.com/0-v-0/cydon/issues"
+	},
+	"browserslist": [
+		"last 4 version",
+		"Chrome >= 93",
+		"not opera > 0",
+		"not dead"
+	],
+	"devDependencies": {
+		"@custom-elements-manifest/analyzer": "^0.10.4",
+		"@cydon/stylelint-config": "workspace:^",
+		"@types/clean-css": "^4.2.11",
+		"@unocss/transformer-directives": "^0.65.3",
+		"@vitest/browser": "^2.1.8",
+		"autoprefixer": "^10.4.20",
+		"clean-css": "^5.3.3",
+		"playwright": "^1.49.1",
+		"postcss": "^8.4.49",
+		"stylelint": "^16.12.0",
+		"stylelint-stylus": "^1.0.0",
+		"stylus": "^0.64.0",
+		"terser": "^5.37.0",
+		"typedoc": "^0.27.6",
+		"unocss": "^0.65.3",
+		"vite": "^6.0.7",
+		"vite-plugin-emt": "workspace:*",
+		"vite-plugin-inspect": "^0.10.6",
+		"vite-plugin-progress": "^0.0.7"
+	},
+	"dependencies": {
+		"cydon": "workspace:*"
+	},
+	"scripts": {
+		"analyze": "cem analyze --globs **/*.ts --fast",
+		"analyze:watch": "cem analyze --globs **/*.ts --fast --watch",
+		"build": "vite build",
+		"dev": "vite",
+		"fix": "stylelint src/*.styl --fix",
+		"lint": "pnpm lint:oxlint && stylelint src/*.styl",
+		"lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts",
+		"test": "pnpm vitest run"
+	},
+	"stylelint": {
+		"extends": "@cydon/stylelint-config"
+	},
+	"type": "module",
+	"customElements": "custom-elements.json"
 }
