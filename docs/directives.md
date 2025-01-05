@@ -1,5 +1,8 @@
 # 指令
 
+## 注意
+注册的指令数量越多，编译速度越慢，推荐按需注册自定义指令
+
 ## 内置指令
 
 注意：所有内置指令均不支持动态属性值
@@ -33,7 +36,7 @@
 获取原始 DOM 元素，并将对象保存到`$data`上
 
 ### c-for
-基于原始数据多次渲染子组件，只能用于template元素，该指令存在时会忽略其他指令
+基于原始数据多次渲染子组件，只能用于`<template>`，**该指令存在时会忽略其他指令**
 
 **期望的绑定值类型：**`object[]`
 
@@ -44,7 +47,7 @@
 当没有传入参数时，跳过该元素及其所有子元素的编译，所有模板语法都会被保留并按原样渲染
 
 ### c-tp
-将内部元素传送到目标元素中，只能用于template元素
+将内部元素传送到目标元素中，只能用于`<template>`
 
 值可以是类型为DOM元素对象的属性的名称或CSS选择器字符串
 
@@ -59,23 +62,23 @@
 - `.away`： 只有事件从元素外发出才触发处理函数
 - `.capture`： 在捕获模式添加事件监听器
 - `.once`： 最多触发一次处理函数
-- `.passive` - 通过 { passive: true } 附加一个 DOM 事件
+- `.passive` - 通过 `{ passive: true }` 附加一个 DOM 事件
 
 ### @$*event*
 动态事件名称绑定，与@*event*类似
 
 ### :
-用于执行内联响应式语句，在组件初始化时执行一次并追踪依赖，并依赖项更改时重新执行，类似petite-vue中的`v-effect`
+用于执行内联响应式语句，在组件初始化时执行一次并追踪依赖，并依赖项更改时重新执行，类似[petite-vue](https://github.com/vuejs/petite-vue)中的`v-effect`
 
-**e.g.** 实现`c-text`的功能：
+**e.g.** 实现与`<p c-text="msg"></p>`等效的功能：
 ```html
-<span :="$e.textContent = msg"></span>
+<p :="$e.textContent = msg"></p>
 ```
 
 ### :*attr*
-属性绑定，一般只用于class
+属性绑定，一般只用于class属性
 
-示例：`:class="a: cond1; b: cond2"`
+以`:class="a: cond1; b: cond2"`为例：
 - 当`cond1`,`cond2`为真：`class="a b"`
 - 当`cond1`为真：`class="a"`
 - 当`cond2`为真：`class="b"`
@@ -113,11 +116,11 @@ import { directives } from 'cydon'
 	directives.push(func)
 	```
 
-其中func为指令处理函数，返回真会跳过执行`directives`中后续的指令处理函数并**删除**该属性
+其中`func`为指令处理函数，返回真会跳过执行`directives`中后续的指令处理函数并从DOM中**删除**该属性
 
 若需保留该属性，在返回的对象加上`keep: true`即可
 
-当返回的对象不存在deps属性时：
+当返回的对象不存在`deps`属性时：
 ```js
 directives.push((name, value, el, attrs, parent) => {
 	// 模板编译时执行
@@ -131,7 +134,7 @@ directives.push((name, value, el, attrs, parent) => {
 })
 ```
 
-当返回的对象存在deps属性时：
+当返回的对象存在`deps`属性时：
 ```js
 directives.push((name, value, el, attrs, parent) => {
 	// 模板编译时执行

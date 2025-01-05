@@ -5,7 +5,7 @@
 ```html
 <main id="app">
     <div class="$css_class">$msg</div>
-    <div>count: $count</div>
+    <p>count: $count</p>
     <button @click="count++">+1</button>
     <button @click="reset">reset</button>
 </main>
@@ -33,7 +33,7 @@
 ```html
 <main c-data="{ msg: 'foo', css_class: 'bold red', count: 0 }">
     <div class="$css_class">$msg</div>
-    <div>count: $count</div>
+    <p>count: $count</p>
     <button @click="count++">+1</button>
     <button @click="confirm('Are you sure?') && (count = 0)">reset</button>
 </main>
