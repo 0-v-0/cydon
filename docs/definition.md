@@ -1,4 +1,4 @@
-# Definition
+# 定义
 
 ## 定义Web Component
 To define a web component use the `define` decorator from the library:
@@ -31,7 +31,7 @@ declare global {
 ```
 
 ## 响应式组件
-以实现一个简单的计数器为例，点击`+1`按钮值增加1，点击`-1`按钮值减少1，可设置初始值
+以实现一个简单的计数器为例，点击`+1`按钮值增加1，点击`-1`按钮值减少1，可通过`value`属性设置初始值
 
 ### 定义组件
 my-counter.ts

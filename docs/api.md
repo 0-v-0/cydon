@@ -34,14 +34,14 @@
 参数：
 - `cydon`：Cydon实例
 - `f`：要执行的函数，调用函数时this指向数据对象
-- `node`：传递给函数的第一个参数
+- `node`：传递给`f`的第一个参数
 
 返回值是一个用来停止该副作用的函数，该函数返回是否成功移除该副作用
 
 ## 应用实例API
-提示：ShadowRoot属于DocumentFragment的一种
+提示：[ShadowRoot](https://developer.mozilla.org/docs/Web/API/ShadowRoot)属于[DocumentFragment](https://developer.mozilla.org/docs/Web/API/DocumentFragment)的一种
 
-### new(data?: Data, ...args: ConstructorParameters<Constructor<T>>)
+### `new(data?: Data, ...args: ConstructorParameters<Constructor<T>>)`
 创建一个Cydon实例
 
 参数：
@@ -83,4 +83,4 @@
 与Vue的nextTick类似
 
 ### connectedCallback()
-当组件被添加到DOM树中时调用，属于Web Components标准中的方法
+当组件被添加到DOM树中时调用，属于[Web Components](https://developer.mozilla.org/docs/Web/API/Web_components)标准中的方法，重载这个方法时确保调用`super.connectedCallback()`以绑定响应式数据

@@ -29,8 +29,7 @@
 		"vite": "^6.0.7",
 		"vite-plugin-emt": "workspace:*",
 		"vite-plugin-inspect": "^0.10.6",
-		"vite-plugin-minify": "^1.5.2",
-		"vitest": "^2.1.8"
+		"vite-plugin-minify": "^1.5.2"
 	},
 	"dependencies": {
 		"cydon": "workspace:*"

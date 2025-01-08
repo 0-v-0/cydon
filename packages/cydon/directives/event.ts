@@ -1,7 +1,7 @@
 import { Directive, DirectiveHandler } from '../type'
 import { toFunction } from '../util'
 
-/** elements that have event listener bound */
+/** elements that have event listener bound, key is event type, value is bound elements */
 export const boundElements = new Map<string, WeakSet<Node>>()
 /** context of event handler */
 export const context = Symbol()

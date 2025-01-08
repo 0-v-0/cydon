@@ -4,10 +4,13 @@ export type Data = Record<string, any>
 
 export type DataHandler = ProxyHandler<Data>
 
+/** A set of dependencies */
 export type Dep = Set<string>
 
+/** A parent node */
 export type Container = Element | DocumentFragment
 
+/** A DOM element */
 export type DOM = HTMLElement | MathMLElement | SVGElement
 
 export type Part = {
@@ -28,6 +31,7 @@ export type Target = Part & {
 	x: Data
 }
 
+/** A map of attributes */
 export type AttrMap = Map<string | symbol, Part>
 
 /** template result */

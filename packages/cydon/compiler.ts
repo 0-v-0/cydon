@@ -45,7 +45,7 @@ export function compile(results: Results, el: Container,
 				if (val) {
 					const [key, value] = val.split(';')
 					if (import.meta.env.DEV && !value) {
-						console.warn('invalid c-for expression: ' + val)
+						console.warn('invalid c-for expression: ' + val, el)
 						return
 					}
 					const r: Result = []

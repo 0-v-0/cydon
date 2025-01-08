@@ -21,6 +21,10 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 		const event = name != 'c-model' || isSelect ||
 			(<Input>el).type == 'radio' || (<Input>el).type == 'checkbox' ? 'change' : 'input'
 
+		if (import.meta.env.DEV && isSelect) {
+			console.warn('redundant c-model.lazy on select element', el)
+		}
+
 		let set = boundElements.get(event)
 		if (!set)
 			boundElements.set(event, set = new WeakSet)
