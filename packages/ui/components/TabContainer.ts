@@ -2,6 +2,9 @@
 
 type IncrementKeyCode = 'ArrowRight' | 'ArrowDown'
 type DecrementKeyCode = 'ArrowUp' | 'ArrowLeft'
+export type CustomTabEvent = CustomEvent<{
+	relatedTarget: HTMLElement
+}>
 
 const getTabs =
 	(el: TabContainer) => [...el.querySelectorAll<HTMLElement>('[role=tablist] [role=tab]')].filter(
@@ -135,5 +138,10 @@ customElements.define('tab-container', TabContainer)
 declare global {
 	interface HTMLElementTagNameMap {
 		'tab-container': TabContainer
+	}
+
+	interface HTMLElementEventMap {
+		'tab-container-change': CustomTabEvent
+		'tab-container-changed': CustomTabEvent
 	}
 }

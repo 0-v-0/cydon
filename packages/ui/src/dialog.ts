@@ -18,9 +18,10 @@ function hashchange(oldURL = location.href) {
 		target.addEventListener('close', () => {
 			const id = parse(location.hash)
 			if (id == target.id) {
-				history.back()
 				if (id == parse(hash))
 					location.hash = ''
+				else
+					history.back()
 			}
 		}, { once: true })
 		target.showModal()
