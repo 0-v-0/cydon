@@ -2,6 +2,7 @@ import { Cydon, setData } from '../core'
 import { Data, DataHandler, Directive, DirectiveHandler, Part, Results } from '../type'
 import { toFunction } from '../util'
 import event from './event'
+export * from './event'
 
 type Context = Cydon & Data
 type D = Directive | void

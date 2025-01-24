@@ -42,6 +42,7 @@ export type Result = Results & {
 	e?: string[]
 } | Partial<Part>
 
+/** the compiled result of a template */
 export type Results = (AttrMap | Result | number)[]
 
 export interface Directive extends Part {
