@@ -41,7 +41,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	}
 
 	// 合法的位置关系数据
-	const arrLegalPosition = [41, 14, 57, 23, 21, 68, 34, 43, 86, 12, 75, 32]
+	const legalPositions = [41, 14, 57, 23, 21, 68, 34, 43, 86, 12, 75, 32]
 
 	// eleTrigger 元素属性指定 options，传入的 options 参数优先级更高
 	// offsets
@@ -58,7 +58,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	let dataPos = this.dataset.position
 	let dataAlign = this.dataset.align
 	// data-align是否符合合法位置关系
-	let isDataAlignMatch = arrLegalPosition.some((strLegalPosition: any) => strLegalPosition == dataAlign)
+	let isDataAlignMatch = legalPositions.some((strLegalPosition: any) => strLegalPosition == dataAlign)
 	// 若没有设置 data-position，设置了 data-align 也行，若都设置了以 data-position 的值为准
 	if (!dataPos && dataAlign && isDataAlignMatch) {
 		dataPos = dataAlign
@@ -193,7 +193,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	}
 
 	// 如果没有匹配的对齐方式，使用默认的对齐方式
-	if (!arrLegalPosition.some(strLegalPosition => strLegalPosition == pos))
+	if (!legalPositions.some(strLegalPosition => strLegalPosition == pos))
 		pos = defaults.position
 
 	// 自动调整距离边缘的安全距离

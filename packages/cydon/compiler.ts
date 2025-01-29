@@ -1,6 +1,12 @@
 import { Part, Results, Result, Container, DirectiveHandler } from './type'
 import { toFunction } from './util'
 
+/**
+ * Parse a string to a Part object
+ * @param s The string to parse
+ * @param attr The attribute name, empty if `s` is not in an attribute value
+ * @returns The Part object
+ */
 function parse(s: string, attr = '') {
 	const tokens = s.split(/\$([_a-z][\w.]*|\{.+?})/is)
 	if (tokens.length < 2)
