@@ -149,6 +149,6 @@ export const render: Render = (tpl, data = {}, maxDepth = 5) => {
 	return rend(tpl, maxDepth)
 }
 
-declare module globalThis {
+declare namespace globalThis {
 	let REQUEST_PATH: string
 }

@@ -1,7 +1,6 @@
 import CleanCSS, { OptionsPromise } from 'clean-css'
-import Inspect from 'vite-plugin-inspect'
 import progress from 'vite-plugin-progress'
-import { presetAttributify, presetUno } from 'unocss'
+import { presetAttributify, presetWind4 } from 'unocss'
 import directives from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
 import { BuildOptions, defineConfig } from 'vite'
@@ -45,7 +44,7 @@ export default defineConfig(({ mode }) => {
 		}
 	}
 
-	const transformers = [directives({ varStyle: false })]
+	const transformers = [directives({ applyVariable: false })]
 	if (!dev)
 		transformers.push(cleanCSS())
 	const plugins = [
@@ -57,14 +56,12 @@ export default defineConfig(({ mode }) => {
 			preflights: [],
 			presets: [
 				presetAttributify(),
-				presetUno()
+				presetWind4()
 			],
 			transformers
 		}),
 		progress()
 	]
-	if (dev)
-		plugins.push(Inspect())
 	return {
 		optimizeDeps: {
 			include: ['cydon'],

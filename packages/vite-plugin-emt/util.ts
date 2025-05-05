@@ -2,7 +2,7 @@ import MagicString from 'magic-string'
 import { basename, posix } from 'path'
 import colors from 'picocolors'
 import { RenderOptions, render } from 'stylus'
-import { EsbuildTransformOptions as EsbuildOpt, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
+import { EsbuildTransformOptions as ETOpt, Plugin, ViteDevServer, transformWithEsbuild } from 'vite'
 
 // https://github.com/vitejs/vite/blob/03b323d39cafe2baabef74e6051a9640add82590/packages/vite/src/node/server/hmr.ts
 const getShortName = (file: string, root: string) =>
@@ -43,7 +43,7 @@ export const inlineStylus = (options?: StylusOption): Plugin => {
 	}
 }
 
-export const inlineTS = (options?: EsbuildOpt): Plugin => ({
+export const inlineTS = (options?: ETOpt): Plugin => ({
 	name: 'inline-ts',
 	transform(code, id) {
 		if (id.includes('html-proxy&') && id.endsWith('.js')) {

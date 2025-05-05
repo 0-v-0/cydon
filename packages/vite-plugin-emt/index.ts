@@ -218,6 +218,6 @@ export default (config: Option = {}): Plugin => {
 	}
 }
 
-declare module globalThis {
+declare namespace globalThis {
 	let include: (url: string) => string
 }

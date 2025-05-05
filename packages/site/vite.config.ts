@@ -1,4 +1,3 @@
-import Inspect from 'vite-plugin-inspect'
 import emt, { inlineStylus } from 'vite-plugin-emt'
 import { BuildOptions, defineConfig } from 'vite'
 import { ViteMinifyPlugin as minify } from 'vite-plugin-minify'
@@ -20,7 +19,9 @@ export default defineConfig(({ mode }) => {
 	const dev = mode == 'development'
 	const build: BuildOptions = {
 		outDir: '../../../docs',
-		polyfillModulePreload: false,
+		modulePreload: {
+			polyfill: false,
+		},
 		target: 'esnext'
 	}
 	if (!dev) {
@@ -44,19 +45,27 @@ export default defineConfig(({ mode }) => {
 			presets: [
 				presetAttributify(),
 				presetMini({
-					dark: 'media'
+					dark: 'media',
+					preflight: 'on-demand',
+					variablePrefix: 'u-',
 				}),
-				presetDaisy()
+				presetDaisy({
+					base: false,
+					themes: false,
+					utils: false,
+					rtl: false,
+				})
 			],
 			transformers: [
-				directives({ varStyle: false })
+				directives({ applyVariable: false })
 			]
 		}),
 		removeCrossorigin()
 	]
-	plugins.push(dev ? Inspect() : minify({
-		removeAttributeQuotes: true
-	}))
+	if (!dev)
+		plugins.push(minify({
+			removeAttributeQuotes: true
+		}))
 	return {
 		base: './',
 		root: 'src',

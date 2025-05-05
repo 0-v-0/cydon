@@ -206,7 +206,7 @@ export const directives: DirectiveHandler[] = [
 	}
 ]
 
-declare module globalThis {
+declare namespace globalThis {
 	const CYDON_NO_EXTRA: boolean | undefined
 }
 

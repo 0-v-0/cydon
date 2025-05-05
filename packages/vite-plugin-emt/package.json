@@ -22,11 +22,11 @@
 	},
 	"dependencies": {
 		"emmetlite": "workspace:*",
-		"known-css-properties": "^0.34.0",
+		"known-css-properties": "^0.36.0",
 		"magic-string": "^0.30.17",
 		"picocolors": "^1.1.1",
 		"stylus": "^0.64.0",
-		"vite": "^6.3.4"
+		"vite": "^6.3.5"
 	},
 	"peerDependencies": {
 		"vite": "^6.0.0"
