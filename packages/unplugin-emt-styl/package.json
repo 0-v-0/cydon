@@ -1,0 +1,52 @@
+{
+	"name": "unplugin-emt-styl",
+	"version": "0.0.1",
+	"description": "emt and inline stylus support",
+	"author": {
+		"name": "0-v-0",
+		"email": "kduice@qq.com"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/cydon"
+	},
+	"keywords": [
+		"emt",
+		"stylus",
+		"plugin",
+		"vite"
+	],
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=16.16.0"
+	},
+	"scripts": {
+		"build": "tsdown index.ts styl.ts --dts"
+	},
+	"dependencies": {
+		"emmetlite": "workspace:*",
+		"known-css-properties": "^0.36.0",
+		"magic-string": "^0.30.17",
+		"stylus": "^0.64.0",
+		"unplugin": "^2.3.2"
+	},
+	"devDependencies": {
+		"@types/stylus": "^0.48.43"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./styl": {
+			"types": "./dist/styl.d.ts",
+			"default": "./dist/styl.js"
+		}
+	},
+	"main": "dist/index.js",
+	"type": "module"
+}

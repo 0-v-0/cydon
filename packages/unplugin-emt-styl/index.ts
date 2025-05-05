@@ -4,15 +4,13 @@ import readline from 'readline'
 import events from 'events'
 import MagicString from 'magic-string'
 import { createReadStream, existsSync, promises as fs, readFileSync } from 'fs'
-import { Plugin, ViteDevServer } from 'vite'
+import { createEsbuildPlugin, createFarmPlugin, createRollupPlugin, createRspackPlugin, createVitePlugin, UnpluginFactory } from 'unplugin'
 import { Data, Render, render } from './simpletpl'
 import { all } from 'known-css-properties'
-import { logger, transformStylusHtml } from './util'
 
 export * from 'emmetlite'
 export * from './simpletpl'
-export * from './util'
-export type { Plugin }
+export type PluginFactory = UnpluginFactory<Options | undefined>
 export type Preprocessor = (s: TemplateStringsArray, ...args: any[]) => string
 
 type TitleCache = Record<string, {
@@ -20,12 +18,11 @@ type TitleCache = Record<string, {
 	time: number
 }>
 
-export interface Option extends Omit<Plugin, 'name'> {
+export interface Options {
 	alwaysReload?: boolean
 	classy?: boolean
 	cssProps?: Set<string>
 	literal?: string
-	log?(server: ViteDevServer, file: string): void
 	paths?: string[]
 	root?: string
 	read?(path: string): string
@@ -35,7 +32,7 @@ export interface Option extends Omit<Plugin, 'name'> {
 	writeHtml?: boolean
 }
 
-export default (config: Option = {}): Plugin => {
+const factory: PluginFactory = (config: Options = {}) => {
 	const r = (path: string) => {
 		// HACK: make unocss recongize classes in Shadow Root
 		const html = path ? include(path) : ''
@@ -50,15 +47,14 @@ export default (config: Option = {}): Plugin => {
 	const {
 		classy = true,
 		literal = 'emt',
-		log = logger,
 		read = r,
 		render: rend = render,
 		tplFile = 'page.emt',
+		root = process.cwd(),
 		paths = [],
 		templated = true,
-		writeHtml
+		writeHtml = true,
 	} = config
-	let root = config.root
 	if (classy) {
 		const { cssProps = new Set(all) } = config
 		tagProcs.unshift((prop): true | void => {
@@ -161,46 +157,29 @@ export default (config: Option = {}): Plugin => {
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
-		configureServer(server: ViteDevServer) {
-			root = res(root || server.config.root)
-			server.middlewares.use(async (req, res, next) => {
-				// if not emt, next it
-				const url = req.originalUrl?.substring(1) || 'index.emt'
-				if (!url.endsWith('.emt'))
-					return next()
-
-				const path = resolve(url)
-				if (!path)
-					return next()
-
-				used?.clear()
-				const data = await getData(url, path)
-				let content = rend(include('doc_title' in data ? tplFile : path), data)
-				content = transformStylusHtml()(content)
-				if (writeHtml) {
-					(async () => {
-						const output = data.DOCUMENT_ROOT + '/' + basename(url, '.emt') + '.html'
-						let old
-						try {
-							old = await fs.readFile(output, 'utf8')
-						} catch { }
-						if (old != content)
-							fs.writeFile(output, content)
-					})()
-				}
-				res.setHeader('Content-Type', 'text/html; charset=utf-8')
-				res.end('doc_title' in data ?
-					await server.transformIndexHtml?.(req.originalUrl!, content, req.originalUrl) :
-					content)
-			})
-		},
-		handleHotUpdate({ file, server }) {
-			if (file.endsWith('.emt')) {
-				server.hot.send({ type: 'full-reload', path: config.alwaysReload ? '*' : file })
-				log(server, file)
-				return []
+		async watchChange(id, { event }) {
+			if (!id.endsWith('.emt'))
+				return
+			const path = resolve(id)
+			if (!path)
+				return
+			if (event == 'delete') {
+				delete titles[id]
+				used?.delete(id)
+				return
 			}
-			return
+			used?.clear()
+			const data = await getData(id, path)
+			const content = rend(include('doc_title' in data ? tplFile : path), data)
+			if (writeHtml) {
+				const output = data.DOCUMENT_ROOT + '/' + basename(data.REQUEST_PATH, '.emt') + '.html'
+				let old
+				try {
+					old = await fs.readFile(output, 'utf8')
+				} catch { }
+				if (old != content)
+					fs.writeFile(output, content)
+			}
 		},
 		// parse emt`...`
 		transform(code, id) {
@@ -217,6 +196,14 @@ export default (config: Option = {}): Plugin => {
 		...config
 	}
 }
+
+export default factory
+
+export const esbuild = createEsbuildPlugin(factory)
+export const farm = createFarmPlugin(factory)
+export const rollup = createRollupPlugin(factory)
+export const rspack = createRspackPlugin(factory)
+export const vite = createVitePlugin(factory)
 
 declare namespace globalThis {
 	let include: (url: string) => string

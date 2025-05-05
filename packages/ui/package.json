@@ -36,8 +36,8 @@
 		"terser": "^5.39.0",
 		"typedoc": "^0.27.9",
 		"unocss": "^66.1.0",
+		"unplugin-emt-styl": "workspace:*",
 		"vite": "^6.3.5",
-		"vite-plugin-emt": "workspace:*",
 		"vite-plugin-progress": "^0.0.7"
 	},
 	"dependencies": {

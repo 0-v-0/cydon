@@ -26,8 +26,8 @@
 		"terser": "^5.39.0",
 		"unocss": "^66.1.0",
 		"unocss-preset-daisy": "^7.0.0",
+		"unplugin-emt-styl": "workspace:*",
 		"vite": "^6.3.5",
-		"vite-plugin-emt": "workspace:*",
 		"vite-plugin-minify": "^1.5.2"
 	},
 	"dependencies": {

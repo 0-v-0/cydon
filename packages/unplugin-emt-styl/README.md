@@ -1,6 +1,6 @@
-# vite-plugin-emt
+# unplugin-emt-styl
 
-emt文件支持
+emt与内联styl支持
 
 处理过程：
 ```
@@ -21,19 +21,13 @@ pnpm build
 ## Usage
 ```ts
 // vite.config.ts
-import Unocss from 'unocss/vite'
-import emt, { inlineStylus } from 'vite-plugin-emt'
+import { vite as emt } from 'unplugin-emt-styl'
+import { vite as styl } from 'unplugin-emt-styl/styl'
 
 export default {
 	plugins: [
 		emt(/* emt options */),
-		Unocss({
-			transformers: [
-				inlineStylus(/* stylus options */),
-				// other transformers...
-			]
-			// Unocss options...
-		})
+		styl(/* stylus options */),
 	]
 }
 ```
@@ -107,6 +101,33 @@ output:
 <div id="s" class="p-0" style="width:50%"></div>
 ```
 
+### TODO
+
+若标签名末尾带有冒号，则将该部分当CSS而非HTML处理
+
+若属性名末尾带有冒号，则生成
+CSS选择器生成规则：从距离最近的带有id的父元素或根元素开始直到本元素，以>连接
+
+input:
+```styl
+#t
+	dl
+		dt:after
+			content: ":"
+		dd
+			margin: 0
+```
+output:
+HTML
+```html
+<div id="t"><dl><dt></dt><dd></dd></dl></div>
+```
+CSS
+```css
+#t>dl>dt:after{content:":"}
+#t>dl>dd{margin:0}
+```
+
 ## 预处理器
 ### Stylus预处理器
 inlineStylus：将所有`Shadow DOM`内的style标签的内容视为stylus处理，再将生成的css交给unocss处理
@@ -124,26 +145,10 @@ export default defineConfig({
 })
 ```
 
-### TypeScript预处理器
-inlineTS：将所有内联`<script>`当成TypeScript处理
-
-使用：
-```ts
-import { inlineTS } from 'vite-plugin-emt'
-
-export default defineConfig({
-	// …
-	plugins: [
-		inlineTS(),
-		// …
-	],
-})
-```
-
 ### 预处理器类型声明
 在env.d.ts中加上
 ```ts
-import { Preprocessor } from 'vite-plugin-emt'
+import { Preprocessor } from 'unplugin-emt-styl'
 
 declare global {
 	declare const emt: Preprocessor, styl: Preprocessor

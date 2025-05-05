@@ -1,10 +1,10 @@
 {
 	"compilerOptions": {
 		"lib": [
-			"es2021",
+			"es2022",
 			"WebWorker"
 		],
-		"target": "es2021"
+		"target": "es2022"
 	},
 	"exclude": [
 		"dist",

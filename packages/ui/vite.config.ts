@@ -3,8 +3,9 @@ import progress from 'vite-plugin-progress'
 import { presetAttributify, presetWind4 } from 'unocss'
 import directives from '@unocss/transformer-directives'
 import Unocss from 'unocss/vite'
+import { vite as emt } from 'unplugin-emt-styl'
+import { vite as styl } from 'unplugin-emt-styl/styl'
 import { BuildOptions, defineConfig } from 'vite'
-import emt, { inlineStylus, inlineTS } from 'vite-plugin-emt'
 
 type MagicString = {
 	overwrite(start: number, end: number, content: string): void
@@ -49,8 +50,7 @@ export default defineConfig(({ mode }) => {
 		transformers.push(cleanCSS())
 	const plugins = [
 		emt(),
-		inlineStylus(),
-		inlineTS(),
+		styl(),
 		Unocss({
 			mode: 'shadow-dom',
 			preflights: [],
