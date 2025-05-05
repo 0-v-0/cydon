@@ -8,6 +8,10 @@ function walk(el: ParentNode, callback: (shadow: ShadowRoot) => void) {
 		walk(child, callback)
 }
 
+export const components = import.meta.glob('./components/*.ts')
+
+export const load = (name: string) => import(`./components/${name}.ts`)
+
 export type Loader = (name: string) => Promise<any>
 
 /**

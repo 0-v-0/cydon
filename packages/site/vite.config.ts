@@ -1,4 +1,5 @@
-import emt, { inlineStylus } from 'vite-plugin-emt'
+import { vite as emt } from 'unplugin-emt-styl'
+import { vite as styl } from 'unplugin-emt-styl/styl'
 import { BuildOptions, defineConfig } from 'vite'
 import { ViteMinifyPlugin as minify } from 'vite-plugin-minify'
 import { presetAttributify, presetMini } from 'unocss'
@@ -36,10 +37,9 @@ export default defineConfig(({ mode }) => {
 	}
 	const plugins = [
 		emt({
-			paths: ['tpl'],
-			writeHtml: true
+			paths: ['tpl']
 		}),
-		inlineStylus(),
+		styl(),
 		Unocss({
 			preflights: [],
 			presets: [

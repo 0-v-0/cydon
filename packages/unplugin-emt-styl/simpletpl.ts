@@ -2,7 +2,7 @@
 
 export type Data = Record<string, any>
 
-export type Render = (str: string, data?: Data, maxDepth?: number) => string
+export type Render = (str: string, data: Data, maxDepth?: number) => string
 
 let appdata: Data[] = []
 
@@ -143,7 +143,7 @@ const getBlock = (str: string, start = '[', end = ']') => {
 	return str + tpl
 }
 
-export const render: Render = (tpl, data = {}, maxDepth = 5) => {
+export const render: Render = (tpl, data, maxDepth = 5) => {
 	globalThis.REQUEST_PATH = data.REQUEST_PATH
 	appdata = [data]
 	return rend(tpl, maxDepth)
