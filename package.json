@@ -3,14 +3,15 @@
 	"private": true,
 	"version": "0.1.9",
 	"devDependencies": {
-		"tsdown": "^0.10.2",
+		"tsup": "^8.5.0",
 		"typescript": "^5.8.3",
 		"vite": "^6.3.5",
-		"vitest": "^3.1.3"
+		"vitest": "^3.1.4"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
 		"update-deps": "pnpx taze -i -r -w"
 	},
-	"type": "module"
+	"type": "module",
+	"packageManager": "pnpm@10.11.0"
 }
