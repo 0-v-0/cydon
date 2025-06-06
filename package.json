@@ -6,12 +6,12 @@
 		"tsup": "^8.5.0",
 		"typescript": "^5.8.3",
 		"vite": "^6.3.5",
-		"vitest": "^3.1.4"
+		"vitest": "^3.2.2"
 	},
 	"scripts": {
 		"build": "cd packages/vite-plugin-emt&&pnpm build",
 		"update-deps": "pnpx taze -i -r -w"
 	},
 	"type": "module",
-	"packageManager": "pnpm@10.11.0"
+	"packageManager": "pnpm@10.11.1"
 }
