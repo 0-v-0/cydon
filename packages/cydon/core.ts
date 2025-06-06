@@ -43,7 +43,7 @@ export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 
 				// when setting a property that doesn't exist on current scope,
 				// do not create it on the current scope and fallback to parent scope.
-				const r = !hasOwn && parent ?
+				const r = parent && !hasOwn && receiver === cydon.data ?
 					Reflect.set(parent, key, val) :
 					Reflect.set(obj, key, val, receiver)
 				cydon.updateValue(key)
