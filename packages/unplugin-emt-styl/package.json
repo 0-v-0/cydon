@@ -22,10 +22,10 @@
 		"dist"
 	],
 	"engines": {
-		"node": ">=16.16.0"
+		"node": ">=18.0.0"
 	},
 	"scripts": {
-		"build": "tsdown index.ts styl.ts --dts"
+		"build": "tsup index.ts styl.ts --dts --format esm"
 	},
 	"dependencies": {
 		"emmetlite": "workspace:*",
