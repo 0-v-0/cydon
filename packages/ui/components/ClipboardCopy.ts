@@ -1,44 +1,45 @@
 import { define } from 'cydon'
 
 // From https://github.com/github/clipboard-copy-element
-export const copyNode = (node: Element) => navigator.clipboard.writeText(node.textContent || '')
-export const copyText = (text: string) => navigator.clipboard.writeText(text)
+export const copy = (text: string) => navigator.clipboard.writeText(text)
 
-async function copy(button: Element) {
-	const id = button.getAttribute('for')
-	const text = button.getAttribute('value'),
-		trigger = () =>
-			button.dispatchEvent(new CustomEvent('clipboard-copy', { bubbles: true }))
+function handle(el: Element) {
+	const text = el.getAttribute('value'),
+		trigger = async (node: Node | string) => {
+			await copyTarget(node)
+			el.dispatchEvent(new CustomEvent('clipboard-copy', { bubbles: true }))
+		}
 
 	if (text) {
-		await copyText(text)
-		trigger()
-	} else if (id) {
-		const root = button.getRootNode()
-		if (root instanceof Document || root instanceof ShadowRoot) {
-			const node = root.getElementById(id)
+		trigger(text)
+	} else {
+		const id = el.getAttribute('for')
+		if (id) {
+			const root = el.getRootNode() as Document | ShadowRoot
+			const node = root.getElementById(id) || root.querySelector(id)
 			if (node) {
-				await copyTarget(node)
-				trigger()
+				trigger(node)
 			}
 		}
 	}
 }
 
-function copyTarget(el: Element) {
-	if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)
-		return copyText(el.value)
-	if (el instanceof HTMLAnchorElement && el.href)
-		return copyText(el.href)
-	return copyNode(el)
+function copyTarget(node: Node | string) {
+	if (typeof (node as any).value == 'string')
+		return copy((node as any).value)
+	if (node instanceof HTMLAnchorElement && node.href)
+		return copy(node.href)
+	if (node instanceof Node)
+		return copy(node.textContent || '')
+	return copy(node)
 }
 
-function keydown(event: KeyboardEvent) {
-	if (event.key == ' ' || event.key == 'Enter') {
-		const button = event.currentTarget
-		if (button instanceof HTMLElement) {
-			event.preventDefault()
-			copy(button)
+function keydown(e: KeyboardEvent) {
+	if (e.key == ' ' || e.key == 'Enter') {
+		const button = e.currentTarget
+		if (button instanceof Element) {
+			e.preventDefault()
+			handle(button)
 		}
 	}
 }
@@ -47,15 +48,15 @@ function keydown(event: KeyboardEvent) {
 export class ClipboardCopy extends HTMLElement {
 	constructor() {
 		super()
-		this.addEventListener('click', event => {
-			const button = event.currentTarget
+		this.addEventListener('click', e => {
+			const button = e.currentTarget
 			if (button instanceof Element)
-				copy(button)
+				handle(button)
 		})
-		this.addEventListener('focus', event =>
-			(<HTMLElement>event.currentTarget).addEventListener('keydown', keydown))
-		this.addEventListener('blur', event =>
-			(<HTMLElement>event.currentTarget).removeEventListener('keydown', keydown))
+		this.addEventListener('focus', e =>
+			(e.currentTarget as HTMLElement).addEventListener('keydown', keydown))
+		this.addEventListener('blur', e =>
+			(e.currentTarget as HTMLElement).removeEventListener('keydown', keydown))
 	}
 
 	connectedCallback() {
