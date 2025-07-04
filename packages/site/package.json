@@ -20,11 +20,11 @@
 		"serve": "vite preview"
 	},
 	"devDependencies": {
-		"@unocss/transformer-directives": "^66.2.0",
+		"@unocss/transformer-directives": "^66.3.2",
 		"daisyui": "^3.9.4",
 		"stylus": "^0.64.0",
-		"terser": "^5.42.0",
-		"unocss": "^66.2.0",
+		"terser": "^5.43.1",
+		"unocss": "^66.3.2",
 		"unocss-preset-daisy": "^7.0.0",
 		"unplugin-emt-styl": "workspace:*",
 		"vite": "^6.3.5",
