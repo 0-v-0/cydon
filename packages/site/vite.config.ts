@@ -72,9 +72,6 @@ export default defineConfig(({ mode }) => {
 		build,
 		optimizeDeps: {
 			include: ['cydon'],
-			esbuildOptions: {
-				target: 'esnext'
-			}
 		},
 		plugins
 	}

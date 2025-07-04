@@ -9,9 +9,6 @@ export default defineConfig({
 	},
 	optimizeDeps: {
 		include: ['cydon'],
-		esbuildOptions: {
-			target: 'esnext'
-		}
 	},
 	build: {
 		assetsDir: '.',
