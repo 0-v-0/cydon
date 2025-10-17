@@ -4,8 +4,8 @@
 	"version": "0.1.9",
 	"devDependencies": {
 		"tsup": "^8.5.0",
-		"typescript": "^5.8.3",
-		"vite": "^7.0.1",
+		"typescript": "^5.9.3",
+		"vite": "^7.1.10",
 		"vitest": "^3.2.4"
 	},
 	"scripts": {
@@ -13,5 +13,5 @@
 		"update-deps": "pnpx taze -i -r -w"
 	},
 	"type": "module",
-	"packageManager": "pnpm@10.12.4"
+	"packageManager": "pnpm@10.18.3"
 }
