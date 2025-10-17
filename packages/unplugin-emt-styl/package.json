@@ -30,9 +30,9 @@
 	"dependencies": {
 		"emmetlite": "workspace:*",
 		"known-css-properties": "^0.36.0",
-		"magic-string": "^0.30.17",
+		"magic-string": "^0.30.19",
 		"stylus": "^0.64.0",
-		"unplugin": "^2.3.5"
+		"unplugin": "^2.3.10"
 	},
 	"devDependencies": {
 		"@types/stylus": "^0.48.43"
