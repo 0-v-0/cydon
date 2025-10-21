@@ -1,5 +1,5 @@
 import { boundElements, context } from './event'
-import { Directive, DirectiveHandler } from '../type'
+import { Data, Directive, DirectiveHandler } from '../type'
 import { toFunction } from '../util'
 
 type D = Directive | void
@@ -28,11 +28,15 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 		let set = boundElements.get(event)
 		if (!set)
 			boundElements.set(event, set = new WeakSet)
-		const getter = toFunction('return ' + value)
-		const setter = Function('$e,$val', `with(this)${value}=$val`)
 		return {
 			deps: new Set,
 			f(el) {
+				const getter = value in this ?
+					function (this: Data, el: Element) { return this[value] } :
+					toFunction('return ' + value)
+				const setter = value in this ? function (this: Data, el: Element, val: any) {
+					this[value] = val
+				} : Function('$e,$val', `with(this)${value}=$val`)
 				if (!set!.has(el)) {
 					if (event == 'input') {
 						el.addEventListener('compositionstart',
