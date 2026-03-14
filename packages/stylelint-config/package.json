@@ -5,8 +5,8 @@
 		"lint": "stylelint 'src/*.styl'"
 	},
 	"dependencies": {
-		"stylelint": "^16.25.0",
-		"stylelint-config-recess-order": "^7.4.0",
+		"stylelint": "^16.26.1",
+		"stylelint-config-recess-order": "^7.6.1",
 		"stylelint-stylus": "^1.0.0"
 	},
 	"peerDependencies": {
