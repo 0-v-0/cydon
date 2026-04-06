@@ -27,7 +27,7 @@
 		"unocss": "^66.6.6",
 		"unocss-preset-daisy": "^7.0.0",
 		"unplugin-emt-styl": "workspace:*",
-		"vite": "^7.3.1",
+		"vite": "^7.3.2",
 		"vite-plugin-minify": "^2.1.0"
 	},
 	"dependencies": {
