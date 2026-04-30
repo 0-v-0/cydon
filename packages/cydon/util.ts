@@ -12,7 +12,15 @@ export const toFunction = (code: string) => <(this: Data, el: Element) => any>
  * @param tagName The name of the custom element to define.
  */
 export const define = (tagName: string, options?: ElementDefinitionOptions) =>
-	(target: CustomElementConstructor) => customElements.define(tagName, target, options)
+	<T extends CustomElementConstructor>(target: T, context?: ClassDecoratorContext<T>) => {
+		const register = () =>
+			customElements.define(tagName, target, options)
+		if (context) {
+			context.addInitializer(register)
+		} else {
+			register()
+		}
+	}
 
 /**
  * run the function immediately while tracking its dependencies reactively,

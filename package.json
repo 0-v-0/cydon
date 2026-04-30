@@ -3,15 +3,16 @@
 	"private": true,
 	"version": "0.1.9",
 	"devDependencies": {
-		"tsup": "^8.5.1",
-		"typescript": "^5.9.3",
-		"vite": "^7.3.2",
-		"vitest": "^3.2.4"
+		"@microsoft/api-extractor": "^7.58.7",
+		"typescript": "^6.0.3",
+		"unplugin-dts": "1.0.0-beta.6",
+		"vite": "^8.0.10",
+		"vitest": "^4.1.5"
 	},
 	"scripts": {
 		"build": "cd packages/cydon && pnpm build && cd ../unplugin-emt-styl && pnpm build",
 		"update-deps": "pnpx taze -i -r -w"
 	},
 	"type": "module",
-	"packageManager": "pnpm@10.32.1"
+	"packageManager": "pnpm@10.33.2"
 }

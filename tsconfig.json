@@ -1,23 +1,18 @@
 {
 	"compilerOptions": {
-		"module": "esnext",
 		"lib": [
 			"es2022",
-			"dom",
-			"dom.iterable"
+			"dom"
 		],
 		"allowJs": false,
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "./types",
-		"strict": true,
 		"isolatedModules": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-		"moduleResolution": "node",
-		"esModuleInterop": true,
+		"moduleResolution": "bundler",
 		"experimentalDecorators": true,
 		"target": "es2022",
 		"useDefineForClassFields": true,

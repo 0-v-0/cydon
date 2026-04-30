@@ -32,9 +32,9 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 			deps: new Set,
 			f(el) {
 				const getter = value in this ?
-					function (this: Data, el: Element) { return this[value] } :
+					function (this: Data) { return this[value] } :
 					toFunction('return ' + value)
-				const setter = value in this ? function (this: Data, el: Element, val: any) {
+				const setter = value in this ? function (this: Data, _el: Element, val: any) {
 					this[value] = val
 				} : Function('$e,$val', `with(this)${value}=$val`)
 				if (!set!.has(el)) {

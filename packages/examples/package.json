@@ -8,7 +8,7 @@
     "unplugin-emt-styl": "workspace:*"
   },
   "devDependencies": {
-    "vite": "^7.3.2"
+    "vite": "^8.0.10"
   },
   "scripts": {
     "build": "vite build",

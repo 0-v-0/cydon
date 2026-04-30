@@ -3,31 +3,19 @@ import dts from 'unplugin-dts/vite'
 
 const normalizeIndent = (content: string) => content
 	.replace(/^( {4})+/gm, match => '\t'.repeat(match.length / 4))
-	.replace(/\t ?(\t[^\[])/g, '$1')
 
 export default defineConfig({
 	build: {
 		lib: {
-			entry: 'index.ts',
-			formats: ['es', 'iife'],
-			name: 'Cydon'
+			entry: ['index.ts', 'styl.ts'],
+			formats: ['es'],
 		},
-		target: 'esnext',
-		minify: 'terser',
-		terserOptions: {
-			ecma: 2020,
-			compress: {
-				ecma: 2020,
-				unsafe: true
-			}
-		}
+		minify: false,
+		rolldownOptions: {
+			external: s => !s.includes('simpletpl')
+		},
 	},
 	plugins: [dts({
-		bundleTypes: {
-			extractorConfig: {
-				newlineKind: 'lf'
-			},
-		},
 		beforeWriteFile(filePath, content) {
 			return {
 				filePath,
