@@ -5,3 +5,6 @@ node_modules
 *.map
 custom-elements.json
 packages/site/src/index.html
+.agents
+.trae
+skills-lock.json

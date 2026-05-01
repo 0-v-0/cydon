@@ -60,7 +60,7 @@ export default <DirectiveHandler[]>[cModel, (name, value, el): D => {
 					console.warn('c-tp can only be used on <template> element')
 					return
 				}
-				const target: Element | null = value && (value in this ? this[value] :
+				const target: Element | null | "" = value && (value in this ? this[value] :
 					(<ParentNode>el.getRootNode()).querySelector(value))
 				if (target) {
 					target.appendChild(el.content)

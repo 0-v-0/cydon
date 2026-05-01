@@ -29,7 +29,7 @@
 		"autoprefixer": "^10.5.0",
 		"clean-css": "^5.3.3",
 		"playwright": "^1.59.1",
-		"postcss": "^8.5.12",
+		"postcss": "^8.5.13",
 		"stylelint": "^16.26.1",
 		"stylelint-stylus": "^1.0.0",
 		"stylus": "^0.64.0",

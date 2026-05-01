@@ -1,6 +1,6 @@
 {
 	"name": "cydon",
-	"version": "0.1.9",
+	"version": "0.2.0",
 	"description": "A lightweight library for building fast, reactive web components.",
 	"author": {
 		"name": "0-v-0",
@@ -13,9 +13,14 @@
 		"directory": "packages/cydon"
 	},
 	"keywords": [
-		"cydon"
+		"cydon",
+		"directives",
+		"progressive",
+		"progressive enhancement",
+		"reactive",
+		"templating"
 	],
-	"homepage": "https://github.com/0-v-0/cydon#readme",
+	"homepage": "https://0-v-0.github.io/cydon",
 	"scripts": {
 		"build": "vite build"
 	},
@@ -25,7 +30,7 @@
 	],
 	"main": "dist/cydon.js",
 	"unpkg": "dist/cydon.iife.js",
-	"jsdelivr": "dist/cydon.iife.js",
+	"browser": "dist/cydon.iife.js",
 	"module": "dist/cydon.js",
 	"type": "module"
 }
