@@ -2,14 +2,11 @@
 	"name": "cydon",
 	"version": "0.2.0",
 	"description": "A lightweight library for building fast, reactive web components.",
-	"author": {
-		"name": "0-v-0",
-		"email": "kduice@qq.com"
-	},
+	"author": "0-v-0 <kduice@qq.com>",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/0-v-0/cydon",
+		"url": "git+https://github.com/0-v-0/cydon",
 		"directory": "packages/cydon"
 	},
 	"keywords": [
