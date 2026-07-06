@@ -1,2 +1,8 @@
 packages:
   - 'packages/*'
+allowBuilds:
+  esbuild: true
+  msw: true
+  rs-module-lexer: true
+minimumReleaseAgeExclude:
+  - vite@8.1.3
