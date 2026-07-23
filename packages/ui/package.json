@@ -25,7 +25,7 @@
 		"@cydon/stylelint-config": "workspace:^",
 		"@types/clean-css": "^4.2.11",
 		"@unocss/transformer-directives": "^66.7.4",
-		"@vitest/browser": "^4.1.9",
+		"@vitest/browser": "^4.1.10",
 		"autoprefixer": "^10.5.2",
 		"clean-css": "^5.3.3",
 		"playwright": "^1.61.1",
