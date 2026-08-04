@@ -1,14 +1,14 @@
-- [Getting Started](./getting-started.md)
-- [EMT](./emt.md)
-- [API](./api.md)
-- **组件**
-  - [模板](./templates.md)
-  - [定义](./definition.md)
-  - [指令](./directives.md)
-  - [组件间通信](./components.md)
-- [事件](./events.md)
-- [使用 Cydon 的多种方式](./usage.md)
-- **示例**
-  - [翻页表格组件](./s-table.md)
-- **设计原理**
-  - [设计原理](./design.md)
+- [Getting Started](./en/getting-started.md)
+- [EMT](./en/emt.md)
+- [API](./en/api.md)
+- **Components**
+  - [Templates](./en/templates.md)
+  - [Definition](./en/definition.md)
+  - [Directives](./en/directives.md)
+  - [Component Communication](./en/components.md)
+- [Events](./en/events.md)
+- [Usage](./en/usage.md)
+- **Examples**
+  - [Paginated Table](./en/s-table.md)
+- **Design**
+  - [Design Principles](./en/design.md)

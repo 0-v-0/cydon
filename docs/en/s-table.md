@@ -1,0 +1,111 @@
+# Paginated Table Component
+Using a simple paginated table component as an example.
+
+index.emt
+```stylus
+s-table[per-page=5]
+```
+
+s-table.emt
+```stylus
+template[shadowrootmode=open]
+	style[lang=styl]{
+		.wrapper
+			margin 1em
+		table
+			box-shadow 0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12)
+			border-radius 0.3em
+			line-height 2em
+		th, td
+			padding 0 1em
+		td
+			border-bottom thin solid rgba(0,0,0,.12)
+	}
+	.wrapper
+		table
+			thead
+				tr
+					th{Name}
+					th{Age}
+			tbody
+				template[c-for="item; items"]
+					tr
+						td{${item.name}}
+						td{${item.age}}
+		select[c-model=perPage]
+			option[value=5]{5}
+			option[value=10]{10}
+			option[value=20]{20}
+		sp{per page ${pageNum*perPage+1}-${pageNum*perPage+items.length} of ${list.length}}
+		button[@click=pageNum--]{prev}
+		button[@click=pageNum++]{next}
+```
+
+s-table.ts
+```ts
+import { define } from 'cydon'
+
+export class ListElement<T extends {}> extends CydonElement {
+	static observedAttributes = ['per-page']
+	items: T[] = []
+	private _list: T[] = []
+	private _perPage = 10
+	private _pageNum = 0
+
+	// Items per page
+	get perPage() {
+		return this._perPage
+	}
+	set perPage(value) {
+		this._perPage = +value || 10
+		this.list = this._list
+	}
+
+	// Page number
+	get pageNum() {
+		return this._pageNum
+	}
+	set pageNum(value) {
+		this._pageNum = value
+		this.list = this._list
+	}
+
+	// Table data
+	get list() {
+		return this._list
+	}
+	set list(data) {
+		this._list = data
+		const i = this.pageNum, n = this.perPage
+		this.items = data.slice(i * n, i * n + n)
+	}
+
+	constructor(data?: Data) {
+		super(data)
+	}
+
+	attributeChangedCallback(name: string, _oldVal: string, newVal: string) {
+		if (name == 'per-page')
+			this.data.perPage = +newVal || 10
+	}
+}
+
+@define('s-table')
+class STable extends ListElement<{}> {
+	connectedCallback() {
+		// Populate data
+		this.list = [
+			{
+				name: 'Alice',
+				age: 23
+			},
+			{
+				name: 'Bob',
+				age: 25
+			},
+            /* … */
+		]
+		super.connectedCallback() // Don't forget this!
+	}
+}
+```

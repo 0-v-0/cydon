@@ -98,11 +98,11 @@ class STable extends ListElement<{}> {
 			{
 				name: 'Alice',
 				age: 23
-			}
+			},
 			{
 				name: 'Bob',
 				age: 25
-			}
+			},
             /* … */
 		]
 		super.connectedCallback() // 别忘了这个！
