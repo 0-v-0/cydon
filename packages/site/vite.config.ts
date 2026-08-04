@@ -20,10 +20,16 @@ export default defineConfig(({ mode }) => {
 	const dev = mode == 'development'
 	const build: BuildOptions = {
 		outDir: '../../../docs',
+		rolldownOptions: {
+			input: {
+				main: 'src/index.html',
+				zh: 'src/index_zh.html'
+			},
+		},
 		modulePreload: {
 			polyfill: false,
 		},
-		target: 'esnext'
+		target: 'esnext',
 	}
 	if (!dev) {
 		build.minify = 'terser'

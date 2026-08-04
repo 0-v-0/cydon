@@ -4,7 +4,7 @@ node_modules
 *.log
 *.map
 custom-elements.json
-packages/site/src/index.html
+packages/site/src/*.html
 .agents
 .trae
 skills-lock.json
