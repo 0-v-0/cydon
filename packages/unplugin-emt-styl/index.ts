@@ -45,6 +45,7 @@ const factory: PluginFactory = (config: Options = {}) => {
 		})
 	}
 	const {
+		alwaysReload = false,
 		classy = true,
 		literal = 'emt',
 		read = r,
@@ -100,6 +101,9 @@ const factory: PluginFactory = (config: Options = {}) => {
 		return resolved || resolve(url, root, throwOnErr)
 	}, include = globalThis.include = (url: string) => {
 		url = resolveAll(url)
+		const deps = depsStack[depsStack.length - 1]
+		if (deps && url?.endsWith('.emt'))
+			deps.add(url)
 		const content = readFileSync(url, 'utf8')
 		return url?.endsWith('.emt') ? emmet(content, '\t') : content
 	}
@@ -126,6 +130,15 @@ const factory: PluginFactory = (config: Options = {}) => {
 	})
 	const used = templated ? new Set<string>() : null
 	const titles: TitleCache = {}
+	// HMR dependency tracking: for each rendered page (keyed by its emt path),
+	// the set of emt files it depends on (itself, included files, templates).
+	const pageDeps = new Map<string, Set<string>>()
+	// Pages that have been requested recently (keyed by emt path, value = last access time).
+	const openPages = new Map<string, number>()
+	const OPEN_PAGE_TTL = 5 * 60 * 1000
+	// While a page is being rendered (synchronously), the stack holds that
+	// page's dependency set so include() can record each emt file it pulls in.
+	const depsStack: Set<string>[] = []
 	async function getData(url: string, path: string) {
 		const data: Data = { REQUEST_PATH: url, DOCUMENT_ROOT: root },
 			time = (await fs.stat(path)).mtime.getTime()
@@ -154,6 +167,48 @@ const factory: PluginFactory = (config: Options = {}) => {
 		}
 		return data
 	}
+	// Render an emt file (by its url/path) into a full HTML document.
+	// used to serve/build html when writeHtml is disabled.
+	async function renderEmt(url: string, path: string) {
+		used?.clear()
+		const deps = new Set<string>()
+		deps.add(path)
+		const data = await getData(url, path)
+		depsStack.push(deps)
+		try {
+			const result = rend(include('doc_title' in data ? tplFile : path), data)
+			if (used)
+				for (const name of used) {
+					const resolved = resolveAll(name, false)
+					if (resolved?.endsWith('.emt'))
+						deps.add(resolved)
+				}
+			pageDeps.set(path, deps)
+			return result
+		} finally {
+			depsStack.pop()
+		}
+	}
+	// Given an html url/path, return the matching emt file path if the html
+	// itself does not exist but the emt does. Otherwise return ''.
+	const resolveEmtForHtml = (url: string) => {
+		if (!url.endsWith('.html'))
+			return ''
+		const htmlPath = resolve(url)
+		if (htmlPath && existsSync(htmlPath))
+			return ''
+		const emtUrl = url.substring(0, url.length - 5) + '.emt'
+		const emtPath = resolve(emtUrl)
+		return emtPath && existsSync(emtPath) && emtPath.endsWith('.emt') ? emtPath : ''
+	}
+	// Track the virtual html ids we returned from resolveId so that load
+	// only renders those and never a real .html file on disk.
+	const virtualHtmlIds = new Set<string>()
+	// The virtual id is the emt file path with the extension replaced by .html
+	// so vite's html pipeline (filter /\.html$/) picks it up, and asset URLs
+	// resolve relative to the emt's directory.
+	const toVirtualHtmlId = (emtPath: string) =>
+		emtPath.substring(0, emtPath.length - 4) + '.html'
 	return {
 		name: 'emt-template',
 		enforce: 'pre',
@@ -166,6 +221,8 @@ const factory: PluginFactory = (config: Options = {}) => {
 			if (event == 'delete') {
 				delete titles[id]
 				used?.delete(id)
+				pageDeps.delete(id)
+				openPages.delete(id)
 				return
 			}
 			used?.clear()
@@ -192,6 +249,96 @@ const factory: PluginFactory = (config: Options = {}) => {
 				}
 			}
 			return
+		},
+		// Build: resolve an html entry to a virtual html module when the html
+		// file does not exist but the matching emt does. The virtual id is the
+		// emt file path with the extension replaced by .html so that vite's
+		// html pipeline (which filters by /\.html$/) picks it up, and asset
+		// URLs resolve relative to the emt's directory.
+		resolveId(id) {
+			if (!id.endsWith('.html'))
+				return
+			// skip if the html file actually exists on disk
+			const htmlPath = resolve(id)
+			if (htmlPath && existsSync(htmlPath))
+				return
+			const emtPath = resolveEmtForHtml(id)
+			if (emtPath) {
+				const virtualId = toVirtualHtmlId(emtPath)
+				virtualHtmlIds.add(virtualId)
+				return virtualId
+			}
+			return
+		},
+		// Build: load the virtual html module by rendering the emt source.
+		async load(id) {
+			if (!virtualHtmlIds.has(id))
+				return
+			const emtPath = id.substring(0, id.length - 5) + '.emt'
+			return renderEmt(emtPath, emtPath)
+		},
+		vite: {
+			// Dev: intercept html requests that have no html file but a matching
+			// emt file, render the html on the fly and hand it to vite.
+			// We return a function so the middleware is installed after vite's
+			// own htmlFallback middleware (which rewrites "/" to "/index.html").
+			configureServer(server) {
+				const viteRoot = server.config.root
+				const resolveAbs = (p: string) => res(viteRoot, p)
+				return () => {
+					server.middlewares.use(async (req, resp, next) => {
+						if (resp.writableEnded) return next()
+						const url = req.url && req.url.split('?')[0].split('#')[0]
+						if (!url || !url.endsWith('.html') || req.headers['sec-fetch-dest'] === 'script')
+							return next()
+						const rel = url.startsWith('/') ? url.substring(1) : url
+						// resolve relative to vite's root (where html entries live)
+						const htmlAbs = resolveAbs(rel)
+						if (existsSync(htmlAbs))
+							return next()
+						const emtAbs = htmlAbs.substring(0, htmlAbs.length - 5) + '.emt'
+						if (!existsSync(emtAbs))
+							return next()
+						openPages.set(emtAbs, Date.now())
+						try {
+							const html = await renderEmt(emtAbs, emtAbs)
+							const transformed = await server.transformIndexHtml(url, html, req.originalUrl)
+							resp.setHeader('Content-Type', 'text/html; charset=utf-8')
+							resp.end(transformed)
+						} catch (e) {
+							next(e)
+						}
+					})
+					// HMR: reload the browser when an emt file that an open page
+					// depends on changes. alwaysReload reloads on any emt change.
+					server.watcher.on('change', (file: string) => {
+						if (!file.endsWith('.emt'))
+							return
+						const now = Date.now()
+						for (const [page, time] of openPages) {
+							if (now - time > OPEN_PAGE_TTL)
+								openPages.delete(page)
+						}
+						if (alwaysReload) {
+							server.ws.send({ type: 'full-reload' })
+							return
+						}
+						for (const page of openPages.keys()) {
+							const deps = pageDeps.get(page)
+							if (deps && deps.has(file)) {
+								server.ws.send({ type: 'full-reload' })
+								return
+							}
+						}
+					})
+					server.watcher.on('unlink', (file: string) => {
+						if (!file.endsWith('.emt'))
+							return
+						pageDeps.delete(file)
+						openPages.delete(file)
+					})
+				}
+			},
 		},
 		...config
 	}

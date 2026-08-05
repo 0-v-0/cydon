@@ -33,7 +33,7 @@
 		"stylelint": "^16.26.1",
 		"stylelint-stylus": "^1.0.0",
 		"stylus": "^0.64.0",
-		"terser": "^5.49.0",
+		"terser": "^5.49.1",
 		"typedoc": "^0.28.20",
 		"unocss": "^66.7.5",
 		"unplugin-emt-styl": "workspace:*",

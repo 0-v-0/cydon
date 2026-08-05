@@ -36,7 +36,7 @@ export default {
 所有参数均可选
 | 名称         | 类型                                          | 说明                                                                        |
 | ------------ | --------------------------------------------- | --------------------------------------------------------------------------- |
-| alwaysReload | boolean                                       | 开发模式下，当emt文件改变后是否总是重新加载                                 |
+| alwaysReload | boolean                                       | 开发模式下，是否对任何emt文件变动都重新加载页面（默认值：`false`）。为`false`时只重载当前打开的、且内容依赖被修改的emt文件的页面 |
 | classy       | boolean                                       | 启用emmet扩展语法（默认值：`true`）                                         |
 | cssProps     | Set\<string>                                  | 将集合内的元素视为CSS属性，渲染为内联样式，传入一个空的集合表示禁用内联样式 |
 | literal      | string                                        | emt字面量前缀，默认为emt，为空串表示禁用emt字面量                           |
@@ -47,7 +47,36 @@ export default {
 | root         | string                                        | emt文件所在根文件夹                                                         |
 | templated    | boolean                                       | 为true时每个emt元素模板至多展开一次                                         |
 | tplFile      | string                                        | 自定义模板文件                                                              |
-| writeHtml    | boolean                                       | 是否输出html，用于构建                                                      |
+| writeHtml    | boolean                                       | 是否输出html，用于调试                |
+
+### writeHtml在不同构建工具中的兼容性
+
+`writeHtml` 默认值为`true`，仅在开发模式下当emt文件改变时将渲染后的html写入磁盘，方便调试查看。无论是否启用`writeHtml`，emt文件的预览和构建都不依赖于它。
+
+不启用`writeHtml`时，插件通过虚拟html模块（`resolveId`/`load`）和开发中间件（`configureServer`）动态渲染emt文件。各构建工具的兼容性如下：
+
+| 构建工具 | 构建（`resolveId`/`load`） | 预览/开发（`configureServer`） | 说明                                                                            |
+| -------- | ------------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
+| vite     | ✓                         | ✓                              | 完全兼容。构建通过虚拟html模块，开发通过中间件拦截html请求                      |
+| rolldown | ✓                         | -                              | 构建兼容。rolldown原生支持rollup风格的`resolveId`/`load`                        |
+| rollup   | ✓                         | -                              | 构建兼容。需配合`@rollup/html`等插件处理html入口                                |
+| esbuild  | 部分                      | -                              | esbuild不原生支持html入口，虚拟模块可加载但html输出需额外处理                   |
+| webpack  | 部分                      | -                              | 需配合`html-webpack-plugin`等插件，虚拟模块通过`webpack-virtual-modules`实现    |
+| rspack   | 部分                      | -                              | 需配合`html-rspack-plugin`等插件，虚拟模块通过rspack的`VirtualModulesPlugin`实现 |
+| farm     | 部分                      | -                              | 取决于farm对html入口的支持情况                                                  |
+
+说明：
+- vite为推荐使用场景，预览与构建均完全兼容
+- 其他构建工具建议保留`writeHtml: true`，由开发阶段先生成html文件再交给对应工具处理
+- 若禁用`writeHtml`且使用非vite工具，请确保对应工具能正确处理插件返回的虚拟html模块
+
+### HMR
+
+vite开发模式下，插件会跟踪每个渲染页面对emt文件的依赖（包括通过`include`引入的文件和自定义元素模板），并在依赖的emt文件变动时自动向浏览器发送`full-reload`，无需手动刷新。删除emt文件时也会清理对应的依赖记录。
+
+`alwaysReload`控制重载范围：
+- 默认（`false`）：仅当正在浏览的页面依赖的emt文件变动时才重载（精确重载）
+- `true`：任何emt文件变动都重载
 
 ### emt环境变量
 环境变量类型均为string
