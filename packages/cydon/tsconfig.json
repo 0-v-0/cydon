@@ -2,8 +2,6 @@
 	"compilerOptions": {
 		"outDir": "dist"
 	},
-	"exclude": [
-		"dist"
-	],
+	"exclude": ["dist"],
 	"extends": "../../tsconfig.json"
 }

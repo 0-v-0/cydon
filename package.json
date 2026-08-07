@@ -1,7 +1,12 @@
 {
 	"name": "@cydon/monorepo",
-	"private": true,
 	"version": "0.1.9",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "cd packages/cydon && pnpm build && cd ../unplugin-emt-styl && pnpm build",
+		"update-deps": "pnpx taze -i -r -w"
+	},
 	"devDependencies": {
 		"@microsoft/api-extractor": "^7.58.12",
 		"typescript": "^6.0.3",
@@ -9,10 +14,5 @@
 		"vite": "^8.2.0",
 		"vitest": "^4.1.10"
 	},
-	"scripts": {
-		"build": "cd packages/cydon && pnpm build && cd ../unplugin-emt-styl && pnpm build",
-		"update-deps": "pnpx taze -i -r -w"
-	},
-	"type": "module",
 	"packageManager": "pnpm@11.20.0"
 }

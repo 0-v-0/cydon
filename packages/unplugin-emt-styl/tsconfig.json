@@ -1,15 +1,8 @@
 {
 	"compilerOptions": {
-		"lib": [
-			"es2022",
-			"WebWorker"
-		],
+		"lib": ["es2022", "WebWorker"],
 		"target": "es2022"
 	},
-	"exclude": [
-		"dist",
-		"node_modules",
-		"vite.config.ts"
-	],
+	"exclude": ["dist", "node_modules", "vite.config.ts"],
 	"extends": "../../tsconfig.json"
 }

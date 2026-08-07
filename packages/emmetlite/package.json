@@ -2,20 +2,20 @@
 	"name": "emmetlite",
 	"version": "0.0.5",
 	"description": "Liteweight emmet for JavaScript",
+	"keywords": [
+		"emmet"
+	],
 	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/0-v-0/cydon",
 		"directory": "packages/emmetlite"
 	},
-	"keywords": [
-		"emmet"
-	],
 	"files": [
 		"index.js",
 		"index.d.ts"
 	],
-	"main": "index.js",
 	"type": "module",
+	"main": "index.js",
 	"types": "index.d.ts"
 }

@@ -1,9 +1,6 @@
 {
 	"compilerOptions": {
-		"lib": [
-			"es2022",
-			"dom"
-		],
+		"lib": ["es2022", "dom"],
 		"allowJs": false,
 		"declaration": true,
 		"emitDeclarationOnly": true,
@@ -18,8 +15,5 @@
 		"useDefineForClassFields": true,
 		"skipLibCheck": true
 	},
-	"exclude": [
-		"dist",
-		"node_modules"
-	]
+	"exclude": ["dist", "node_modules"]
 }

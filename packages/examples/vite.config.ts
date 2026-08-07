@@ -5,7 +5,7 @@ import { inlineTS } from './ts'
 
 export default defineConfig({
 	define: {
-		'globalThis.CYDON_NO_TOGGLE': 'true'
+		'globalThis.CYDON_NO_TOGGLE': 'true',
 	},
 	optimizeDeps: {
 		include: ['cydon'],
@@ -14,15 +14,15 @@ export default defineConfig({
 		assetsDir: '.',
 		modulePreload: false,
 		sourcemap: 'hidden',
-		target: 'esnext'
+		target: 'esnext',
 	},
 	plugins: [
 		emt({
 			render: (str, data, maxDepth) => {
-				return compileStylusInHtml()(render(str, data, maxDepth).replace(/\.emt/g, ".html"))
+				return compileStylusInHtml()(render(str, data, maxDepth).replace(/\.emt/g, '.html'))
 			},
 		}),
 		styl(),
-		inlineTS()
-	]
+		inlineTS(),
+	],
 })

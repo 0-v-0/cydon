@@ -1,11 +1,11 @@
+import directives from '@unocss/transformer-directives'
+import { presetAttributify, presetMini } from 'unocss'
+import { presetDaisy } from 'unocss-preset-daisy'
+import Unocss from 'unocss/vite'
 import { vite as emt } from 'unplugin-emt-styl'
 import { vite as styl } from 'unplugin-emt-styl/styl'
 import { BuildOptions, defineConfig } from 'vite'
 import { ViteMinifyPlugin as minify } from 'vite-plugin-minify'
-import { presetAttributify, presetMini } from 'unocss'
-import directives from '@unocss/transformer-directives'
-import Unocss from 'unocss/vite'
-import { presetDaisy } from 'unocss-preset-daisy'
 
 function removeCrossorigin() {
 	return {
@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
 		rolldownOptions: {
 			input: {
 				main: 'src/index.html',
-				zh: 'src/index_zh.html'
+				zh: 'src/index_zh.html',
 			},
 		},
 		modulePreload: {
@@ -37,13 +37,13 @@ export default defineConfig(({ mode }) => {
 			ecma: 2020,
 			compress: {
 				ecma: 2020,
-				unsafe: true
-			}
+				unsafe: true,
+			},
 		}
 	}
 	const plugins = [
 		emt({
-			paths: ['tpl']
+			paths: ['tpl'],
 		}),
 		styl(),
 		Unocss({
@@ -60,18 +60,18 @@ export default defineConfig(({ mode }) => {
 					themes: false,
 					utils: false,
 					rtl: false,
-				})
+				}),
 			],
-			transformers: [
-				directives({ applyVariable: false })
-			]
+			transformers: [directives({ applyVariable: false })],
 		}),
-		removeCrossorigin()
+		removeCrossorigin(),
 	]
 	if (!dev)
-		plugins.push(minify({
-			removeAttributeQuotes: true
-		}))
+		plugins.push(
+			minify({
+				removeAttributeQuotes: true,
+			}),
+		)
 	return {
 		base: './',
 		root: 'src',
@@ -79,6 +79,6 @@ export default defineConfig(({ mode }) => {
 		optimizeDeps: {
 			include: ['cydon'],
 		},
-		plugins
+		plugins,
 	}
 })

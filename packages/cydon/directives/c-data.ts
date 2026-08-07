@@ -1,8 +1,7 @@
 import { Cydon } from '../core'
 
 function walk(el: Element) {
-	for (const child of el.children)
-		walk(child)
+	for (const child of el.children) walk(child)
 	const data = el.getAttribute('c-data')
 	if (data != null) {
 		Object.assign(el, Function('return ' + data).call(el))

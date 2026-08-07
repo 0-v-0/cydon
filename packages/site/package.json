@@ -1,37 +1,37 @@
 {
 	"name": "cydon-site",
-	"private": true,
 	"version": "0.0.1",
+	"private": true,
 	"description": "website of cydon",
+	"license": "MIT",
+	"author": "0-v-0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/0-v-0/cydon",
 		"directory": "packages/site"
 	},
-	"browserslist": [
-		"chrome >= 93",
-		"edge >= 93"
-	],
-	"author": "0-v-0",
-	"license": "MIT",
+	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
 		"serve": "vite preview"
 	},
+	"dependencies": {
+		"cydon": "workspace:*"
+	},
 	"devDependencies": {
 		"@unocss/transformer-directives": "^66.7.5",
 		"daisyui": "^3.9.4",
 		"stylus": "^0.64.0",
-		"terser": "^5.49.1",
+		"terser": "^5.49.2",
 		"unocss": "^66.7.5",
 		"unocss-preset-daisy": "^7.0.0",
 		"unplugin-emt-styl": "workspace:*",
 		"vite": "^8.2.0",
 		"vite-plugin-minify": "^3.0.0"
 	},
-	"dependencies": {
-		"cydon": "workspace:*"
-	},
-	"type": "module"
+	"browserslist": [
+		"chrome >= 93",
+		"edge >= 93"
+	]
 }

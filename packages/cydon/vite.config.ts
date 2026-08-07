@@ -1,16 +1,17 @@
-import { defineConfig } from 'vite'
 import dts from 'unplugin-dts/vite'
+import { defineConfig } from 'vite'
 
-const normalizeIndent = (content: string) => content
-	.replace(/^( {4})+/gm, match => '\t'.repeat(match.length / 4))
-	.replace(/\t ?(\t[^\[])/g, '$1')
+const normalizeIndent = (content: string) =>
+	content
+		.replace(/^( {4})+/gm, (match) => '\t'.repeat(match.length / 4))
+		.replace(/\t ?(\t[^\[])/g, '$1')
 
 export default defineConfig({
 	build: {
 		lib: {
 			entry: 'index.ts',
 			formats: ['es', 'iife'],
-			name: 'Cydon'
+			name: 'Cydon',
 		},
 		target: 'esnext',
 		minify: 'terser',
@@ -18,21 +19,23 @@ export default defineConfig({
 			ecma: 2020,
 			compress: {
 				ecma: 2020,
-				unsafe: true
-			}
-		}
-	},
-	plugins: [dts({
-		bundleTypes: {
-			extractorConfig: {
-				newlineKind: 'lf'
+				unsafe: true,
 			},
 		},
-		beforeWriteFile(filePath, content) {
-			return {
-				filePath,
-				content: normalizeIndent(content)
-			}
-		}
-	})]
+	},
+	plugins: [
+		dts({
+			bundleTypes: {
+				extractorConfig: {
+					newlineKind: 'lf',
+				},
+			},
+			beforeWriteFile(filePath, content) {
+				return {
+					filePath,
+					content: normalizeIndent(content),
+				}
+			},
+		}),
+	],
 })

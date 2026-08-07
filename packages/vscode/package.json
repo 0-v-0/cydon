@@ -1,47 +1,47 @@
 {
-  "name": "emt",
-  "displayName": "emt",
-  "description": "Language support for emt",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.76.1"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "contributes": {
-    "languages": [
-      {
-        "id": "emt",
-        "aliases": [
-          "Emt",
-          "emt"
-        ],
-        "extensions": [
-          ".emt"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "emt",
-        "scopeName": "source.emt",
-        "path": "./syntaxes/emt.json"
-      },
-      {
-        "injectTo": [
-          "source.js",
-          "source.ts"
-        ],
-        "scopeName": "inline.emt",
-        "path": "./syntaxes/emt-embedded.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.html": "html",
-          "meta.embedded.block.css": "css",
-          "source.css": "css"
-        }
-      }
-    ]
-  }
+	"name": "emt",
+	"displayName": "emt",
+	"version": "0.0.1",
+	"description": "Language support for emt",
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "emt",
+				"aliases": [
+					"Emt",
+					"emt"
+				],
+				"extensions": [
+					".emt"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "emt",
+				"scopeName": "source.emt",
+				"path": "./syntaxes/emt.json"
+			},
+			{
+				"injectTo": [
+					"source.js",
+					"source.ts"
+				],
+				"scopeName": "inline.emt",
+				"path": "./syntaxes/emt-embedded.json",
+				"embeddedLanguages": {
+					"meta.embedded.block.html": "html",
+					"meta.embedded.block.css": "css",
+					"source.css": "css"
+				}
+			}
+		]
+	},
+	"engines": {
+		"vscode": "^1.76.1"
+	}
 }

@@ -1,11 +1,11 @@
-import CleanCSS, { OptionsPromise } from 'clean-css'
-import progress from 'vite-plugin-progress'
-import { presetAttributify, presetWind4 } from 'unocss'
 import directives from '@unocss/transformer-directives'
+import CleanCSS, { OptionsPromise } from 'clean-css'
+import { presetAttributify, presetWind4 } from 'unocss'
 import Unocss from 'unocss/vite'
 import { vite as emt } from 'unplugin-emt-styl'
 import { vite as styl } from 'unplugin-emt-styl/styl'
 import { BuildOptions, defineConfig } from 'vite'
+import progress from 'vite-plugin-progress'
 
 type MagicString = {
 	overwrite(start: number, end: number, content: string): void
@@ -15,7 +15,7 @@ type MagicString = {
 const cleanCSS = (options?: OptionsPromise) => {
 	const cleanCSS = new CleanCSS({
 		...options,
-		returnPromise: true
+		returnPromise: true,
 	})
 	return {
 		name: 'clean-css',
@@ -23,7 +23,7 @@ const cleanCSS = (options?: OptionsPromise) => {
 		idFilter: (id: string) => id.endsWith('.css'),
 		async transform(code: MagicString) {
 			code.overwrite(0, code.length(), (await cleanCSS.minify(code + '')).styles)
-		}
+		},
 	}
 }
 
@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
 	const build: BuildOptions = {
 		assetsDir: '.',
 		sourcemap: 'hidden',
-		target: 'esnext'
+		target: 'esnext',
 	}
 	if (!dev) {
 		build.minify = 'terser'
@@ -40,27 +40,23 @@ export default defineConfig(({ mode }) => {
 			ecma: 2020,
 			compress: {
 				ecma: 2020,
-				unsafe: true
-			}
+				unsafe: true,
+			},
 		}
 	}
 
 	const transformers = [directives({ applyVariable: false })]
-	if (!dev)
-		transformers.push(cleanCSS())
+	if (!dev) transformers.push(cleanCSS())
 	const plugins = [
 		emt(),
 		styl(),
 		Unocss({
 			mode: 'shadow-dom',
 			preflights: [],
-			presets: [
-				presetAttributify(),
-				presetWind4()
-			],
-			transformers
+			presets: [presetAttributify(), presetWind4()],
+			transformers,
 		}),
-		progress()
+		progress(),
 	]
 	return {
 		optimizeDeps: {
@@ -73,10 +69,10 @@ export default defineConfig(({ mode }) => {
 				enabled: true,
 				headless: true,
 				name: 'chromium',
-				provider: 'playwright'
+				provider: 'playwright',
 			},
 			dangerouslyIgnoreUnhandledErrors: true,
 			maxConcurrency: 1,
-		}
+		},
 	}
 })

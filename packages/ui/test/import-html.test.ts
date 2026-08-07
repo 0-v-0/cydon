@@ -2,47 +2,49 @@ import { expect, it, afterAll, beforeAll, suite, assert, afterEach } from 'vites
 import { ImportHTML, delay } from '..'
 
 const headers = {
-	'Content-Type': 'text/html; charset=utf-8'
+	'Content-Type': 'text/html; charset=utf-8',
 }
 const responses: Record<string, (req: Request) => Response | Promise<Response>> = {
-	'/hello': () => new Response('<div id="replaced">hello</div>', {
-		status: 200,
-		headers
-	}),
+	'/hello': () =>
+		new Response('<div id="replaced">hello</div>', {
+			status: 200,
+			headers,
+		}),
 	'/slow-hello': () => delay<Request>(100).then(responses['/hello']),
-	'/one-two': () => new Response('<p id="one">one</p><p id="two">two</p>', {
-		status: 200,
-		headers
-	}),
-	'/boom': () => new Response('boom', {
-		status: 500
-	}),
+	'/one-two': () =>
+		new Response('<p id="one">one</p><p id="two">two</p>', {
+			status: 200,
+			headers,
+		}),
+	'/boom': () =>
+		new Response('boom', {
+			status: 500,
+		}),
 	'/fragment'(req) {
 		if (req.headers.get('Accept') == 'text/fragment+html')
 			return new Response('<div id="fragment">fragment</div>', {
 				status: 200,
 				headers: {
-					'Content-Type': 'text/fragment+html'
-				}
+					'Content-Type': 'text/fragment+html',
+				},
 			})
 		return new Response('406', {
-			status: 406
+			status: 406,
 		})
-	}
+	},
 }
 
 const query = <K extends keyof HTMLElementTagNameMap>(s: K) => document.querySelector<K>(s)!
 const byId = (s: string) => document.getElementById(s)!
 
-const when = (el: Node, type: string) =>
-	new Promise<Event>(res => el.addEventListener(type, res))
+const when = (el: Node, type: string) => new Promise<Event>((res) => el.addEventListener(type, res))
 
 const lazyTest = (el: HTMLElement) =>
 	Promise.race([
 		when(el.firstChild!, 'load').then(() => {
 			throw new Error('<import-html lazy> loaded too early')
 		}),
-		delay(100)
+		delay(100),
 	])
 function newDiv(html: string) {
 	const div = document.createElement('div')
@@ -53,8 +55,7 @@ function newDiv(html: string) {
 function hiddenDiv(html = '') {
 	const div = document.createElement('div')
 	div.hidden = true
-	if (html)
-		div.innerHTML = html
+	if (html) div.innerHTML = html
 	return div
 }
 
@@ -76,12 +77,12 @@ suite('import-html-element', () => {
 	it('create from document.createElement & constructor', () => {
 		const el = document.createElement('import-html')
 		expect(el.nodeName).eq('IMPORT-HTML')
-		const el2 = new ImportHTML
+		const el2 = new ImportHTML()
 		expect(el2.nodeName).eq('IMPORT-HTML')
 	})
 
 	it('src property', () => {
-		const el = new ImportHTML
+		const el = new ImportHTML()
 		expect(el.getAttribute('src')).eq(null)
 		expect(el.src).eq('')
 
@@ -94,12 +95,12 @@ suite('import-html-element', () => {
 		const div = newDiv('<import-html src="/hello"></import-html>')
 		return (<ImportHTML>div.firstChild).load().then(
 			() => expect(div.innerHTML).eq('<div id="replaced">hello</div>'),
-			() => assert(false)
+			() => assert(false),
 		)
 	})
 
 	it('throws on 406', () => {
-		const el = new ImportHTML
+		const el = new ImportHTML()
 		el.setAttribute('src', '/fragment')
 
 		expect(el.load()).rejects.toMatch(/the server responded with a status of 406/)
@@ -127,7 +128,7 @@ suite('import-html-element', () => {
 
 		let load: boolean
 
-		el.addEventListener('loadstart', () => load = true)
+		el.addEventListener('loadstart', () => (load = true))
 
 		setTimeout(() => {
 			assert(!load)
@@ -150,7 +151,7 @@ suite('import-html-element', () => {
 	})
 
 	it('fires replaced event', async () => {
-		const el = new ImportHTML
+		const el = new ImportHTML()
 		el.src = '/hello'
 		document.body.appendChild(el)
 
@@ -160,10 +161,11 @@ suite('import-html-element', () => {
 	})
 
 	it('fires events for import-html node replacement operations for fragment manipulation', async () => {
-		const el = new ImportHTML
+		const el = new ImportHTML()
 		el.src = '/hello'
-		document.body.appendChild(el).addEventListener('frag-replace',
-			e => e.detail.querySelector('*')!.textContent = 'hey')
+		document.body
+			.appendChild(el)
+			.addEventListener('frag-replace', (e) => (e.detail.querySelector('*')!.textContent = 'hey'))
 
 		await when(el, 'frag-replaced')
 		expect(query('import-html')).eq(null)
@@ -171,9 +173,9 @@ suite('import-html-element', () => {
 	})
 
 	it('does not replace node if event was canceled', async () => {
-		const el = new ImportHTML
+		const el = new ImportHTML()
 		el.src = '/hello'
-		document.body.appendChild(el).addEventListener('frag-replace', e => e.preventDefault())
+		document.body.appendChild(el).addEventListener('frag-replace', (e) => e.preventDefault())
 
 		await when(el, 'load')
 		assert(query('import-html'), 'Node should not be replaced')
@@ -184,15 +186,17 @@ suite('import-html-element', () => {
 		beforeAll(() => {
 			// Emulate some kind of timer clamping
 			let i = 60
-			window.setTimeout = <any>((fn: (...args: any[]) => void, ms: number, ...rest: any[]) =>
-				originalSetTimeout(fn, ms + (i -= 20), ...rest))
+			window.setTimeout = <any>(
+				((fn: (...args: any[]) => void, ms: number, ...rest: any[]) =>
+					originalSetTimeout(fn, ms + (i -= 20), ...rest))
+			)
 		})
 		afterAll(() => {
 			window.setTimeout = originalSetTimeout
 		})
 
 		it('loading events fire in guaranteed order', async () => {
-			const el = new ImportHTML
+			const el = new ImportHTML()
 			const order: string[] = []
 			const connected: boolean[] = []
 			const events = [
@@ -207,7 +211,7 @@ suite('import-html-element', () => {
 				when(el, 'loadstart').then(() => {
 					order.push('loadstart')
 					connected.push(el.isConnected)
-				})
+				}),
 			]
 			el.src = '/hello'
 			document.body.appendChild(el)
@@ -242,8 +246,8 @@ suite('import-html-element', () => {
 	})
 
 	it('lazy does not load when src is changed', () => {
-		const div = hiddenDiv('<import-html lazy src="">loading</import-html>');
-		(<ImportHTML>document.body.appendChild(div).firstChild).src = '/hello'
+		const div = hiddenDiv('<import-html lazy src="">loading</import-html>')
+		;(<ImportHTML>document.body.appendChild(div).firstChild).src = '/hello'
 		return lazyTest(div)
 	})
 
@@ -278,7 +282,7 @@ suite('import-html-element', () => {
 		el.addEventListener('load', handler)
 
 		setTimeout(() => {
-			(<ImportHTML>div.firstChild).lazy = false
+			;(<ImportHTML>div.firstChild).lazy = false
 			el.removeEventListener('load', handler)
 		}, 100)
 
@@ -291,7 +295,7 @@ suite('import-html-element', () => {
 		let loadCount = 0
 		const el = <ImportHTML>div.firstChild
 		el.addEventListener('loadstart', () => loadCount++)
-		setTimeout(() => div.hidden = false)
+		setTimeout(() => (div.hidden = false))
 
 		el.load()
 		await when(el, 'frag-replaced')
@@ -307,7 +311,7 @@ suite('import-html-element', () => {
 		div.firstChild!.addEventListener('frag-replaced', () => loadCount++)
 
 		let loadCount = 0
-		setTimeout(() => div.hidden = false)
+		setTimeout(() => (div.hidden = false))
 
 		await when(div.firstChild!, 'frag-replaced')
 		expect(loadCount).eq(1, 'Load occured too many times')

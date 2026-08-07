@@ -1,48 +1,20 @@
 {
 	"name": "@cydon/ui",
-	"private": true,
 	"version": "0.1.9",
+	"private": true,
 	"description": "UI component library for Cydon",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/0-v-0/cydon",
-		"directory": "packages/ui"
-	},
 	"keywords": [
 		"cydon"
 	],
 	"bugs": {
 		"url": "https://github.com/0-v-0/cydon/issues"
 	},
-	"browserslist": [
-		"last 4 version",
-		"Chrome >= 93",
-		"not opera > 0",
-		"not dead"
-	],
-	"devDependencies": {
-		"@custom-elements-manifest/analyzer": "^0.11.0",
-		"@cydon/stylelint-config": "workspace:^",
-		"@types/clean-css": "^4.2.11",
-		"@unocss/transformer-directives": "^66.7.5",
-		"@vitest/browser": "^4.1.10",
-		"autoprefixer": "^10.5.4",
-		"clean-css": "^5.3.3",
-		"playwright": "^1.62.1",
-		"postcss": "^8.5.25",
-		"stylelint": "^16.26.1",
-		"stylelint-stylus": "^1.0.0",
-		"stylus": "^0.64.0",
-		"terser": "^5.49.1",
-		"typedoc": "^0.28.20",
-		"unocss": "^66.7.5",
-		"unplugin-emt-styl": "workspace:*",
-		"vite": "^8.2.0",
-		"vite-plugin-progress": "^0.0.7"
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0-v-0/cydon",
+		"directory": "packages/ui"
 	},
-	"dependencies": {
-		"cydon": "workspace:*"
-	},
+	"type": "module",
 	"scripts": {
 		"analyze": "cem analyze --globs **/*.ts --fast",
 		"analyze:watch": "cem analyze --globs **/*.ts --fast --watch",
@@ -53,9 +25,37 @@
 		"lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts",
 		"test": "pnpm vitest run"
 	},
+	"dependencies": {
+		"cydon": "workspace:*"
+	},
+	"devDependencies": {
+		"@custom-elements-manifest/analyzer": "^0.11.0",
+		"@cydon/stylelint-config": "workspace:^",
+		"@types/clean-css": "^4.2.11",
+		"@unocss/transformer-directives": "^66.7.5",
+		"@vitest/browser": "^4.1.10",
+		"autoprefixer": "^10.5.4",
+		"clean-css": "^5.3.3",
+		"playwright": "^1.62.1",
+		"postcss": "^8.5.26",
+		"stylelint": "^16.26.1",
+		"stylelint-stylus": "^1.0.0",
+		"stylus": "^0.64.0",
+		"terser": "^5.49.2",
+		"typedoc": "^0.28.20",
+		"unocss": "^66.7.5",
+		"unplugin-emt-styl": "workspace:*",
+		"vite": "^8.2.0",
+		"vite-plugin-progress": "^0.0.7"
+	},
+	"browserslist": [
+		"last 4 version",
+		"Chrome >= 93",
+		"not opera > 0",
+		"not dead"
+	],
 	"stylelint": {
 		"extends": "@cydon/stylelint-config"
 	},
-	"type": "module",
 	"customElements": "custom-elements.json"
 }

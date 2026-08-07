@@ -16,13 +16,13 @@ importers:
         version: 6.0.3
       unplugin-dts:
         specifier: 1.0.3
-        version: 1.0.3(@microsoft/api-extractor@7.58.12(@types/node@26.0.1))(esbuild@0.27.7)(rolldown@1.2.2)(rollup@4.60.2)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 1.0.3(@microsoft/api-extractor@7.58.12(@types/node@26.0.1))(esbuild@0.27.7)(rolldown@1.2.2)(rollup@4.60.2)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       vite:
         specifier: ^8.2.0
-        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@26.0.1)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 4.1.10(@types/node@26.0.1)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
 
   packages/cydon: {}
 
@@ -48,7 +48,7 @@ importers:
     devDependencies:
       vite:
         specifier: ^8.2.0
-        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
   packages/site:
     dependencies:
@@ -66,23 +66,23 @@ importers:
         specifier: ^0.64.0
         version: 0.64.0(supports-color@8.1.1)
       terser:
-        specifier: ^5.49.1
-        version: 5.49.1
+        specifier: ^5.49.2
+        version: 5.49.2
       unocss:
         specifier: ^66.7.5
-        version: 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       unocss-preset-daisy:
         specifier: ^7.0.0
-        version: 7.0.0(daisyui@3.9.4(tsx@4.19.2)(yaml@2.9.0))(unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)))
+        version: 7.0.0(daisyui@3.9.4(tsx@4.19.2)(yaml@2.9.0))(unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)))
       unplugin-emt-styl:
         specifier: workspace:*
         version: link:../unplugin-emt-styl
       vite:
         specifier: ^8.2.0
-        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
       vite-plugin-minify:
         specifier: ^3.0.0
-        version: 3.0.0(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 3.0.0(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
 
   packages/stylelint-config:
     dependencies:
@@ -104,7 +104,7 @@ importers:
     devDependencies:
       vite:
         specifier: ^8.2.0
-        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+        version: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
   packages/ui:
     dependencies:
@@ -126,10 +126,10 @@ importers:
         version: 66.7.5
       '@vitest/browser':
         specifier: ^4.1.10
-        version: 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))(vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)))
+        version: 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))(vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)))
       autoprefixer:
         specifier: ^10.5.4
-        version: 10.5.4(postcss@8.5.25)
+        version: 10.5.4(postcss@8.5.26)
       clean-css:
         specifier: ^5.3.3
         version: 5.3.3
@@ -137,8 +137,8 @@ importers:
         specifier: ^1.62.1
         version: 1.62.1
       postcss:
-        specifier: ^8.5.25
-        version: 8.5.25
+        specifier: ^8.5.26
+        version: 8.5.26
       stylelint:
         specifier: ^16.26.1
         version: 16.26.1(supports-color@8.1.1)(typescript@6.0.3)
@@ -149,23 +149,23 @@ importers:
         specifier: ^0.64.0
         version: 0.64.0(supports-color@8.1.1)
       terser:
-        specifier: ^5.49.1
-        version: 5.49.1
+        specifier: ^5.49.2
+        version: 5.49.2
       typedoc:
         specifier: ^0.28.20
         version: 0.28.20(typescript@6.0.3)
       unocss:
         specifier: ^66.7.5
-        version: 66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       unplugin-emt-styl:
         specifier: workspace:*
         version: link:../unplugin-emt-styl
       vite:
         specifier: ^8.2.0
-        version: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+        version: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
       vite-plugin-progress:
         specifier: ^0.0.7
-        version: 0.0.7(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+        version: 0.0.7(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
 
   packages/unplugin-emt-styl:
     dependencies:
@@ -2636,6 +2636,10 @@ packages:
     resolution: {integrity: sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postcss@8.5.26:
+    resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
+    engines: {node: ^10 || ^12 || >=14}
+
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
@@ -2939,8 +2943,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  terser@5.49.1:
-    resolution: {integrity: sha512-7A2xlQ5EnGT8KPA92dUh6RbRYTVw8hEaEN9L1K68l4UOXFuV511NnAqObGoRqGOQofQcMypisu1s3xawCEHrvA==}
+  terser@5.49.2:
+    resolution: {integrity: sha512-rGbJiKeQ4WDe3EXlDAIaQcwftVfv2Q8o1awFNfvXolJYKkb1AuZY1RTOmqx4LJXZENbWZA7eIsYGHuEzHsi1nQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -4254,7 +4258,7 @@ snapshots:
     dependencies:
       '@unocss/core': 66.7.5
 
-  '@unocss/vite@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))':
+  '@unocss/vite@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@unocss/config': 66.7.5
@@ -4265,9 +4269,9 @@ snapshots:
       pathe: 2.0.3
       tinyglobby: 0.2.17
       unplugin-utils: 0.3.2
-      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
-  '@unocss/vite@66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))':
+  '@unocss/vite@66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@unocss/config': 66.7.5
@@ -4278,18 +4282,18 @@ snapshots:
       pathe: 2.0.3
       tinyglobby: 0.2.17
       unplugin-utils: 0.3.2
-      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
-  '@vitest/browser@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))(vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)))':
+  '@vitest/browser@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))(vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)))':
     dependencies:
       '@blazediff/core': 1.9.1
-      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       '@vitest/utils': 4.1.10
       magic-string: 0.30.21
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
@@ -4306,23 +4310,23 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       msw: 2.7.0(@types/node@26.1.2)(typescript@6.0.3)
-      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
-  '@vitest/mocker@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       msw: 2.7.0(@types/node@26.1.2)(typescript@6.0.3)
-      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
@@ -4465,6 +4469,15 @@ snapshots:
       fraction.js: 5.3.4
       picocolors: 1.1.1
       postcss: 8.5.25
+      postcss-value-parser: 4.2.0
+
+  autoprefixer@10.5.4(postcss@8.5.26):
+    dependencies:
+      browserslist: 4.28.7
+      caniuse-lite: 1.0.30001806
+      fraction.js: 5.3.4
+      picocolors: 1.1.1
+      postcss: 8.5.26
       postcss-value-parser: 4.2.0
 
   balanced-match@1.0.0: {}
@@ -4992,7 +5005,7 @@ snapshots:
       entities: 8.0.0
       lightningcss: 1.33.0
       svgo: 4.0.2
-      terser: 5.49.1
+      terser: 5.49.2
 
   html-tags@3.3.1: {}
 
@@ -5517,6 +5530,12 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  postcss@8.5.26:
+    dependencies:
+      nanoid: 3.3.17
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
   progress@2.0.3: {}
 
   psl@1.15.0:
@@ -5929,7 +5948,7 @@ snapshots:
       - tsx
       - yaml
 
-  terser@5.49.1:
+  terser@5.49.2:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.18.0
@@ -6036,7 +6055,7 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss-preset-daisy@7.0.0(daisyui@3.9.4(tsx@4.19.2)(yaml@2.9.0))(unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))):
+  unocss-preset-daisy@7.0.0(daisyui@3.9.4(tsx@4.19.2)(yaml@2.9.0))(unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))):
     dependencies:
       autoprefixer: 10.5.4(postcss@8.5.25)
       camelcase: 8.0.0
@@ -6044,9 +6063,9 @@ snapshots:
       parsel-js: 1.2.3
       postcss: 8.5.25
       postcss-js: 4.0.1(postcss@8.5.25)
-      unocss: 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      unocss: 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
 
-  unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  unocss@66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       '@unocss/cli': 66.7.5
       '@unocss/core': 66.7.5
@@ -6064,11 +6083,11 @@ snapshots:
       '@unocss/transformer-compile-class': 66.7.5
       '@unocss/transformer-directives': 66.7.5
       '@unocss/transformer-variant-group': 66.7.5
-      '@unocss/vite': 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      '@unocss/vite': 66.7.5(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
     transitivePeerDependencies:
       - vite
 
-  unocss@66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  unocss@66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       '@unocss/cli': 66.7.5
       '@unocss/core': 66.7.5
@@ -6086,11 +6105,11 @@ snapshots:
       '@unocss/transformer-compile-class': 66.7.5
       '@unocss/transformer-directives': 66.7.5
       '@unocss/transformer-variant-group': 66.7.5
-      '@unocss/vite': 66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      '@unocss/vite': 66.7.5(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
     transitivePeerDependencies:
       - vite
 
-  unplugin-dts@1.0.3(@microsoft/api-extractor@7.58.12(@types/node@26.0.1))(esbuild@0.27.7)(rolldown@1.2.2)(rollup@4.60.2)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  unplugin-dts@1.0.3(@microsoft/api-extractor@7.58.12(@types/node@26.0.1))(esbuild@0.27.7)(rolldown@1.2.2)(rollup@4.60.2)(supports-color@8.1.1)(typescript@6.0.3)(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       '@rollup/pluginutils': 5.4.0(rollup@4.60.2)
       '@volar/typescript': 2.4.28(typescript@6.0.3)
@@ -6106,7 +6125,7 @@ snapshots:
       esbuild: 0.27.7
       rolldown: 1.2.2
       rollup: 4.60.2
-      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6136,21 +6155,21 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite-plugin-minify@3.0.0(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  vite-plugin-minify@3.0.0(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       html-minifier-next: 6.2.11
-      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@swc/core'
 
-  vite-plugin-progress@0.0.7(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  vite-plugin-progress@0.0.7(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       picocolors: 1.1.1
       progress: 2.0.3
       rd: 2.0.1
-      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
 
-  vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0):
+  vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@1.21.7)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -6163,11 +6182,11 @@ snapshots:
       fsevents: 2.3.3
       jiti: 1.21.7
       stylus: 0.64.0(supports-color@8.1.1)
-      terser: 5.49.1
+      terser: 5.49.2
       tsx: 4.19.2
       yaml: 2.9.0
 
-  vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0):
+  vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -6180,11 +6199,11 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.7.0
       stylus: 0.64.0(supports-color@8.1.1)
-      terser: 5.49.1
+      terser: 5.49.2
       tsx: 4.19.2
       yaml: 2.9.0
 
-  vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0):
+  vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -6197,14 +6216,14 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.7.0
       stylus: 0.64.0(supports-color@8.1.1)
-      terser: 5.49.1
+      terser: 5.49.2
       tsx: 4.19.2
       yaml: 2.9.0
 
-  vitest@4.1.10(@types/node@26.0.1)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  vitest@4.1.10(@types/node@26.0.1)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
@@ -6221,17 +6240,17 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.0.1)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.0.1
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)):
+  vitest@4.1.10(@types/node@26.1.2)(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.10(msw@2.7.0(@types/node@26.1.2)(typescript@6.0.3))(vite@8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
@@ -6248,7 +6267,7 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.1)(tsx@4.19.2)(yaml@2.9.0)
+      vite: 8.2.0(@types/node@26.1.2)(esbuild@0.27.7)(jiti@2.7.0)(stylus@0.64.0(supports-color@8.1.1))(terser@5.49.2)(tsx@4.19.2)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.1.2

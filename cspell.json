@@ -6,7 +6,10 @@
 	],
 	// words - list of words to be always considered correct
 	"words": [
+		"cydon",
 		"styl",
+		"unocss",
+		"unplugin",
 		"vite",
 	]
 }

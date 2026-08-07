@@ -6,11 +6,11 @@ export default defineConfig({
 			entry: 'index.ts',
 			formats: ['iife'],
 			name: 'sw',
-			fileName: () => 'sw.js'
+			fileName: () => 'sw.js',
 		},
 		rollupOptions: {
-			output: { sourcemap: 'hidden' }
+			output: { sourcemap: 'hidden' },
 		},
-		target: 'esnext'
-	}
+		target: 'esnext',
+	},
 })
