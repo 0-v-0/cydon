@@ -95,7 +95,7 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 		}
 
 		bind(results: Results, container: Container = <any>this) {
-			let node: Node = container,
+			let node: Node | null = container,
 				l = 0, n = 0, stack: number[] = []
 			for (let i = 1, len = results.length; i < len; ++i) {
 				let result = results[i]
@@ -108,31 +108,33 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 								result.s.childNodes.forEach(c => shadow!.append(c.cloneNode(true)))
 							}
 							this.bind(result, shadow)
-						} else {
-							const p = node.parentNode!
+						} else if (node) {
+							const p: Node = node.parentNode!
 							for_(this, <HTMLTemplateElement>node, result)
 							node = p
 							n = stack.pop()!
 							l--
 						}
-					} else if ((<Part>result).f)
-						this.bindNode(<Text>node, <Part>result)
-					else for (const [, part] of <AttrMap>result)
-						this.bindNode(<Element>node, part)
+					} else if (node) {
+						if ((<Part>result).f)
+							this.bindNode(<Text>node, <Part>result)
+						else for (const [, part] of <AttrMap>result)
+							this.bindNode(<Element>node, part)
+					}
 				} else {
 					const level = result >>> 22
 					result &= 4194303 // index
 					if (level > l) {
 						stack.push(n)
 						n = 0
-						node = node.firstChild!
+						node = node?.firstChild as Node | null
 						l = level
 					} else for (; level < l; l--) {
-						node = node.parentNode!
+						node = node?.parentNode as Node | null
 						n = stack.pop()!
 					}
 					for (; n < result; n++)
-						node = node.nextSibling!
+						node = node?.nextSibling as Node | null
 				}
 			}
 		}
