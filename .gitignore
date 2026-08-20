@@ -8,3 +8,4 @@ packages/site/src/*.html
 .agents
 .trae
 skills-lock.json
+.opencode

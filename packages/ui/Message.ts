@@ -1,7 +1,7 @@
 // From https://github.com/XboxYan/xy-ui/blob/master/components/xy-message.js
 
 export class Message extends HTMLElement {
-	timer?: number | NodeJS.Timeout
+	timer?: ReturnType<typeof setTimeout>
 	messageType?: null
 
 	constructor() {

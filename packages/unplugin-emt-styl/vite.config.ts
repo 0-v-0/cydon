@@ -17,6 +17,7 @@ export default defineConfig({
 	},
 	plugins: [
 		dts({
+			strictOutput: false,
 			beforeWriteFile(filePath, content) {
 				return {
 					filePath,

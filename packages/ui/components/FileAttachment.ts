@@ -54,7 +54,7 @@ export class FileAttachment extends HTMLElement {
 
 const hasFile = (transfer: DataTransfer) => transfer.types.includes('Files')
 
-let dragging: number | NodeJS.Timeout | undefined
+let dragging: ReturnType<typeof setTimeout> | undefined
 
 // Highlight textarea and change drop cursor. Ensure drop target styles
 // are cleared after dragging back outside of window.

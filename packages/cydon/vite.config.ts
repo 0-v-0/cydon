@@ -25,6 +25,7 @@ export default defineConfig({
 	},
 	plugins: [
 		dts({
+			strictOutput: false,
 			bundleTypes: {
 				extractorConfig: {
 					newlineKind: 'lf',

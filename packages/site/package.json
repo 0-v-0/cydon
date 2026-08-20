@@ -23,11 +23,11 @@
 		"@unocss/transformer-directives": "^66.7.5",
 		"daisyui": "^3.9.4",
 		"stylus": "^0.64.0",
-		"terser": "^5.49.2",
+		"terser": "^5.50.0",
 		"unocss": "^66.7.5",
 		"unocss-preset-daisy": "^7.0.0",
 		"unplugin-emt-styl": "workspace:*",
-		"vite": "^8.2.0",
+		"vite": "^8.2.1",
 		"vite-plugin-minify": "^3.0.0"
 	},
 	"browserslist": [
