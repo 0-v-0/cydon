@@ -63,7 +63,7 @@ const factory: PluginFactory = (config: Options = {}) => {
 		root = process.cwd(),
 		paths = [],
 		templated = true,
-		writeHtml = true,
+		writeHtml = false,
 	} = config
 	if (classy) {
 		const { cssProps = new Set(all) } = config

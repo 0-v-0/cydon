@@ -51,7 +51,7 @@ export default {
 
 ### writeHtml在不同构建工具中的兼容性
 
-`writeHtml` 默认值为`true`，仅在开发模式下当emt文件改变时将渲染后的html写入磁盘，方便调试查看。无论是否启用`writeHtml`，emt文件的预览和构建都不依赖于它。
+`writeHtml` 默认值为`false`，仅在开发模式下当emt文件改变时将渲染后的html写入磁盘，方便调试查看。无论是否启用`writeHtml`，emt文件的预览和构建都不依赖于它。
 
 不启用`writeHtml`时，插件通过虚拟html模块（`resolveId`/`load`）和开发中间件（`configureServer`）动态渲染emt文件。各构建工具的兼容性如下：
 
