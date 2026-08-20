@@ -2,12 +2,13 @@
 
 ## Global API
 
-### CydonOf(base: `Constructor<T>` = Object)
+### CydonOf<T, D extends Data = Data>(base: `Constructor<T>` = Object)
 
 Creates a reactive class. `Cydon` is `CydonOf(Object)`, `CydonElement` is `CydonOf(HTMLElement)`.
 
 Parameters:
 - `base`: Base class constructor, defaults to `Object`
+- `D`: Data type parameter, defaults to `Data`. Allows typing the `$data` and `data` fields
 
 Returns: A new class that extends `base` and mixes in Cydon's reactive capabilities
 
@@ -119,12 +120,12 @@ Parameters:
 
 Note: [ShadowRoot](https://developer.mozilla.org/docs/Web/API/ShadowRoot) is a type of [DocumentFragment](https://developer.mozilla.org/docs/Web/API/DocumentFragment).
 
-### `new(data?: Data, ...args: ConstructorParameters<Constructor<T>>)`
+### `new<D extends Data = Data>(data?: D, ...args: ConstructorParameters<Constructor<T>>)`
 
 Creates a Cydon instance.
 
 Parameters:
-- `data`: Data object, which will be wrapped with `Proxy` for reactivity
+- `data`: Data object, which will be wrapped with `Proxy` for reactivity. Type `D` allows for typed data
 - `args`: Arguments passed to the base class
 
 ### mount(el: Element | DocumentFragment = this)
@@ -189,11 +190,11 @@ When overriding this method, ensure you call `super.connectedCallback()` to bind
 
 ### $data
 
-The raw data object (non-reactive), type is `Data`. Directly modifying properties on `$data` will **not** trigger DOM updates.
+The raw data object (non-reactive), type is `D` (defaults to `Data`). Directly modifying properties on `$data` will **not** trigger DOM updates.
 
 ### data
 
-The reactive data object (wrapped with `Proxy`), type is `Data`. Modifying properties through `data` will trigger DOM updates.
+The reactive data object (wrapped with `Proxy`), type is `D` (defaults to `Data`). Modifying properties through `data` will trigger DOM updates.
 
 ```ts
 const app = new Cydon({ count: 0 })

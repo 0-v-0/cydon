@@ -56,18 +56,18 @@ export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 	cydon.data = new Proxy(cydon.$data = data, proxy)
 }
 
-export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
+export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <any>Object) => {
 
 	class Mixin extends (<Ctor<{ connectedCallback?(): void }>>base) {
 		/**
 		 * raw data object
 		 */
-		$data!: Data
+		$data!: D
 
 		/**
 		 * reactive data object
 		 */
-		data!: Data
+		data!: D
 
 		/**
 		 * render queue
@@ -89,9 +89,9 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 		 */
 		$directives = d
 
-		constructor(data?: Data, ...args: ConstructorParameters<Ctor<T>>) {
+		constructor(data?: D, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
-			setData(this, data)
+			setData(this, data as Data)
 		}
 
 		bind(results: Results, container: Container = <any>this) {
@@ -228,7 +228,7 @@ export const CydonOf = <T extends {}>(base: Ctor<T> = <any>Object) => {
 			}
 		}
 	}
-	return <new (data?: Data, ...args: any[]) => T & Mixin>Mixin
+	return <new (data?: D, ...args: any[]) => T & Mixin>Mixin
 }
 
 /**
@@ -238,6 +238,13 @@ export const CydonElement = CydonOf(HTMLElement)
 
 export type CydonElement = InstanceType<typeof CydonElement>
 
-export const Cydon = CydonOf()
+type CydonBase<T extends {}, D extends Data = Data> = InstanceType<ReturnType<typeof CydonOf<T, D>>>
 
-export type Cydon = InstanceType<typeof Cydon>
+/** Generic Cydon constructor - allows `new Cydon<MyType>(data)` for typed data */
+interface CydonCtor {
+	new <D extends Data = Data>(data?: D): CydonBase<{}, D>
+}
+
+export const Cydon = CydonOf() as CydonCtor
+
+export type Cydon<T extends {} = {}, D extends Data = Data> = CydonBase<T, D>

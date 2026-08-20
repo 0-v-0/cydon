@@ -2,12 +2,13 @@
 
 ## 全局API
 
-### CydonOf(base: `Constructor<T>` = Object)
+### CydonOf<T, D extends Data = Data>(base: `Constructor<T>` = Object)
 
 创建一个响应式类。`Cydon`就是`CydonOf(Object)`，`CydonElement`就是`CydonOf(HTMLElement)`
 
 参数：
 - `base`：基类构造函数，默认为`Object`
+- `D`：数据类型参数，默认为`Data`。允许对`$data`和`data`字段进行类型定义
 
 返回值：一个新的类，继承自`base`，并混入了Cydon的响应式能力
 
@@ -119,12 +120,12 @@ customElements.define('my-element', MyElement)
 
 提示：[ShadowRoot](https://developer.mozilla.org/docs/Web/API/ShadowRoot)属于[DocumentFragment](https://developer.mozilla.org/docs/Web/API/DocumentFragment)的一种
 
-### `new(data?: Data, ...args: ConstructorParameters<Constructor<T>>)`
+### `new<D extends Data = Data>(data?: D, ...args: ConstructorParameters<Constructor<T>>)`
 
 创建一个Cydon实例
 
 参数：
-- `data`：数据对象，该对象将被`Proxy`包装以实现响应式
+- `data`：数据对象，该对象将被`Proxy`包装以实现响应式。类型`D`允许定义数据类型
 - `args`：传给基类的参数
 
 ### mount(el: Element | DocumentFragment = this)
@@ -189,11 +190,11 @@ customElements.define('my-element', MyElement)
 
 ### $data
 
-原始数据对象（非响应式），类型为`Data`。直接修改`$data`上的属性**不会**触发DOM更新
+原始数据对象（非响应式），类型为`D`（默认为`Data`）。直接修改`$data`上的属性**不会**触发DOM更新
 
 ### data
 
-响应式数据对象（`Proxy`包装），类型为`Data`。通过`data`修改属性会触发DOM更新
+响应式数据对象（`Proxy`包装），类型为`D`（默认为`Data`）。通过`data`修改属性会触发DOM更新
 
 ```ts
 const app = new Cydon({ count: 0 })

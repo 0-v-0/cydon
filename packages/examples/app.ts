@@ -16,6 +16,7 @@ const storage = {
 
 @define('todo-app')
 class TodoApp extends CydonElement {
+	data!: this
 	// app initial state
 	newTodo = ''
 	visibility = 'all'
