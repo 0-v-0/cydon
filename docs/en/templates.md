@@ -103,7 +103,7 @@ Templates in the Shadow Root use the same compilation and binding mechanism as e
 
 1. Text interpolation in HTML tag attributes is replaced with the attribute value. If the attribute value is not a string, it is converted to string form.
 2. Interpolation in text nodes is inserted as text, not HTML. This prevents XSS attacks.
-3. Tag names and attribute names do not support interpolation. For example, `<$elName>` and `<p $attr="xxx">` are not recognized.
+3. Tag names and attribute names do not support interpolation. For example, `<$elName>` and `<p ${attr}="xxx">` are not recognized (but `$attr` is a supported dynamic attribute name directive, see [Directives](./directives.md)).
 4. If the corresponding property for a text interpolation does not exist, it is output as-is.
 5. Interpolation expressions are not supported inside `<textarea>`. Use `c-model` or `.value` property binding instead.
 6. Child nodes of Custom Elements registered via `customElements.define` that contain Cydon instances, as well as `<textarea>`, are not compiled.

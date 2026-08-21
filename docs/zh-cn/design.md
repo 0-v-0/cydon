@@ -336,7 +336,7 @@ const handler = {
 
 ### Mixin 模式
 
-Cydon 使用 Mixin 而非继承来实现功能组合：
+Cydon 通过类工厂 `CydonOf` 实现功能组合：它将**基类**作为参数，返回一个继承自该基类并内置响应式能力的子类：
 
 ```ts
 export const CydonOf = <T extends {}>(base: Ctor<T> = Object) => {

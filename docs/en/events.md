@@ -34,7 +34,7 @@ class MyElement extends CydonElement {
 
 ## Event Delegation
 
-Cydon uses event delegation by default to optimize performance. For non-`capture`, non-`once`, and non-`$` dynamic events, event listeners are delegated to the root node (Document or ShadowRoot) rather than being bound directly to each element.
+Cydon uses event delegation by default to optimize performance. For non-`capture`, non-`once`, and non-`$` dynamic events that are inside a `c-for` loop (where a `parent` scope exists), event listeners are delegated to the root node (Document or ShadowRoot) rather than being bound directly to each element.
 
 How event delegation works:
 1. A unified event listener is added to the root node.

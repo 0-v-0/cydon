@@ -28,8 +28,8 @@ Conditionally renders an element based on the truthiness of the expression value
 
 **Expected bound value type:** `any`
 
-- When the value is truthy: the element is inserted into the DOM and `mount` is called.
-- When the value is falsy: the element is replaced with a comment node and `unmount` is called.
+- When the value is truthy: `mount` is called, then the element is inserted into the DOM.
+- When the value is falsy: `unmount` is called, then the element is replaced with a comment node.
 
 ```html
 <p c-if="show">Conditional content</p>
@@ -156,7 +156,7 @@ The attribute value can be a method name or an inline expression. If a correspon
 
 In inline expressions, `$e` refers to the Event object, and the expression is executed in a `with(this)` context.
 
-**Event Delegation:** For non-`capture`, non-`once`, and non-`$` dynamic events, Cydon delegates event listeners to the root node (Document or ShadowRoot) and triggers via event bubbling, reducing the number of event listeners.
+**Event Delegation:** For non-`capture`, non-`once`, and non-`$` dynamic events that are inside a `c-for` loop (where a `parent` scope exists), Cydon delegates event listeners to the root node (Document or ShadowRoot) and triggers via event bubbling, reducing the number of event listeners.
 
 #### Modifiers
 
@@ -169,7 +169,7 @@ Multiple modifiers can be used together, e.g., `@click.capture.once`.
 
 ```html
 <button @click="count++">+1</button>
-<button @click.prevent="submit">Submit</button>
+<button @click.once="submit">Submit</button>
 <div @click.away="close">Click outside to close</div>
 ```
 

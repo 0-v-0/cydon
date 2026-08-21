@@ -58,7 +58,7 @@ export class CompA extends CydonElement {
 
     add() {
         this.count++
-        eventHub.emit('countChanged', count)
+        eventHub.emit('countChanged', this.count)
     }
 }
 

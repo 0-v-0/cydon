@@ -34,7 +34,7 @@ class MyElement extends CydonElement {
 
 ## 事件委托
 
-Cydon默认使用事件委托机制来优化性能。对于非`capture`、非`once`且非`$`动态事件，事件监听器会被委托到根节点（Document或ShadowRoot），而不是直接绑定到每个元素上。
+Cydon默认使用事件委托机制来优化性能。对于非`capture`、非`once`且非`$`动态事件，且处于`c-for`循环中（存在`parent`作用域）时，事件监听器会被委托到根节点（Document或ShadowRoot），而不是直接绑定到每个元素上。
 
 事件委托的工作原理：
 1. 在根节点上添加一个统一的事件监听器

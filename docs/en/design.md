@@ -335,7 +335,7 @@ const handler = {
 
 ### Mixin Pattern
 
-Cydon uses Mixin rather than inheritance for feature composition:
+Cydon achieves feature composition through the class factory `CydonOf`: it takes a **base class** as a parameter and returns a subclass that extends it with built-in reactive capabilities:
 
 ```ts
 export const CydonOf = <T extends {}>(base: Ctor<T> = Object) => {

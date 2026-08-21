@@ -43,7 +43,7 @@ template[shadowrootmode=open]
 
 s-table.ts
 ```ts
-import { define } from 'cydon'
+import { define, CydonElement, type Data } from 'cydon'
 
 export class ListElement<T extends {}> extends CydonElement {
 	static observedAttributes = ['per-page']

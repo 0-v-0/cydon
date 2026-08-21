@@ -28,8 +28,8 @@
 
 **期望的绑定值类型：**`any`
 
-- 当值为真时：元素被插入DOM，并调用`mount`方法
-- 当值为假时：元素被替换为注释节点，并调用`unmount`方法
+- 当值为真时：调用`mount`方法，并将元素插入DOM
+- 当值为假时：调用`unmount`方法，并将元素替换为注释节点
 
 ```html
 <p c-if="show">条件内容</p>
@@ -156,7 +156,7 @@
 
 内联表达式中`$e`指向Event对象，表达式将在`with(this)`上下文中执行
 
-**事件委托：**对于非`capture`、非`once`且非`$`动态事件，Cydon会将事件监听器委托到根节点（Document或ShadowRoot），通过事件冒泡机制触发，以减少事件监听器的数量
+**事件委托：**对于非`capture`、非`once`且非`$`动态事件，且处于`c-for`循环中（存在`parent`作用域）时，Cydon会将事件监听器委托到根节点（Document或ShadowRoot），通过事件冒泡机制触发，以减少事件监听器的数量
 
 #### 修饰符
 
@@ -169,7 +169,7 @@
 
 ```html
 <button @click="count++">+1</button>
-<button @click.prevent="submit">提交</button>
+<button @click.once="submit">提交</button>
 <div @click.away="close">点击外部关闭</div>
 ```
 

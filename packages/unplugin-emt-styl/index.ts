@@ -29,16 +29,27 @@ type TitleCache = Record<
 >
 
 export interface Options {
+	/** Trigger a full page reload on any `.emt` file change, ignoring dependency tracking. */
 	alwaysReload?: boolean
+	/** Enable emmet token-to-class/style attribute expansion. @default true */
 	classy?: boolean
+	/** Known CSS property names used by {@link classy} to distinguish style vs class attributes. Defaults to all known CSS properties. */
 	cssProps?: Set<string>
+	/** Tagged template literal name to parse as emmet. @default 'emt' */
 	literal?: string
+	/** Additional directories to search when resolving `.emt` includes. */
 	paths?: string[]
+	/** Document root directory for resolving paths. @default process.cwd() */
 	root?: string
+	/** Custom file reader for `.emt` / `.html` sources. */
 	read?(path: string): string
+	/** Custom template render function (replaces the default from simpletpl). */
 	render?: Render
+	/** Layout template file name, resolved via {@link paths} / {@link root}. @default 'page.emt' */
 	tplFile?: string
+	/** Track used custom elements to deduplicate `<script type="module">` tags on repeated includes. @default true */
 	templated?: boolean
+	/** Write rendered HTML output to disk alongside `.emt` sources. @default false */
 	writeHtml?: boolean
 }
 

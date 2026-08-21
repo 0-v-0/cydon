@@ -9,7 +9,9 @@ import {
 	UnpluginFactory,
 } from 'unplugin'
 
+/** Plugin options. Inherits all Stylus {@link RenderOptions} and adds: */
 export interface Options extends RenderOptions {
+	/** Tagged template literal name for inline Stylus. @default 'styl' */
 	literal?: string
 }
 export type PluginFactory = UnpluginFactory<Options | undefined>

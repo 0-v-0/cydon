@@ -213,7 +213,7 @@ app.$data.count++ // 不会触发DOM更新
 
 ### $limits
 
-每个属性性在单次`commit`中的更新次数限制，类型为`Map<string, number>`。当某个属性在单次`commit`中更新次数达到限制时，将跳过该属性的后续更新，防止无限循环
+每个属性在单次`commit`中的更新次数限制，类型为`Map<string, number>`。当某个属性在单次`commit`中更新次数达到限制时，将跳过该属性的后续更新，防止无限循环
 
 ### $directives
 
