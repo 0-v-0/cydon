@@ -22,6 +22,18 @@
 		"dist"
 	],
 	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/cydon.js",
+			"browser": "./dist/cydon.iife.js",
+			"default": "./dist/cydon.js"
+		},
+		"./declarative": {
+			"import": "./dist/declarative.js",
+			"default": "./dist/declarative.js"
+		}
+	},
 	"main": "dist/cydon.js",
 	"module": "dist/cydon.js",
 	"browser": "dist/cydon.iife.js",
