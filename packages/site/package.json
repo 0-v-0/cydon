@@ -20,14 +20,14 @@
 		"cydon": "workspace:*"
 	},
 	"devDependencies": {
-		"@unocss/transformer-directives": "^66.7.5",
+		"@unocss/transformer-directives": "^66.10.5",
 		"daisyui": "^3.9.4",
 		"stylus": "^0.64.0",
-		"terser": "^5.50.0",
-		"unocss": "^66.7.5",
+		"terser": "^5.51.2",
+		"unocss": "^66.10.5",
 		"unocss-preset-daisy": "^7.0.0",
 		"unplugin-emt-styl": "workspace:*",
-		"vite": "^8.2.1",
+		"vite": "^8.3.1",
 		"vite-plugin-minify": "^3.0.0"
 	},
 	"browserslist": [
