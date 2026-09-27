@@ -63,7 +63,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	const setCapacity = (n: number) => {
 		if (n) {
 			for (; capacity < n; ++capacity) {
-				const target = <DocumentFragment>document.importNode(content, true)
+				const target = document.importNode(content, true)
 				const c: Context = ctxs[capacity] = Object.create(cydon)
 				setData(c, c, data)
 				if (index)
@@ -240,6 +240,8 @@ export const directives: DirectiveHandler[] = [
 ]
 
 declare namespace globalThis {
+	// ambient: read back via globalThis.CYDON_NO_EXTRA below and settable from host pages
+	// oxlint-disable-next-line no-unused-vars
 	const CYDON_NO_EXTRA: boolean | undefined
 }
 

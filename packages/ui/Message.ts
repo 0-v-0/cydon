@@ -36,7 +36,7 @@ export class Message extends HTMLElement {
 	connectedCallback() {
 		this.messageType = null
 		this.addEventListener('transitionend', ev => {
-			if ((<TransitionEvent>ev).propertyName == 'transform' && !this.open) {
+			if (ev.propertyName == 'transform' && !this.open) {
 				this.remove()
 				this.dispatchEvent(new CustomEvent('close'))
 			}

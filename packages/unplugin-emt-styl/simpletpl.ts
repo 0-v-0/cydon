@@ -21,10 +21,10 @@ const getBlock = (str: string, start = '[', end = ']') => {
 	}
 	return str.substring(1, i)
 }, getValue = (key: string): string => {
-	let raw = key[0] == ':'
+	const raw = key[0] == ':'
 	if (raw)
 		key = key.substring(1)
-	let value = ''
+	let value: any = ''
 	for (const dat of appdata) {
 		if (key in dat) {
 			value = dat[key]
@@ -84,7 +84,7 @@ const getBlock = (str: string, start = '[', end = ']') => {
 					str += rend(expr, maxDepth)
 				s = s.substring(expr.length + 2).trimStart()
 				if (s[0] == ':') {
-					let t = s.substring(1).trimStart()
+					const t = s.substring(1).trimStart()
 					expr = getBlock(t)
 					if (expr) {
 						if (!cond)
@@ -122,7 +122,7 @@ const getBlock = (str: string, start = '[', end = ']') => {
 							if (valname)
 								data[valname] = arr[i]
 						} else {
-							let fullkey = key + '.' + arr[i]
+							const fullkey = key + '.' + arr[i]
 							if (fullkey.length > 256)
 								throw new Error('Name too long')
 							if (keyname)
@@ -150,5 +150,7 @@ export const render: Render = (tpl, data, maxDepth = 5) => {
 }
 
 declare namespace globalThis {
+	// ambient: assigned in render(), read via globalThis in user templates
+	// oxlint-disable-next-line no-unused-vars
 	let REQUEST_PATH: string
 }

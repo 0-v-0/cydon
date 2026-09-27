@@ -19,7 +19,7 @@ export type Part = {
 	/** dependencies */
 	deps?: Dep
 	/** update function */
-	f(this: Data, el: Element): any
+	f: (this: Data, el: any) => any
 }
 
 export type Target = Part & {

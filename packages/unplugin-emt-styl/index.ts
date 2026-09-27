@@ -42,7 +42,7 @@ export interface Options {
 	/** Document root directory for resolving paths. @default process.cwd() */
 	root?: string
 	/** Custom file reader for `.emt` / `.html` sources. */
-	read?(path: string): string
+	read?: (path: string) => string
 	/** Custom template render function (replaces the default from simpletpl). */
 	render?: Render
 	/** Layout template file name, resolved via {@link paths} / {@link root}. @default 'page.emt' */
@@ -95,7 +95,7 @@ const factory: PluginFactory = (config: Options = {}) => {
 		})
 	}
 	const resolve = (p: string, base = root, throwOnErr = false) => {
-			let i = p.indexOf('?')
+			const i = p.indexOf('?')
 			p = res(process.cwd(), base || '.', i < 0 ? p : p.substring(0, i))
 			let fullPath = p
 			if (!existsSync(fullPath)) {
@@ -136,7 +136,7 @@ const factory: PluginFactory = (config: Options = {}) => {
 				}
 			}
 		if (name) {
-			const content = read!(resolveAll(name, false))
+			const content = read(resolveAll(name, false))
 			prop.content =
 				(used?.has(name)
 					? content.replace(/<script [^>]*?type="module"[^>]*?>.*?<\/script>/gis, '')
@@ -243,7 +243,7 @@ const factory: PluginFactory = (config: Options = {}) => {
 				try {
 					old = await fs.readFile(output, 'utf8')
 				} catch {}
-				if (old != content) fs.writeFile(output, content)
+				if (old != content) void fs.writeFile(output, content)
 			}
 		},
 		// parse emt`...`
@@ -295,6 +295,8 @@ const factory: PluginFactory = (config: Options = {}) => {
 				const viteRoot = server.config.root
 				const resolveAbs = (p: string) => res(viteRoot, p)
 				return () => {
+					// async handler is deliberate: every await is inside the try/catch below
+					// oxlint-disable-next-line typescript/no-misused-promises
 					server.middlewares.use(async (req, resp, next) => {
 						if (resp.writableEnded) return next()
 						const url = req.url && req.url.split('?')[0].split('#')[0]
@@ -357,5 +359,7 @@ export const rspack = createRspackPlugin(factory)
 export const vite = createVitePlugin(factory)
 
 declare namespace globalThis {
+	// ambient: assigned in factory(), read via globalThis.include in templates
+	// oxlint-disable-next-line no-unused-vars
 	let include: (url: string) => string
 }

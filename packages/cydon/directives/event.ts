@@ -1,4 +1,4 @@
-import { Directive, DirectiveHandler } from '../type'
+import { AttrMap, Directive } from '../type'
 import { toFunction } from '../util'
 
 /** elements that have event listener bound, key is event type, value is bound elements */
@@ -20,7 +20,7 @@ const listener = (e: Event) => {
 	const key = handlers.get(e.type)
 	if (key)
 		for (let target = e.target; target instanceof Node; target = target.parentNode) {
-			const handler: Function = target[key]
+			const handler: (...args: any[]) => any = target[key]
 			if (handler) {
 				handler.call(target[context], e)
 				break
@@ -28,7 +28,7 @@ const listener = (e: Event) => {
 		}
 }
 
-export default <DirectiveHandler>((name, value, _el, _, parent): D => {
+export default ((name: string, value: string, _el: Element, _: AttrMap, parent?: ParentNode): D => {
 	// bind event
 	if (name[0] == '@') {
 		name = name.substring(1)
@@ -58,15 +58,15 @@ export default <DirectiveHandler>((name, value, _el, _, parent): D => {
 		}
 		return {
 			f(el) {
-				const handler: Function = this[value] ?? toFunction(value)
+				const handler: (...args: any[]) => any = this[value] ?? toFunction(value)
 				if (key) {
 					el[key] = handler
 					el[context] = this
 				} else {
 					// handles dynamic event name
 					el.addEventListener(type[0] == '$' ? this[type.substring(1)] : type,
-						away ? e => {
-							if (e.target != el && !el.contains(<Node>e.target))
+						away ? (e: Event) => {
+							if (e.target != el && !el.contains(e.target))
 								handler.call(this, e)
 						} : handler.bind(this), options)
 				}

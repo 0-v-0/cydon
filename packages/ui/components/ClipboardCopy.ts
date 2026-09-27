@@ -11,14 +11,14 @@ function handle(el: Element) {
 		}
 
 	if (text) {
-		trigger(text)
+		void trigger(text)
 	} else {
 		const id = el.getAttribute('for')
 		if (id) {
 			const root = el.getRootNode() as Document | ShadowRoot
 			const node = root.getElementById(id) || root.querySelector(id)
 			if (node) {
-				trigger(node)
+				void trigger(node)
 			}
 		}
 	}
@@ -53,10 +53,10 @@ export class ClipboardCopy extends HTMLElement {
 			if (button instanceof Element)
 				handle(button)
 		})
-		this.addEventListener('focus', e =>
-			(e.currentTarget as HTMLElement).addEventListener('keydown', keydown))
-		this.addEventListener('blur', e =>
-			(e.currentTarget as HTMLElement).removeEventListener('keydown', keydown))
+		this.addEventListener('focus', e =>{ 
+			(e.currentTarget as HTMLElement).addEventListener('keydown', keydown); })
+		this.addEventListener('blur', e =>{ 
+			(e.currentTarget as HTMLElement).removeEventListener('keydown', keydown); })
 	}
 
 	connectedCallback() {

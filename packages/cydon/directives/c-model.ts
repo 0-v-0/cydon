@@ -1,5 +1,5 @@
 import { boundElements, context } from './event'
-import { Data, Directive, DirectiveHandler } from '../type'
+import { AttrMap, Data, Directive } from '../type'
 import { toFunction } from '../util'
 
 type D = Directive | void
@@ -8,7 +8,7 @@ type Input = HTMLInputElement
 /** elements that are composing */
 export const composing = new WeakSet<EventTarget>
 
-export default <DirectiveHandler>((name, value, el, attrs): D => {
+export default ((name: string, value: string, el: Element, attrs: AttrMap): D => {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
 		attrs.set(Symbol(), {
@@ -37,12 +37,12 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 				const setter = value in this ? function (this: Data, _el: Element, val: any) {
 					this[value] = val
 				} : Function('$e,$val', `with(this)${value}=$val`)
-				if (!set!.has(el)) {
+				if (!set.has(el)) {
 					if (event == 'input') {
 						el.addEventListener('compositionstart',
-							e => composing.add(e.target!))
+							(e: CompositionEvent) => composing.add(e.target!))
 						el.addEventListener('compositionend',
-							e => composing.delete(e.target!))
+							(e: CompositionEvent) => composing.delete(e.target!))
 					}
 					el.addEventListener(event, () => {
 						if (!composing.has(el)) {
@@ -56,7 +56,7 @@ export default <DirectiveHandler>((name, value, el, attrs): D => {
 								typeof getter.call(this, el) == 'number' ? +newVal : newVal)
 						}
 					})
-					set!.add(el)
+					set.add(el)
 				}
 				// Two-way binding
 				const val = getter.call(this, el)

@@ -37,7 +37,7 @@ export class ImportHTML extends AsyncLoad {
 				// Dispatch `load` and `loadend` async to allow
 				// the `load()` promise to resolve _before_ these
 				// events are fired.
-				delay().then(() => {
+				void delay().then(() => {
 					this.dispatchEvent(new Event('load'))
 					this.dispatchEvent(new Event('loadend'))
 				})
@@ -47,7 +47,7 @@ export class ImportHTML extends AsyncLoad {
 				// Dispatch `error` and `loadend` async to allow
 				// the `load()` promise to resolve _before_ these
 				// events are fired.
-				delay().then(() => {
+				void delay().then(() => {
 					this.dispatchEvent(new ErrorEvent('error', { error: err }))
 					this.dispatchEvent(new Event('loadend'))
 				})

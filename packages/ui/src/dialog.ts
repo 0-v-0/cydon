@@ -9,7 +9,7 @@ const parse = (hash: string) =>
 	(hash = hash.substring(1), aliases.get(hash) || hash)
 
 function hashchange(oldURL = location.href) {
-	let old = getDialog(new URL(oldURL).hash)
+	const old = getDialog(new URL(oldURL).hash)
 	const hash = location.hash,
 		target = getDialog(hash)
 	if (old != target && old?.open)
@@ -38,5 +38,5 @@ document.addEventListener('click', (e: MouseEvent) => {
 	}
 })
 
-addEventListener('hashchange', e => hashchange(e.oldURL))
+addEventListener('hashchange', (e: HashChangeEvent) => hashchange(e.oldURL))
 setTimeout(hashchange)

@@ -76,7 +76,7 @@ function updateCropArea(event: TouchEvent | MouseEvent | KeyboardEvent) {
 	if (event instanceof KeyboardEvent) {
 		if (event.key == 'Escape') return setInitialPosition(el)
 		if (event.key == '-') delta = -10
-		if (event.key == '=') delta = +10
+		if (event.key == '=') delta = 10
 		if (!delta) return
 		deltaX = box.offsetWidth + delta
 		deltaY = box.offsetHeight + delta
@@ -328,7 +328,7 @@ export class ImageCrop extends HTMLElement {
 		this.toggleAttribute('loaded', val)
 	}
 
-	attributeChangedCallback(attr: string, oldVal: string, newVal: string) {
+	attributeChangedCallback(attr: string, _oldVal: string, newVal: string) {
 		const { image } = constructedElements.get(this) || {}
 		if (attr == 'src') {
 			this.loaded = false

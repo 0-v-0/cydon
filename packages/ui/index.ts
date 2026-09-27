@@ -35,7 +35,7 @@ export function autoload(node: ParentNode, loader: Loader, shadow = true, listen
 		if (listen)
 			for (const frag of node.querySelectorAll('import-html'))
 				frag.addEventListener('frag-replace',
-					e => autoload(e.detail, loader, shadow, true), { once: true })
+					e => void autoload(e.detail, loader, shadow, true), { once: true })
 	}(node)
 	return Promise.all(results)
 }

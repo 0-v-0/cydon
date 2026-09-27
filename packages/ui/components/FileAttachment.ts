@@ -97,7 +97,7 @@ function onDrop(event: DragEvent) {
 	const transfer = event.dataTransfer
 	if (!transfer || !hasFile(transfer)) return
 
-	container.attach(transfer)
+	void container.attach(transfer)
 	event.stopPropagation()
 	event.preventDefault()
 }
@@ -120,7 +120,7 @@ function onPaste(event: ClipboardEvent) {
 
 	const file = pastedFile(event.clipboardData.items)
 	if (file) {
-		container.attach([file])
+		void container.attach([file])
 		event.preventDefault()
 	}
 }
@@ -135,7 +135,7 @@ function onChange(event: Event) {
 	if (input.id == id) {
 		const files = input.files
 		if (files?.length) {
-			container.attach(files)
+			void container.attach(files)
 			input.value = ''
 		}
 	}

@@ -1,5 +1,6 @@
 import { expect, it, afterAll, beforeAll, suite, assert, afterEach } from 'vitest'
-import { ImportHTML, delay } from '..'
+import { delay } from '..'
+import { ImportHTML } from '../components/ImportHTML'
 
 const headers = {
 	'Content-Type': 'text/html; charset=utf-8',
@@ -103,7 +104,7 @@ suite('import-html-element', () => {
 		const el = new ImportHTML()
 		el.setAttribute('src', '/fragment')
 
-		expect(el.load()).rejects.toMatch(/the server responded with a status of 406/)
+		void expect(el.load()).rejects.toMatch(/the server responded with a status of 406/)
 	})
 
 	it('replaces element on 200 status', async () => {
@@ -165,7 +166,7 @@ suite('import-html-element', () => {
 		el.src = '/hello'
 		document.body
 			.appendChild(el)
-			.addEventListener('frag-replace', (e) => (e.detail.querySelector('*')!.textContent = 'hey'))
+			.addEventListener('frag-replace', (e: CustomEvent) => (e.detail.querySelector('*')!.textContent = 'hey'))
 
 		await when(el, 'frag-replaced')
 		expect(query('import-html')).eq(null)
@@ -175,7 +176,7 @@ suite('import-html-element', () => {
 	it('does not replace node if event was canceled', async () => {
 		const el = new ImportHTML()
 		el.src = '/hello'
-		document.body.appendChild(el).addEventListener('frag-replace', (e) => e.preventDefault())
+		document.body.appendChild(el).addEventListener('frag-replace', (e: Event) => e.preventDefault())
 
 		await when(el, 'load')
 		assert(query('import-html'), 'Node should not be replaced')
@@ -227,7 +228,7 @@ suite('import-html-element', () => {
 		document.body.appendChild(div)
 
 		const el = <ImportHTML>div.firstChild
-		when(el, 'loadstart').then(() => expect(el.status).eq('pending'))
+		void when(el, 'loadstart').then(() => expect(el.status).eq('pending'))
 		await when(el, 'frag-replaced')
 	})
 
@@ -297,7 +298,7 @@ suite('import-html-element', () => {
 		el.addEventListener('loadstart', () => loadCount++)
 		setTimeout(() => (div.hidden = false))
 
-		el.load()
+		void el.load()
 		await when(el, 'frag-replaced')
 		expect(loadCount).eq(1, 'Load occured too many times')
 		expect(query('import-html')).eq(null)

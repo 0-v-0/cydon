@@ -56,9 +56,9 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 
 	// position
 	let dataPos = this.dataset.position
-	let dataAlign = this.dataset.align
+	const dataAlign = this.dataset.align
 	// data-align是否符合合法位置关系
-	let isDataAlignMatch = legalPositions.some((strLegalPosition: any) => strLegalPosition == dataAlign)
+	const isDataAlignMatch = legalPositions.some((strLegalPosition: any) => strLegalPosition == dataAlign)
 	// 若没有设置 data-position，设置了 data-align 也行，若都设置了以 data-position 的值为准
 	if (!dataPos && dataAlign && isDataAlignMatch) {
 		dataPos = dataAlign
@@ -68,7 +68,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	}
 
 	// edge-adjust
-	let dataEdgeAdjust = this.dataset.edgeAdjust || params.edgeAdjust
+	const dataEdgeAdjust = this.dataset.edgeAdjust || params.edgeAdjust
 	// data-edge-adjust 字符串为 0、none、false 认为是 false，其他都是 true
 	let isEdgeAdjust = !(dataEdgeAdjust == '0' || dataEdgeAdjust == 'none' || dataEdgeAdjust == 'false' || dataEdgeAdjust == false)
 	if (typeof dataEdgeAdjust == 'string' && typeof params.edgeAdjust != 'boolean') {
@@ -82,8 +82,8 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	}
 
 	// 触发元素和目标元素的坐标数据
-	let objBoundTrigger = this.getBoundingClientRect(),
-		objBoundTarget = eleTarget.getBoundingClientRect()
+	const objBoundTrigger = this.getBoundingClientRect()
+	let objBoundTarget = eleTarget.getBoundingClientRect()
 
 	// 如果目标元素隐藏，则不处理
 	if (objBoundTarget.width * objBoundTarget.height == 0) {
@@ -146,9 +146,9 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 	// eleTarget元素zIndex实时最大化
 	const zIndex = () => {
 		// 返回eleTarget才是的样式计算对象
-		let objStyleTarget = getComputedStyle(eleTarget!)
+		const objStyleTarget = getComputedStyle(eleTarget)
 		// 此时元素的层级
-		let numZIndexTarget = +objStyleTarget.zIndex
+		const numZIndexTarget = +objStyleTarget.zIndex
 		// 用来对比的层级，也是最小层级
 		let numZIndexNew = 19
 
@@ -165,7 +165,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 		})
 
 		if (numZIndexNew != numZIndexTarget)
-			eleTarget!.style.zIndex = numZIndexNew + ''
+			eleTarget.style.zIndex = numZIndexNew + ''
 	}
 
 	// 如果直接指定了坐标
@@ -189,7 +189,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 		eleTarget.dataset.align = '31'
 
 		// z-index自动最高
-		return zIndex()
+		 zIndex(); return;
 	}
 
 	// 如果没有匹配的对齐方式，使用默认的对齐方式
@@ -419,7 +419,7 @@ export const follow = function (this: FollowElement, eleTarget: HTMLElement | nu
 		eleTarget.style.top = Math.round(numTargetTop) + 'px'
 	}
 
-	eleTarget.dataset.align = pos + ''
+	eleTarget.dataset.align = <number>pos + ''
 	eleTarget.dataset.direction = direction
 
 	// z-index自动最高

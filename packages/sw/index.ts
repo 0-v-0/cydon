@@ -14,7 +14,7 @@ let ws: WebSocket | undefined,
 
 // 键：client字符串id，值：client数字id
 const map = new Map<string, number>(),
-	queue: string[] = []
+	queue: Record<number, string> = {}
 
 /** 创建或返回已存在的ws连接 */
 const connect = async (): Promise<Event | void> => {
@@ -30,7 +30,7 @@ const connect = async (): Promise<Event | void> => {
 				id >>>= 24 // 取高8位client id
 				if (id in queue) {
 					r[0] &= 0xffffff // 取请求id
-					self.clients.get(queue[id]).then(client => {
+					void self.clients.get(queue[id]).then(client => {
 						if (client)
 							client.postMessage(r)
 						else
@@ -39,7 +39,7 @@ const connect = async (): Promise<Event | void> => {
 				}
 			} else { // 更新数据
 				console.assert(id)
-				self.clients.matchAll({ type: 'window' }).then(clients => {
+				void self.clients.matchAll({ type: 'window' }).then(clients => {
 					for (const client of clients)
 						client.postMessage({ process: id })
 				})
@@ -65,7 +65,7 @@ self.addEventListener('message', e => {
 				map.set(cid, rid = id++)
 			e.data[0] |= rid << 24 // 合成请求id
 			e.waitUntil(connect().then(() => {
-				ws!.send(encode(e.data, { multiple: true }))
+				ws!.send(encode(e.data, { multiple: true }) as Uint8Array<ArrayBuffer>)
 				queue[rid] = cid
 			}))
 		}

@@ -91,7 +91,7 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 
 		constructor(data?: D, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)
-			setData(this, data as Data)
+			setData(this, data)
 		}
 
 		bind(results: Results, container: Container = <any>this) {
@@ -157,7 +157,7 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 							for (let i = n; i < result && node; i++)
 								node = node.nextSibling
 						else
-							node = parent ? <Node | null>parent.childNodes.item(result) : null
+							node = parent ? parent.childNodes.item(result) : null
 						n = result
 					}
 				}

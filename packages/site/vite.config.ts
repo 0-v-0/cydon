@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => {
 		plugins.push(
 			minify({
 				removeAttributeQuotes: true,
-			}),
+			}) as any,
 		)
 	return {
 		base: './',

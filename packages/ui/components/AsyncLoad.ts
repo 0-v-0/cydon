@@ -6,7 +6,7 @@ export const observer = new IntersectionObserver(
 			if (entry.isIntersecting) {
 				const { target } = entry
 				if (target instanceof AsyncLoad && target.lazy)
-					target.load()
+					void target.load()
 			}
 		}
 	},
@@ -55,7 +55,7 @@ export class AsyncLoad extends HTMLElement {
 	set loader(val) {
 		this.#loader = val
 		if (this.isConnected && !this.lazy)
-			this.load()
+			void this.load()
 	}
 
 	constructor() {
@@ -71,14 +71,14 @@ export class AsyncLoad extends HTMLElement {
 		if (name == 'load')
 			this.loader = this.createFunc(newVal)
 		else if (this.isConnected && !this.lazy)
-			this.load()
+			void this.load()
 	}
 
 	connectedCallback() {
 		if (this.lazy)
 			observer.observe(this)
 		else
-			this.load()
+			void this.load()
 	}
 
 	async load() {

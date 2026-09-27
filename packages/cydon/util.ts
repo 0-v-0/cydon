@@ -1,10 +1,10 @@
 import { Cydon } from './core'
 import { Data, Target } from './type'
 
-const funcCache: Record<string, Function> = Object.create(null)
+const funcCache: Record<string, (...args: any[]) => any> = Object.create(null)
 
 export const toFunction = (code: string) => <(this: Data, el: Element) => any>
-	funcCache[code] || (funcCache[code] = Function('$e', `with(this){${code}}`))
+	funcCache[code] || (funcCache[code] = <any>Function('$e', `with(this){${code}}`))
 
 /**
  * defines the decorated class as a custom element.
@@ -13,8 +13,8 @@ export const toFunction = (code: string) => <(this: Data, el: Element) => any>
  */
 export const define = (tagName: string, options?: ElementDefinitionOptions) =>
 	<T extends CustomElementConstructor>(target: T, context?: ClassDecoratorContext<T>) => {
-		const register = () =>
-			customElements.define(tagName, target, options)
+		const register = () =>{ 
+			customElements.define(tagName, target, options); }
 		if (context) {
 			context.addInitializer(register)
 		} else {

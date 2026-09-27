@@ -10,7 +10,7 @@ export class ListElement<T extends {}> extends CydonElement {
 	get perPage() {
 		return this._perPage
 	}
-	set perPage(value) {
+	set perPage(value: number | string) {
 		this._perPage = +value || 10
 		this.list = this._list
 	}
@@ -28,7 +28,7 @@ export class ListElement<T extends {}> extends CydonElement {
 	}
 	set list(data) {
 		this._list = data
-		const i = this.pageNum, n = this.perPage
+		const i = this.pageNum, n = +this.perPage
 		this.items = data.slice(i * n, i * n + n)
 	}
 

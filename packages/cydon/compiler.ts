@@ -67,7 +67,7 @@ export function compile(results: Results, el: Container,
 				for (const handler of directives) {
 					const data = handler(name, value, <Element>el, map, parent)
 					if (data) {
-						map.set(name, <Part>data)
+						map.set(name, data)
 						if (!data.keep)
 							(<Element>el).removeAttribute(name)
 						continue next
