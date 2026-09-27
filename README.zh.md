@@ -1,22 +1,20 @@
 # Cydon
 
-[🇨🇳 中文](./README.zh.md) | [English](./README.md)
-
 [![npm-v](https://img.shields.io/npm/v/cydon.svg)](https://npmjs.com/package/cydon)
 [![npm-d](https://img.shields.io/npm/dt/cydon.svg)](https://npmjs.com/package/cydon)
 [![brotli](http://img.badgesize.io/https://unpkg.com/cydon/dist/cydon.iife.js?compression=brotli&label=brotli)](https://bundlephobia.com/result?p=cydon)
 
-A lightweight library for building fast, reactive web components.
+用于构建快速、响应式 Web 组件的轻量级库。
 
-## Features
-- No dependencies
-- No virtual DOM, components are just DOM elements
-- Performant and ultra-lightweight: ~3kB minified & brotli'd
-- Intuitive and WYSIWYG: use HTML-based template syntax
-- Simple: only provide minimalistic API required to implement reactivity of web components
+## 特性
+- 零依赖
+- 无虚拟 DOM，组件本身即 DOM 元素
+- 高性能且极致轻量：压缩并 brotli 后约 3kB
+- 直观且所见即所得：使用基于 HTML 的模板语法
+- 简洁：仅提供实现 Web 组件响应式所必需的最小化 API
 
-## Preview
-HTML:
+## 预览
+HTML：
 ```html
 <my-pagination page="1">
     <template shadowrootmode="open">
@@ -29,28 +27,28 @@ HTML:
                 align-items: center;
             }
         </style>
-        <!-- Watch callback -->
-        <div class="wrapper" :="console.log('page No. is', page)">
-            <!-- Event binding -->
-            <button @click="page--">Prev</button>
-            <!-- Two-way binding -->
-            <select c-model="perPage" title="items per page">
+        <!-- 监听回调 -->
+        <div class="wrapper" :="console.log('当前页码为', page)">
+            <!-- 事件绑定 -->
+            <button @click="page--">上一页</button>
+            <!-- 双向绑定 -->
+            <select c-model="perPage" title="每页条数">
                 <template c-for="n; perPages">
-                    <!-- DOM prop binding, attr binding and text interpolation -->
+                    <!-- DOM 属性绑定、特性绑定与文本插值 -->
                     <option .selected="perPage == n" value="$n">$n</option>
                 </template>
             </select>
             <span>
-                per page
-                <!-- text interpolation using expressions -->
+                每页
+                <!-- 使用表达式进行文本插值 -->
                 ${(page-1)*perPage+!!total}-${Math.min(page*perPage,total)} / $total
             </span>
-            <button @click="page++">Next</button>
+            <button @click="page++">下一页</button>
         </div>
     </template>
 </my-pagination>
 ```
-TypeScript:
+TypeScript：
 ```ts
 import { CydonElement, define } from 'cydon'
 
@@ -70,16 +68,15 @@ export class MyPagination extends CydonElement {
 }
 ```
 
-## Directives
-- Builtin directives: `c-for`, `ref`, etc.
-- Extra directives: `c-model`, `c-if`, `c-show`, `c-cloak`, `c-tp`
-- Event Modifiers: `.once`, `.passive`, `.capture`, `.away`
-- Custom directives, including global and local directives
+## 指令
+- 内置指令：`c-for`、`ref` 等
+- 额外指令：`c-model`、`c-if`、`c-show`、`c-cloak`、`c-tp`
+- 事件修饰符：`.once`、`.passive`、`.capture`、`.away`
+- 自定义指令，包含全局与局部指令
 
-## Documentation
+## 文档
 https://0-v-0.github.io/cydon/
 
-
-## Examples
+## 示例
 - [ToDo MVC](https://github.com/0-v-0/cydon/blob/main/packages/examples/todo-mvc.html)
 - [JS Framework Benchmark](https://github.com/krausest/js-framework-benchmark/tree/master/frameworks/non-keyed/cydon)
