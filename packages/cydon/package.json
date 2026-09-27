@@ -28,6 +28,7 @@
 	"types": "./dist/index.d.ts",
 	"unpkg": "dist/cydon.iife.js",
 	"scripts": {
-		"build": "vite build"
+		"build": "vite build",
+		"test": "vitest run"
 	}
 }

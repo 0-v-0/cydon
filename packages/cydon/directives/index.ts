@@ -21,8 +21,10 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	}
 	const parent = el.parentNode!
 	const content = el.content
-	const count = content.childNodes.length
-	el.remove()
+	// Defer removing the template until after bind: sibling indices recorded by
+	// compile() must stay valid for the rest of the bind walk, so the template
+	// must not leave the DOM while bind is still walking its siblings.
+	queueMicrotask(() => el.remove())
 
 	const ph: DataHandler = {
 		set: (obj, p: string, val) => {
@@ -34,6 +36,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	}
 
 	const ctxs: Context[] = []
+	const own = Symbol()
+	let capacity = 0
 	const render = (i: number) => {
 		const c = ctxs[i],
 			item = arr[i]
@@ -52,30 +56,59 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	 * Sets the capacity of the parent element to display the given number of items.
 	 * If capacity > the current number of items, new elements are created and added to the parent.
 	 * If capacity < the current number of items, excess elements are removed from the parent.
-	 * If capacity = 0, all elements are removed from the parent.
+	 * If capacity = 0, all rendered elements are removed from the parent.
+	 * Only nodes rendered by this loop are ever removed — static siblings are untouched.
 	 * @param n The desired capacity of the parent element.
 	 */
 	const setCapacity = (n: number) => {
 		if (n) {
-			let i = parent.childNodes.length / count | 0
-			for (; i < n; ++i) {
+			for (; capacity < n; ++capacity) {
 				const target = <DocumentFragment>document.importNode(content, true)
-				const c: Context = ctxs[i] = Object.create(cydon)
+				const c: Context = ctxs[capacity] = Object.create(cydon)
 				setData(c, c, data)
 				if (index)
-					c[index] = i
-				render(i)
+					c[index] = capacity
+				render(capacity)
 				c.bind(results, target)
+				for (let node = target.firstChild; node; node = node.nextSibling)
+					node[own] = true
 				parent.appendChild(target)
 			}
-			if (i > n) {
-				for (i = (i - n) * count; i--;)
-					parent.lastChild!.remove()
+			if (capacity > n) {
+				let k = (capacity - n) * content.childNodes.length
+				let node = parent.lastChild
+				while (node && k > 0) {
+					const prev = node.previousSibling
+					if (node[own]) {
+						node.remove()
+						--k
+					}
+					node = prev
+				}
 				requestIdleCallback(() => cydon.unmount(null))
+				capacity = n
 			}
-		} else { // clear
-			parent.textContent = ''
+		} else { // clear: remove only the elements rendered by this loop
+			let onlyOwn = true
+			for (let node = parent.firstChild; node; node = node.nextSibling) {
+				if (!node[own] && !(node.nodeType == 3 && !(node as Text).data.trim())) {
+					onlyOwn = false
+					break
+				}
+			}
+			if (onlyOwn)
+				parent.textContent = ''
+			else {
+				let node = parent.lastChild
+				while (node) {
+					const prev = node.previousSibling
+					if (node[own])
+						node.remove()
+					node = prev
+				}
+			}
 			requestIdleCallback(() => cydon.unmount(null))
+			capacity = 0
 		}
 		ctxs.length = n
 	}

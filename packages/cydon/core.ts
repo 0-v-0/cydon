@@ -114,13 +114,15 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 							node = p
 							n = stack.pop()!
 							l--
-						}
+						} else
+							import.meta.env.DEV && console.warn('[cydon] c-for skipped: no template node while binding — the DOM was mutated after compile', result)
 					} else if (node) {
 						if ((<Part>result).f)
 							this.bindNode(<Text>node, <Part>result)
 						else for (const [, part] of <AttrMap>result)
 							this.bindNode(<Element>node, part)
-					}
+					} else
+						import.meta.env.DEV && console.warn('[cydon] bindings skipped: no matching DOM node while binding — the DOM was mutated after compile', result)
 				} else {
 					const level = result >>> 22
 					result &= 4194303 // index
