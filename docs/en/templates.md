@@ -8,6 +8,9 @@ For example: `span{$value}`, `input[type=text value=$value]`, `$item.name`
 
 `$value` is equivalent to `${this.value}`. Text interpolation should not have side effects.
 
+Note that a plain `$var` only interpolates a variable — it cannot call methods or evaluate operators.
+To call a method or use a complex expression, use the expression form instead: `${fn(arg)}`, `${a + b}`.
+
 ## Expression Interpolation
 
 Starts with a `$` followed by a pair of curly braces containing an expression. For example: `${n*2}`, `${value()}`.

@@ -110,6 +110,8 @@ When data changes, an in-place update strategy is used.
 
 When array items are objects, Cydon reuses existing DOM elements and only updates the changed data properties, rather than recreating the DOM. When array items are primitive values, the values are directly assigned and updates are triggered.
 
+Rendered items are appended at the end of the template's parent element — static siblings keep their position and are never removed by the loop.
+
 When the array length changes, Cydon automatically adds or removes DOM elements:
 - Adding elements: creates a new DocumentFragment and binds it.
 - Removing elements: removes excess DOM nodes and cleans up disconnected bindings via `requestIdleCallback` during idle time.
@@ -210,10 +212,11 @@ For `:class="a: cond1; b: cond2"`:
 
 DOM object property binding. The attribute value is an expression whose result is assigned to the corresponding property.
 
-**e.g.**
+Unlike attribute interpolation, this also works for **boolean properties** such as `disabled` and `checked`:
 
 ```html
 <option .selected="count == input.value" value="$count">$count</option>
+<button .disabled="busy">Save</button>
 ```
 
 ### c-cloak

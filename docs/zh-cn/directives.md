@@ -110,6 +110,8 @@
 
 当数组项为对象时，Cydon会复用已有的DOM元素，仅更新变化的数据属性，而不是重新创建DOM。当数组项为原始值时，直接赋值并触发更新
 
+渲染出的条目会追加到模板父元素的末尾——静态兄弟节点保持原位，且不会被循环移除。
+
 当数组长度变化时，Cydon会自动增减DOM元素：
 - 增加元素时：创建新的DocumentFragment并绑定
 - 减少元素时：移除多余的DOM节点，并通过`requestIdleCallback`在空闲时清理未连接的绑定
@@ -210,10 +212,11 @@
 
 DOM对象属性绑定，属性值为一个表达式，表达式的值将会赋值给对应属性
 
-**e.g.**
+与属性插值不同，该指令同样适用于`disabled`、`checked`等布尔属性：
 
 ```html
 <option .selected="count == input.value" value="$count">$count</option>
+<button .disabled="busy">Save</button>
 ```
 
 ### c-cloak
