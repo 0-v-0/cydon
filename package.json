@@ -5,11 +5,15 @@
 	"type": "module",
 	"scripts": {
 		"build": "cd packages/cydon && pnpm build && cd ../unplugin-emt-styl && pnpm build",
+		"lint": "oxlint .",
+		"lint:fix": "oxlint --fix .",
 		"update-deps": "pnpx taze -i -r -w"
 	},
 	"devDependencies": {
 		"@microsoft/api-extractor": "^7.59.2",
 		"jsdom": "^30.1.1",
+		"oxlint": "^1.85.0",
+		"oxlint-tsgolint": "7.0.2001",
 		"typescript": "^6.0.3",
 		"unplugin-dts": "1.0.3",
 		"vite": "^8.3.1",

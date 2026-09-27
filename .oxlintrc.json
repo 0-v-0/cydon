@@ -1,0 +1,181 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": [],
+	"categories": {
+		"correctness": "off"
+	},
+	"options": {
+		"reportUnusedDisableDirectives": "warn",
+		"typeAware": true
+	},
+	"env": {
+		"builtin": true
+	},
+	"rules": {
+		// These two tsgolint rules require type-aware checking with
+		// strictNullChecks (see .oxlintrc.json in dsh-merge-edit). They are off
+		// at the top level (applies outside the type-aware packages override)
+		// and re-enabled as error in the override below for the package source.
+		"typescript/no-unnecessary-boolean-literal-compare": "off",
+		"typescript/no-useless-default-assignment": "off"
+	},
+	"ignorePatterns": [
+		"**/dist/**",
+		"**/node_modules/**",
+		"**/coverage/**",
+		"**/docs/**",
+		"**/*.js",
+		"**/*.mjs",
+		"**/*.cjs",
+		"**/*.d.ts",
+		"**/*.config.ts",
+		"**/*.html"
+	],
+	"overrides": [
+		{
+			// Shared strict type-aware rules. Synced from dsh-merge-edit
+			// .oxlintrc.json (first override), adapted to this monorepo's
+			// layout: TypeScript sources live directly under each package
+			// (packages/<pkg>/*.ts), lib build output is dist.
+			"files": [
+				"packages/**/*.{ts,tsx}"
+			],
+			"plugins": [
+				"typescript"
+			],
+			"rules": {
+				"no-var": "error",
+				"prefer-const": "error",
+				"prefer-rest-params": "error",
+				"prefer-spread": "error",
+				"no-array-constructor": "error",
+				"no-unused-vars": [
+					"error",
+					{
+						"argsIgnorePattern": "^_",
+						"varsIgnorePattern": "^_",
+						"caughtErrorsIgnorePattern": "^_"
+					}
+				],
+				"no-useless-constructor": "error",
+				"typescript/await-thenable": "error",
+				"typescript/ban-ts-comment": [
+					"error",
+					{
+						"minimumDescriptionLength": 10
+					}
+				],
+				"typescript/no-array-delete": "error",
+				"typescript/no-base-to-string": "error",
+				// The !<undefined> cast idiom discards void values inside
+				// expressions (return cond && !<undefined>el.setAttribute(...)),
+				// and void-returning arrow shorthand is fine for listeners
+				// (() => walk(document.body)).
+				"typescript/no-confusing-void-expression": "off",
+				"typescript/no-deprecated": "error",
+				"typescript/no-duplicate-enum-values": "error",
+				"typescript/no-duplicate-type-constituents": "error",
+				// Dynamic keyed caches (events map, SW request queue,
+				// funcCache) are deleted by key by design.
+				"typescript/no-dynamic-delete": "off",
+				"typescript/no-empty-object-type": "off",
+				"typescript/no-explicit-any": "error",
+				"typescript/no-extra-non-null-assertion": "error",
+				"typescript/no-extraneous-class": "error",
+				"typescript/no-floating-promises": "error",
+				"typescript/no-for-in-array": "error",
+				// new Function is the expression compiler core (toFunction,
+				// c-model setter, c-data): implied eval is by design here.
+				"typescript/no-implied-eval": "off",
+				// Deliberate statement idioms: short-circuit DEV guards
+				// (import.meta.env.DEV && warn), forced reflow (msg.clientWidth)
+				// and the !<undefined> statement-discard cast.
+				"no-unused-expressions": "off",
+				"typescript/no-invalid-void-type": "off",
+				"typescript/no-meaningless-void-operator": "error",
+				"typescript/no-misused-new": "error",
+				"typescript/no-misused-promises": "error",
+				"typescript/no-misused-spread": "error",
+				"typescript/no-mixed-enums": "error",
+				"typescript/no-namespace": "off",
+				"typescript/no-non-null-asserted-nullish-coalescing": "error",
+				"typescript/no-non-null-asserted-optional-chain": "error",
+				"typescript/no-redundant-type-constituents": "error",
+				"typescript/no-require-imports": "error",
+				"typescript/no-this-alias": "error",
+				"typescript/no-unnecessary-boolean-literal-compare": "error",
+				"typescript/no-unnecessary-template-expression": "error",
+				"typescript/no-unnecessary-type-arguments": "error",
+				"typescript/no-unnecessary-type-assertion": "error",
+				"typescript/no-unnecessary-type-constraint": "error",
+				"typescript/no-unnecessary-type-conversion": "error",
+				"typescript/no-unnecessary-type-parameters": "error",
+				"typescript/no-unsafe-argument": "error",
+				"typescript/no-unsafe-assignment": "error",
+				"typescript/no-unsafe-call": "error",
+				"typescript/no-unsafe-declaration-merging": "error",
+				"typescript/no-unsafe-enum-comparison": "error",
+				"typescript/no-unsafe-function-type": "error",
+				"typescript/no-unsafe-member-access": "error",
+				"typescript/no-unsafe-return": "error",
+				"typescript/no-unsafe-unary-minus": "error",
+				"typescript/no-useless-default-assignment": "error",
+				"typescript/no-wrapper-object-types": "error",
+				"typescript/prefer-as-const": "error",
+				"typescript/prefer-literal-enum-member": "error",
+				"typescript/prefer-namespace-keyword": "error",
+				"typescript/prefer-promise-reject-errors": "error",
+				"typescript/prefer-reduce-type-parameter": "error",
+				"typescript/prefer-return-this-type": "error",
+				"typescript/related-getter-setter-pairs": "error",
+				"typescript/restrict-plus-operands": [
+					"error",
+					{
+						// number + 'px' CSS building and dynamic-value
+						// concatenation are pervasive in the DOM layer.
+						"allowAny": true,
+						"allowBoolean": false,
+						"allowNullish": false,
+						"allowNumberAndString": true,
+						"allowRegExp": false
+					}
+				],
+				"typescript/return-await": [
+					"error",
+					"error-handling-correctness-only"
+				],
+				"typescript/triple-slash-reference": "error",
+				"typescript/unbound-method": "error",
+				"typescript/unified-signatures": "error",
+				"typescript/use-unknown-in-catch-callback-variable": "error",
+				"no-void": "off"
+			}
+		},
+		{
+			// Framework dynamic-value boundary, deliberately wider than the
+			// strict ruleset (same deviation pattern as dsh-merge-edit's plugin
+			// API boundary override). cydon's directive/expression layer is
+			// dynamically typed by design: bindings, events and component
+			// props carry arbitrary user values across DOM boundaries, so
+			// enforcing no-explicit-any / no-unsafe-* here would force
+			// re-typing the whole expression contract.
+			"files": [
+				"packages/**/*.{ts,tsx}"
+			],
+			"plugins": [
+				"typescript"
+			],
+			"rules": {
+				"typescript/no-explicit-any": "off",
+				"typescript/no-unsafe-argument": "off",
+				"typescript/no-unsafe-assignment": "off",
+				"typescript/no-unsafe-call": "off",
+				"typescript/no-unsafe-declaration-merging": "off",
+				"typescript/no-unsafe-enum-comparison": "off",
+				"typescript/no-unsafe-member-access": "off",
+				"typescript/no-unsafe-return": "off",
+				"typescript/no-unsafe-unary-minus": "off"
+			}
+		}
+	]
+}

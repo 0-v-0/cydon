@@ -22,7 +22,7 @@
 		"dev": "vite",
 		"fix": "stylelint src/*.styl --fix",
 		"lint": "pnpm lint:oxlint && stylelint src/*.styl",
-		"lint:oxlint": "pnpx oxlint@latest --max-warnings=100 **/*.ts",
+		"lint:oxlint": "oxlint .",
 		"test": "pnpm vitest run"
 	},
 	"dependencies": {
