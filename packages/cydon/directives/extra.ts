@@ -62,11 +62,16 @@ export default <DirectiveHandler[]>[cModel, (name, value, el): D => {
 				}
 				const target: Element | null | "" = value && (value in this ? this[value] :
 					(<ParentNode>el.getRootNode()).querySelector(value))
-				if (target) {
-					target.appendChild(el.content)
-					el.remove()
-				} else
-					el.replaceWith(el.content)
+				// Defer moving the content until after bind: removing or expanding the
+				// template mid-walk shifts the sibling indices recorded by compile(),
+				// the same reason c-for defers removing its template.
+				queueMicrotask(() => {
+					if (target) {
+						target.appendChild(el.content)
+						el.remove()
+					} else
+						el.replaceWith(el.content)
+				})
 			}
 		}
 }]

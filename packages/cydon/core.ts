@@ -96,7 +96,15 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 
 		bind(results: Results, container: Container = <any>this) {
 			let node: Node | null = container,
-				l = 0, n = 0, stack: number[] = []
+				l = 0, n = 0
+			// ps[l]: parent node holding the level-l nodes; ns[l]: the index
+			// ps[l] itself was positioned at. Navigation steps over sibling
+			// gaps while the current node is still attached (intact stretches),
+			// and falls back to an absolute ps[l].childNodes.item(index) lookup
+			// otherwise, so a node detached mid-walk (e.g. by c-if swapping
+			// itself for its anchor) cannot derail the walk like a plain
+			// nextSibling chain starting from a detached node would.
+			const ps: (Node | null)[] = [], ns: number[] = []
 			for (let i = 1, len = results.length; i < len; ++i) {
 				let result = results[i]
 				if (typeof result == 'object') {
@@ -109,11 +117,9 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 							}
 							this.bind(result, shadow)
 						} else if (node) {
-							const p: Node = node.parentNode!
 							for_(this, <HTMLTemplateElement>node, result)
-							node = p
-							n = stack.pop()!
-							l--
+							// keep node/l: following results are the template's own
+							// siblings, resolved via ps[l]
 						} else
 							import.meta.env.DEV && console.warn('[cydon] c-for skipped: no template node while binding — the DOM was mutated after compile', result)
 					} else if (node) {
@@ -127,16 +133,33 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 					const level = result >>> 22
 					result &= 4194303 // index
 					if (level > l) {
-						stack.push(n)
-						n = 0
-						node = node?.firstChild as Node | null
+						// the positioned node parents the deeper level: descend to
+						// its first child, recording its index so the walk can step
+						// back onto it when ascending
+						ps[level] = node
+						ns[level] = n
 						l = level
-					} else for (; level < l; l--) {
-						node = node?.parentNode as Node | null
-						n = stack.pop()!
+						node = node && node.firstChild
+						n = 0
+					} else if (level < l) {
+						// ps[level + 1] is the ancestor positioned at `level`
+						node = ps[level + 1] ?? null
+						n = ns[level + 1] ?? NaN
+						l = level
 					}
-					for (; n < result; n++)
-						node = node?.nextSibling as Node | null
+					if (result != n) {
+						const parent = ps[l]
+						// fast path: intact DOM, step over the compiled gap. Mid-walk
+						// mutations never shift sibling indices (c-if swaps 1:1 with
+						// its anchor, c-for only appends, c-tp defers), so stepping
+						// is safe whenever the current node is still attached.
+						if (result > n && node?.parentNode == parent)
+							for (let i = n; i < result && node; i++)
+								node = node.nextSibling
+						else
+							node = parent ? <Node | null>parent.childNodes.item(result) : null
+						n = result
+					}
 				}
 			}
 		}
