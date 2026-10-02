@@ -4,7 +4,7 @@
  */
 
 import { compile } from './compiler'
-import { directives as d, for_ } from './directives'
+import { directives as d, for_, forSharedKey, type ForLoops } from './directives'
 import {
 	AttrMap, Constructor as Ctor, Data, DataHandler as Handler,
 	Dep, Part, Results, Target, Container
@@ -88,6 +88,11 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 		 * directives
 		 */
 		$directives = d
+
+		/**
+		 * per-field shared c-for loop state, created lazily by for_()
+		 */
+		declare [forSharedKey]?: Map<string, ForLoops>
 
 		constructor(data?: D, ...args: ConstructorParameters<Ctor<T>>) {
 			super(...args)

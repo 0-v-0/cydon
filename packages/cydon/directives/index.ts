@@ -7,6 +7,39 @@ export * from './event'
 type Context = Cydon & Data
 type D = Directive | void
 
+/**
+ * State of one c-for loop instance: its own scopes, capacity and DOM.
+ * Everything array-related (the backing array and its proxy) lives on the
+ * shared state below — loops over the same array field only own their scopes.
+ */
+export interface ForLoop {
+	ctxs: Context[]
+	render(i: number): void
+	setCapacity(n: number): void
+}
+
+/**
+ * Shared state of all c-for loops bound to the same (instance, array field).
+ * A single accessor is defined per field name and fans writes out to every
+ * registered loop, so two c-fors iterating the same array both stay live
+ * instead of the later defineProperty silently replacing the earlier one.
+ *
+ * Note: direct index reads through the shared proxy (e.g. `${items[0].x}`
+ * in an expression) resolve the item scope of the first registered loop.
+ */
+export interface ForLoops {
+	arr: unknown[]
+	items: any[]
+	loops: ForLoop[]
+	setArray(v: unknown[]): void
+}
+
+/** Symbol key of the per-instance c-for state table, declared as a Mixin
+ * field so it is visible from the Cydon class. A symbol key is not
+ * enumerable, so Object.keys/spread/assign on a Cydon instance can't pick it
+ * up or clobber it. */
+export const forSharedKey = Symbol(import.meta.env.DEV ? 'cydon:forShared' : '')
+
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & { e?: string[] }) {
 	if (import.meta.env.DEV && el.tagName != 'TEMPLATE') {
 		console.warn('c-for can only be used on <template> element')
@@ -14,8 +47,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	}
 	const [value, key, index] = results.e!
 	const data = cydon.$data
-	let arr = data[value]
-	if (!Array.isArray(arr)) {
+	const initial = data[value]
+	if (!Array.isArray(initial)) {
 		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
@@ -26,6 +59,58 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	// must not leave the DOM while bind is still walking its siblings.
 	queueMicrotask(() => el.remove())
 
+	const forMap = cydon[forSharedKey] ??= new Map<string, ForLoops>()
+	let shared = forMap.get(value)
+	if (!shared) {
+		const handler: ProxyHandler<any> = {
+			get: (obj, p) => typeof p == 'string' && +p == <any>p &&
+				shared!.loops[0]?.ctxs[<any>p]?.[key] || obj[p],
+			set(obj, p, val) {
+				if (p == 'length') {
+					obj.length = +val
+					for (const l of shared!.loops)
+						l.setCapacity(+val)
+				} else {
+					obj[p] = val
+					if (typeof p == 'string' && +p == <any>p) {
+						const n = +p
+						for (const l of shared!.loops) {
+							if (n >= l.ctxs.length)
+								l.setCapacity(n + 1)
+							else
+								l.render(n)
+						}
+					}
+				}
+				cydon.updateValue(value)
+				return true
+			},
+		}
+		forMap.set(value, shared = {
+			arr: initial,
+			items: new Proxy(initial, handler),
+			loops: [],
+			setArray(v) {
+				if (v != this.items) {
+					const len = Math.min(this.arr.length, v.length)
+					this.arr = v
+					for (const l of this.loops)
+						for (let i = 0; i < len; i++)
+							if (l.ctxs[i]?.[key] != v[i])
+								l.render(i)
+					this.items = new Proxy(v, handler)
+					this.items.length = v.length
+				}
+			},
+		})
+		Object.defineProperty(cydon, value, {
+			get: () => shared!.items,
+			set: (v) => shared!.setArray(v),
+			configurable: true,
+		})
+	}
+
+	// ---- this loop's private state: scopes, capacity, own-node marks ----
 	const ph: DataHandler = {
 		set: (obj, p: string, val) => {
 			obj[p] = val
@@ -34,13 +119,12 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 			return true
 		}
 	}
-
 	const ctxs: Context[] = []
 	const own = Symbol()
 	let capacity = 0
 	const render = (i: number) => {
 		const c = ctxs[i],
-			item = arr[i]
+			item = shared.arr[i]
 		if (typeof item == 'object') {
 			if (c[key])
 				Object.assign(c[key], item) // update data
@@ -113,47 +197,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 		ctxs.length = n
 	}
 
-	const handler: ProxyHandler<any> = {
-		get: (obj, p) => typeof p == 'string' && +p == <any>p &&
-			ctxs[<any>p]?.[key] || obj[p],
-		set(obj, p, val) {
-			if (p == 'length')
-				setCapacity(obj.length = +val)
-			else {
-				obj[p] = val
-				if (typeof p == 'string') {
-					const n = +p
-					if (n == <any>p) {
-						if (n >= ctxs.length)
-							setCapacity(n + 1)
-						else
-							render(n)
-					}
-				}
-			}
-			cydon.updateValue(value)
-			return true
-		}
-	}
-	let items = new Proxy(arr, handler)
-	Object.defineProperty(cydon, value, {
-		get: () => items,
-		set(v) {
-			if (v != items) {
-				const len = Math.min(arr.length, v.length)
-				arr = v
-				for (let i = 0; i < len; i++) {
-					if (items[i] != v[i])
-						render(i)
-				}
-				items = new Proxy(arr, handler)
-				items.length = v.length
-			}
-		},
-		configurable: true
-	})
-
-	setCapacity(arr.length)
+	shared.loops.push({ ctxs, render, setCapacity })
+	setCapacity(shared.arr.length)
 }
 
 export const directives: DirectiveHandler[] = [
