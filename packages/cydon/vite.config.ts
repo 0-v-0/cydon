@@ -26,6 +26,12 @@ export default defineConfig({
 	plugins: [
 		dts({
 			strictOutput: false,
+			// The package tsconfig has no `include`, so the plugin defaults to the
+			// whole program (vite.config.ts, tests, et al.) — this can lead to a very
+			// large output if not restricted. Restricting to library sources
+			// leaves only types reachable from the entry.
+			include: ['*.ts', 'directives/**/*.ts'],
+			exclude: ['vite.config.ts'],
 			bundleTypes: {
 				extractorConfig: {
 					newlineKind: 'lf',
