@@ -87,7 +87,7 @@ A Cydon instance has two data objects:
 - **`$data`**: The raw data object. Direct modification does not trigger DOM updates.
 - **`data`**: The reactive proxy object. Modifying properties automatically triggers DOM updates.
 
-When setting a property that does not exist in the current scope on `data`, if a `parent` scope exists, it falls back to setting the property in the parent scope. This is especially important in `c-for`, where child items inherit data from the parent.
+When setting a property that does not exist in the current scope on `data`, if a `parent` scope exists, it falls back to setting the property in the parent scope. Reads fall back the same way: a property missing from the current scope is looked up along the parent scopes, so loop items can reference outer data. This is especially important in `c-for`, where child items inherit data from the parent.
 
 ## Shadow DOM
 

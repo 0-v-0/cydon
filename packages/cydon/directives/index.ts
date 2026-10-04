@@ -64,7 +64,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	if (!shared) {
 		const handler: ProxyHandler<any> = {
 			get: (obj, p) => typeof p == 'string' && +p == <any>p &&
-				shared!.loops[0]?.ctxs[<any>p]?.[key] || obj[p],
+				shared!.loops[0]?.ctxs[<any>p]?.$data[key] || obj[p],
 			set(obj, p, val) {
 				if (p == 'length') {
 					obj.length = +val
@@ -96,7 +96,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 					this.arr = v
 					for (const l of this.loops)
 						for (let i = 0; i < len; i++)
-							if (l.ctxs[i]?.[key] != v[i])
+							if (l.ctxs[i]?.$data[key] != v[i])
 								l.render(i)
 					this.items = new Proxy(v, handler)
 					this.items.length = v.length
@@ -126,12 +126,12 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 		const c = ctxs[i],
 			item = shared.arr[i]
 		if (typeof item == 'object') {
-			if (c[key])
-				Object.assign(c[key], item) // update data
+			if (c.$data[key])
+				Object.assign(c.$data[key], item) // update data
 			else
-				c[key] = new Proxy({ ...item }, ph)
+				c.$data[key] = new Proxy({ ...item }, ph)
 		} else {
-			c[key] = item
+			c.$data[key] = item
 			cydon.updateValue(key)
 			cydon.updateValue(value)
 		}
@@ -149,9 +149,12 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 			for (; capacity < n; ++capacity) {
 				const target = document.importNode(content, true)
 				const c: Context = ctxs[capacity] = Object.create(cydon)
-				setData(c, c, data)
+				// the item's data object proto-links to the parent data: the
+				// scope chain (item -> outer items -> root data) is then carried
+				// by ordinary prototype lookup, in reads and in `with` has checks
+				setData(c, Object.create(data), data)
 				if (index)
-					c[index] = capacity
+					c.$data[index] = capacity
 				render(capacity)
 				c.bind(results, target)
 				for (let node = target.firstChild; node; node = node.nextSibling)

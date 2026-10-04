@@ -171,3 +171,57 @@ describe('c-for over the same array from two loops', () => {
 		expect(visible('em.q').map(e => e.textContent)).toEqual(['c', 'd'])
 	})
 })
+
+describe('c-for scope chain', () => {
+	let container: HTMLElement
+	beforeEach(() => {
+		container = document.createElement('div')
+		document.body.appendChild(container)
+	})
+
+	test('loop items read parent scope data and stay reactive to it', async () => {
+		container.innerHTML = '<template c-for="n; ns"><i>$n: $root</i></template>'
+		const app = new Cydon({ root: 'R', ns: [1, 2] })
+		app.mount(container)
+		await tick()
+		expect([...container.querySelectorAll('i')].map(i => i.textContent))
+			.toEqual(['1: R', '2: R'])
+
+		// a parent scope change re-renders every item through the owner's commit
+		app.data.root = 'R2'
+		await tick()
+		expect([...container.querySelectorAll('i')].map(i => i.textContent))
+			.toEqual(['1: R2', '2: R2'])
+	})
+
+	test('nested loops read outer items and root data through the scope chain', async () => {
+		container.innerHTML =
+			'<template c-for="a; as"><p><template c-for="b; bs"><i>$a$b$root</i></template></p></template>'
+		const app = new Cydon({ root: 'R', as: [1, 2], bs: [10, 20] })
+		app.mount(container)
+		await tick()
+		expect([...container.querySelectorAll('i')].map(i => i.textContent))
+			.toEqual(['110R', '120R', '210R', '220R'])
+
+		app.data.root = 'R2'
+		await tick()
+		expect([...container.querySelectorAll('i')].map(i => i.textContent))
+			.toEqual(['110R2', '120R2', '210R2', '220R2'])
+	})
+
+	test('the README pagination example binds and reacts', async () => {
+		container.innerHTML =
+			'<select c-model="perPage"><template c-for="n; perPages">' +
+			'<option .selected="perPage == n" value="$n">$n</option></template></select>'
+		const app = new Cydon({ perPage: 20, perPages: [10, 20, 50] })
+		app.mount(container)
+		await tick()
+		const selected = () =>
+			[...container.querySelectorAll('option')].filter(o => o.selected).map(o => o.value)
+		expect(selected()).toEqual(['20'])
+
+		app.data.perPage = 50
+		await tick()
+		expect(selected()).toEqual(['50'])
+	})
+})
