@@ -25,7 +25,8 @@ export const EventOf = <T extends {}, Events extends EventMap>(
 		 *  Off: stop listening to event / specific callback
 		 */
 		off<K extends keyof Events>(type: K, func?: Handler<Events[K]>) {
-			type || (events = <typeof events>{})
+			if (!type)
+				events = <typeof events>{}
 			if (func) {
 				const list = events[type]
 				list?.splice(list.indexOf(func) >>> 0, 1)

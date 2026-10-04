@@ -49,7 +49,8 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	const data = cydon.$data
 	const initial = data[value]
 	if (!Array.isArray(initial)) {
-		import.meta.env.DEV && console.warn(`c-for: '${value}' is not an array`)
+		if (import.meta.env.DEV)
+			console.warn(`c-for: '${value}' is not an array`)
 		return
 	}
 	const parent = el.parentNode!
@@ -120,7 +121,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 		}
 	}
 	const ctxs: Context[] = []
-	const own = Symbol()
+	const own = Symbol(import.meta.env.DEV ? 'cydon:forOwn' : '')
 	let capacity = 0
 	const render = (i: number) => {
 		const c = ctxs[i],

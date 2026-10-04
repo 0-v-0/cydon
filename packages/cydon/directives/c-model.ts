@@ -11,7 +11,7 @@ export const composing = new WeakSet<EventTarget>
 export default ((name: string, value: string, el: Element, attrs: AttrMap): D => {
 	if (name == 'c-model' || name == 'c-model.lazy') {
 		value = value.trim()
-		attrs.set(Symbol(), {
+		attrs.set(Symbol(import.meta.env.DEV ? 'cydon:cModel' : ''), {
 			f(el) {
 				el[context] = this
 			}
@@ -31,12 +31,12 @@ export default ((name: string, value: string, el: Element, attrs: AttrMap): D =>
 		return {
 			deps: new Set,
 			f(el) {
-				const getter = value in this ?
-					function (this: Data) { return this[value] } :
-					toFunction('return ' + value)
-				const setter = value in this ? function (this: Data, _el: Element, val: any) {
-					this[value] = val
-				} : Function('$e,$val', `with(this)${value}=$val`)
+				const own = value in this,
+					getter = own ? function (this: Data) { return this[value] } :
+						toFunction('return ' + value),
+					setter = own ? function (this: Data, val: any) {
+						this[value] = val
+					} : Function('$val', `with(this)${value}=$val`)
 				if (!set.has(el)) {
 					if (event == 'input') {
 						el.addEventListener('compositionstart',
@@ -52,7 +52,7 @@ export default ((name: string, value: string, el: Element, attrs: AttrMap): D =>
 								(<Input>el).type == 'checkbox' ?
 									(<Input>el).checked :
 									(<Input>el).value
-							setter.call(el[context], el,
+							setter.call(el[context],
 								typeof getter.call(this, el) == 'number' ? +newVal : newVal)
 						}
 					})

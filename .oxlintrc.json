@@ -87,10 +87,9 @@
 				// new Function is the expression compiler core (toFunction,
 				// c-model setter, c-data): implied eval is by design here.
 				"typescript/no-implied-eval": "off",
-				// Deliberate statement idioms: short-circuit DEV guards
-				// (import.meta.env.DEV && warn), forced reflow (msg.clientWidth)
-				// and the !<undefined> statement-discard cast.
-				"no-unused-expressions": "off",
+				// Suppressed inline where deliberate: forced reflow
+				// (msg.clientWidth) and the !<undefined> statement-discard cast.
+				"no-unused-expressions": "error",
 				"typescript/no-invalid-void-type": "off",
 				"typescript/no-meaningless-void-operator": "error",
 				"typescript/no-misused-new": "error",

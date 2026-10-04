@@ -4,7 +4,7 @@ import { toFunction } from '../util'
 /** elements that have event listener bound, key is event type, value is bound elements */
 export const boundElements = new Map<string, WeakSet<Node>>()
 /** context of event handler */
-export const context = Symbol()
+export const context = Symbol(import.meta.env.DEV ? 'cydon:eventContext' : '')
 /** event handlers by event type */
 const handlers = new Map<string, symbol>()
 
@@ -46,7 +46,7 @@ export default ((name: string, value: string, _el: Element, _: AttrMap, parent?:
 		if (!capture && !once && parent && type[0] != '$') { // delegate to root node of parent
 			key = handlers.get(type)
 			if (!key)
-				handlers.set(type, key = Symbol())
+				handlers.set(type, key = Symbol(import.meta.env.DEV ? 'cydon:eventHandler' : ''))
 			let set = boundElements.get(name)
 			if (!set)
 				boundElements.set(name, set = new WeakSet)

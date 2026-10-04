@@ -24,6 +24,8 @@ export type Loader = (name: string) => Promise<any>
  */
 export function autoload(node: ParentNode, loader: Loader, shadow = true, listen = true) {
 	const results: Promise<any>[] = []
+	// the cast turns the declaration into an expression: a named, recursing IIFE
+	// oxlint-disable-next-line no-unused-expressions
 	!<undefined>function walkAndLoad(node: ParentNode) {
 		for (const child of node.children)
 			walkAndLoad(child)
@@ -48,6 +50,8 @@ export function autoload(node: ParentNode, loader: Loader, shadow = true, listen
  */
 export function whenAllDefined(node: ParentNode, shadow = true) {
 	const results = []
+	// the cast turns the declaration into an expression: a named, recursing IIFE
+	// oxlint-disable-next-line no-unused-expressions
 	!<undefined>function wait(node: ParentNode) {
 		for (const c of node.querySelectorAll(':not(:defined)'))
 			results.push(customElements.whenDefined(c.getAttribute('is') || c.tagName.toLowerCase()))

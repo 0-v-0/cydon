@@ -70,6 +70,8 @@ const create = () => {
 	return msg
 }
 
+	// bare member reads force a reflow so the `open` transition runs
+	/* oxlint-disable no-unused-expressions */
 export const
 	info = (text = '', duration = 3000) => {
 		const msg = create()
@@ -129,6 +131,7 @@ export const
 			msg.timer = setTimeout(() => msg.open = false, duration)
 		return msg
 	}
+	/* oxlint-enable no-unused-expressions */
 
 declare global {
 	interface HTMLElementTagNameMap {

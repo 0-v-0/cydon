@@ -4,7 +4,7 @@ import cModel from './c-model'
 
 type D = Directive | void
 
-export const lastValue = Symbol('lastValue')
+export const lastValue = Symbol(import.meta.env.DEV ? 'cydon:lastValue' : '')
 
 export default <DirectiveHandler[]>[cModel, (name, value, el): D => {
 	if (name == 'c-if') {
