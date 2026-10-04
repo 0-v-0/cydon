@@ -31,6 +31,13 @@ function update({ a, n: node, x: data, f }: Target) {
 /** data proxies */
 const proxies = new WeakMap<Dep | Data, Handler>()
 
+/**
+ * whether a commit is in progress. Writes made during a commit (from
+ * side-effecting binding expressions) never re-enter the queue, which rules
+ * out infinite update loops. Read and written in development builds only.
+ */
+let committing = false
+
 export function setData(cydon: Cydon, data: Data = cydon, parent?: Data) {
 	let proxy = proxies.get(parent!)
 	if (!proxy) {
@@ -78,11 +85,6 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 		 * bound nodes
 		 */
 		$targets = new Set<Target>
-
-		/**
-		 * max number of updates of a property per commit
-		 */
-		$limits = new Map<string, number>
 
 		/**
 		 * directives
@@ -188,6 +190,13 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 							if (typeof key == 'string')
 								deps.add(key)
 							return Reflect.get(obj, key, receiver)
+						},
+						set(obj, key: string, val, receiver) {
+							// binding expressions must be side-effect free: a write
+							// here lands raw on $data and never re-enters the queue
+							if (import.meta.env.DEV && committing)
+								console.warn(`[cydon] binding modified '${key}' during a commit; the change is not reactive. Avoid side effects in binding expressions.`)
+							return Reflect.set(obj, key, val, receiver)
 						}
 					})
 				this.$targets.add(target)
@@ -225,6 +234,8 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 		 * @param prop variable
 		 */
 		updateValue(prop: string) {
+			if (import.meta.env.DEV && committing)
+				console.warn(`[cydon] '${prop}' was modified during a commit and will not be rendered until the next update. Avoid side effects in binding expressions.`)
 			if (!this.$queue.size)
 				queueMicrotask(() => this.commit())
 			this.$queue.set(prop, 1)
@@ -235,22 +246,26 @@ export const CydonOf = <T extends {}, D extends Data = Data>(base: Ctor<T> = <an
 		 */
 		commit() {
 			const q = this.$queue
-			for (const target of this.$targets) {
-				for (const dep of target.deps) {
-					const count = q.get(dep)
-					if (count) {
-						// target.deps.clear()
-						if (update(target)) {
-							if (count == this.$limits.get(dep))
-								q.delete(dep)
-							else
-								q.set(dep, count + 1)
+			try {
+				if (import.meta.env.DEV)
+					committing = true
+				for (const target of this.$targets)
+					for (const dep of target.deps)
+						if (q.has(dep)) {
+							// Deliberately not clearing: deps are per-target (c-for
+							// items share one set, but every eval repopulates it
+							// identically), so clearing is semantically safe and
+							// would only skip dirty re-evals of stale branch deps —
+							// unmeasured benefit, extra Set churn on every eval.
+							// target.deps.clear()
+							update(target)
+							break
 						}
-						break
-					}
-				}
+			} finally {
+				if (import.meta.env.DEV)
+					committing = false
+				q.clear()
 			}
-			q.clear()
 		}
 
 		connectedCallback() {

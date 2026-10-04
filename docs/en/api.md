@@ -205,15 +205,11 @@ app.$data.count++ // Does not trigger DOM update
 
 ### $queue
 
-The render queue, type is `Map<string, number>`. Keys are property names, values are the number of times the property has been updated in the current batch.
+The render queue, type is `Map<string, number>`. Keys are property names pending update; values are unused placeholders.
 
 ### $targets
 
 The set of bound nodes, type is `Set<Target>`.
-
-### $limits
-
-The update count limit per property in a single `commit`, type is `Map<string, number>`. When a property reaches its update limit in a single `commit`, subsequent updates for that property are skipped to prevent infinite loops.
 
 ### $directives
 

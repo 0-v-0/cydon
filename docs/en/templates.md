@@ -72,7 +72,7 @@ Cydon uses an asynchronous batched update mechanism:
 1. When modifying a `data` property, the `Proxy`'s `set` trap calls `updateValue`.
 2. `updateValue` adds the property name to `$queue`. If the queue was empty before adding, a `commit` is scheduled via `queueMicrotask`.
 3. `commit` executes in a microtask, traversing all `Target`s and updating nodes whose dependencies have changed.
-4. The `$limits` field can be used to set the maximum number of updates per property in a single `commit`, preventing infinite loops.
+4. Each property is committed at most once per `commit`. Binding expressions must be side-effect free: a write made during a `commit` never triggers further updates and is reported by a console warning in development builds.
 
 ```ts
 app.data.count = 1  // Added to queue

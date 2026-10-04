@@ -257,7 +257,7 @@ updateValue(prop: string) {
 }
 ```
 
-`commit()` executes in a microtask, traversing all `$targets` and only updating nodes whose dependencies have changed. The `$limits` field restricts the maximum number of updates for a single property in one commit, preventing infinite loops.
+`commit()` executes in a microtask, traversing all `$targets` and only updating nodes whose dependencies have changed. A commit is a single pass, and writes made during it never re-enter the queue, which structurally rules out infinite update loops. Binding expressions must be side-effect free; development builds report violations with a console warning.
 
 ### Update Granularity
 

@@ -70,7 +70,7 @@ Cydon采用异步批量更新机制：
 1. 修改`data`属性时，通过Proxy的`set`陷阱调用`updateValue`
 2. `updateValue`将属性名加入`$queue`，若加入前队列为空，则通过`queueMicrotask`调度一次`commit`
 3. `commit`在微任务中执行，遍历所有`Target`，更新依赖发生变化的节点
-4. 可通过`$limits`字段设置每个属性在单次`commit`中的更新次数限制，防止无限循环
+4. 每个属性在单次`commit`中最多提交一次。绑定表达式必须无副作用：`commit`期间发生的写入不会触发后续更新，并在开发构建下通过控制台警告报告
 
 ```ts
 app.data.count = 1  // 加入队列

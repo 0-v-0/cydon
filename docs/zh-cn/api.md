@@ -205,15 +205,11 @@ app.$data.count++ // 不会触发DOM更新
 
 ### $queue
 
-渲染队列，类型为`Map<string, number>`。键为属性名，值为该属性在当前批次中的更新次数
+渲染队列，类型为`Map<string, number>`。键为待更新的属性名，值仅作占位
 
 ### $targets
 
 绑定的节点集合，类型为`Set<Target>`
-
-### $limits
-
-每个属性在单次`commit`中的更新次数限制，类型为`Map<string, number>`。当某个属性在单次`commit`中更新次数达到限制时，将跳过该属性的后续更新，防止无限循环
 
 ### $directives
 
