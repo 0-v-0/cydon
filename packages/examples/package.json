@@ -13,6 +13,6 @@
 		"unplugin-emt-styl": "workspace:*"
 	},
 	"devDependencies": {
-		"vite": "^8.3.1"
+		"vite": "^8.3.2"
 	}
 }
