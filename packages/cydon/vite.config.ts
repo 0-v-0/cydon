@@ -39,6 +39,21 @@ export default defineConfig({
 	},
 	plugins: [
 		{
+			// rolldown annotates `new Set()` / `new Map()` with /* @__PURE__ */
+			// when it flattens the module graph. Those annotations are for a
+			// bundler further down the line, but dist/cydon.js is already the
+			// final file, so they only cost bytes. Verified to leave downstream
+			// tree-shaking unaffected: bundlers regenerate the annotations they
+			// need (rolldown) or never read them (esbuild).
+			name: 'strip-pure-annotations',
+			enforce: 'post',
+			renderChunk(code) {
+				return code.includes('@__PURE__')
+					? code.replaceAll(/\/\* @__PURE__ \*\//g, '')
+					: null
+			},
+		},
+		{
 			// rolldown emits the external core import with the raw relative
 			// specifier; remap it so dist/declarative.js resolves next to cydon.js
 			name: 'remap-declarative-core',
