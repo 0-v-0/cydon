@@ -48,7 +48,7 @@ Cydon组件初始化在`connectedCallback`阶段执行，该阶段在`attributeC
 该方法适用于任何组件（对于原生的Web Components也适用）
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 const eventHub = new EventOf()
 
@@ -118,7 +118,7 @@ export class CompB extends CydonElement {
 
 ```ts
 // event-bus.ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 export const eventBus = new EventOf()
 
 // 任意组件中

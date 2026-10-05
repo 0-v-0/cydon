@@ -87,7 +87,7 @@ class MyElement extends CydonElement {
 `EventOf` is an independent event system that does not depend on the DOM and can be used for component communication:
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 const eventHub = new EventOf()
 
@@ -114,7 +114,7 @@ eventHub.off()
 `EventOf` can also be used in combination with a base class:
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 class MyClass extends EventOf() {
   doSomething() {

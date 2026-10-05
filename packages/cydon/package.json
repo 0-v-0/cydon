@@ -24,11 +24,23 @@
 	"type": "module",
 	"main": "dist/cydon.js",
 	"module": "dist/cydon.js",
-	"browser": "dist/cydon.iife.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/cydon.d.ts",
 	"unpkg": "dist/cydon.iife.js",
+	"jsdelivr": "dist/cydon.iife.js",
+	"exports": {
+		".": {
+			"types": "./dist/cydon.d.ts",
+			"default": "./dist/cydon.js"
+		},
+		"./events": {
+			"types": "./dist/events.d.ts",
+			"default": "./dist/events.js"
+		},
+		"./package.json": "./package.json",
+		"./declarative": "./dist/declarative.js"
+	},
 	"scripts": {
-		"build": "vite build",
+		"build": "vite build && vite build --config vite.iife.ts && vite build --config vite.iife.ts --mode declarative",
 		"test": "vitest run",
 		"prepublishOnly": "pnpm test && pnpm build"
 	}

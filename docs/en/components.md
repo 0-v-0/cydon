@@ -48,7 +48,7 @@ Do not call `this.mount()` in the `constructor`, because the DOM of child elemen
 This approach works for any component (including native Web Components).
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 const eventHub = new EventOf()
 
@@ -118,7 +118,7 @@ For cross-level component communication, it is recommended to use `EventOf` to c
 
 ```ts
 // event-bus.ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 export const eventBus = new EventOf()
 
 // In any component

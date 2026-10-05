@@ -87,7 +87,7 @@ class MyElement extends CydonElement {
 `EventOf`是一个独立的事件系统，不依赖DOM，可用于组件间通信：
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 const eventHub = new EventOf()
 
@@ -114,7 +114,7 @@ eventHub.off()
 `EventOf`也可以与基类组合使用：
 
 ```ts
-import { EventOf } from 'cydon'
+import { EventOf } from 'cydon/events'
 
 class MyClass extends EventOf() {
   doSomething() {
