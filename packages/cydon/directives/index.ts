@@ -148,6 +148,12 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	const setCapacity = (n: number) => {
 		if (n) {
 			for (; capacity < n; ++capacity) {
+				// importNode, not cloneNode: the clone is created in the main
+				// document, where already-defined custom elements upgrade
+				// synchronously — before bind. Cloning in the template content's
+				// document (no custom element registry) defers the upgrade to
+				// insertion, after bind, so property bindings written by bind
+				// would land before the accessors exist and shadow them.
 				const target = document.importNode(content, true)
 				const c: Context = ctxs[capacity] = Object.create(cydon)
 				// the item's data object proto-links to the parent data: the
