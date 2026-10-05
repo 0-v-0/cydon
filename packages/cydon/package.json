@@ -29,6 +29,7 @@
 	"unpkg": "dist/cydon.iife.js",
 	"scripts": {
 		"build": "vite build",
-		"test": "vitest run"
+		"test": "vitest run",
+		"prepublishOnly": "pnpm test && pnpm build"
 	}
 }
