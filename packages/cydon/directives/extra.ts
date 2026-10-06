@@ -5,33 +5,43 @@ import cModel from './c-model'
 type D = Directive | void
 
 export const lastValue = Symbol(import.meta.env.DEV ? 'cydon:lastValue' : '')
+const ifAnchor = Symbol(import.meta.env.DEV ? 'cydon:ifAnchor' : '')
 
 export default <DirectiveHandler[]>[cModel, (name, value, el): D => {
 	if (name == 'c-if') {
 		const func = toFunction('return ' + value)
-		const directive: Directive = {
+		return {
 			deps: new Set,
+			// stateless on purpose: a c-for loop binds clones of one compiled
+			// template with the same Part, so per-item state (the anchor) has
+			// to live on the element, not in this closure
 			f(el) {
-				const parent = el.parentElement!
-				const anchor = new Comment
-				parent.insertBefore(anchor, el);
-				(directive.f = function (el) {
-					const val = func.call(this, el)
-					if (val != el[lastValue]) {
-						el[lastValue] = val
-						if (val) {
-							this.mount?.(el)
-							if (!el.isConnected)
-								anchor.replaceWith(el)
-						} else {
-							this.unmount?.(el)
-							el.replaceWith(anchor)
-						}
+				// the anchor is created once, next to the element; replaceWith
+				// keeps the pair adjacent afterwards. parentNode, not
+				// parentElement: bind runs while a c-for item is still a child
+				// of its DocumentFragment, whose parentNode is the fragment —
+				// parentElement would be null there
+				let anchor = el[ifAnchor]
+				if (!anchor) {
+					el[ifAnchor] = anchor = new Comment
+					el.parentNode!.insertBefore(anchor, el)
+				}
+				const val = func.call(this, el)
+				if (val != el[lastValue]) {
+					el[lastValue] = val
+					// the subtree keeps its bindings while hidden: mount() could
+					// not rebind it scope-correctly inside a c-for item anyway,
+					// and unmount(el) would drop the c-if target itself (a node
+					// contains itself), freezing the directive after one toggle
+					if (val) {
+						if (!el.isConnected)
+							anchor.replaceWith(el)
+					} else {
+						el.replaceWith(anchor)
 					}
-				}).call(this, el)
+				}
 			}
 		}
-		return directive
 	}
 
 	if (name == 'c-show') {
