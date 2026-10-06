@@ -1,5 +1,5 @@
 /*
- * Cydon v0.2.1
+ * Cydon v0.3.0
  * https://github.com/0-v-0/cydon
  */
 

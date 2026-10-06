@@ -116,13 +116,23 @@ When the array length changes, Cydon automatically adds or removes DOM elements:
 - Adding elements: creates a new DocumentFragment and binds it.
 - Removing elements: removes excess DOM nodes and cleans up disconnected bindings via `requestIdleCallback` during idle time.
 
+**Keyed mode:**
+
+Adding a `:key` attribute with an expression to the template switches the loop to keyed rendering: each item's DOM nodes are tracked by the key and follow the item across updates, instead of item data being reassigned to whichever node sits at that position.
+
 ```html
 <ul>
-    <template c-for="item, index; list">
+    <template c-for="item, index; list" :key="item.id">
         <li>${index}: ${item.name}</li>
     </template>
 </ul>
 ```
+
+The key expression is evaluated per item and may read the item, the index and outer scope data.
+
+When the array changes, Cydon reconciles items by key in one batched pass (a microtask): surviving items keep their DOM nodes — moved exactly once when out of order, with minimal moves computed via a longest increasing subsequence — keys that appear for the first time create their nodes, keys that vanish have theirs removed. Because reconciliation is batched, several writes within the same tick (e.g. swapping two rows) produce a single move-based diff rather than intermediate states.
+
+Reordering therefore never copies data between DOM nodes, which preserves per-node state such as focus, selection or event listeners. Duplicate keys warn in development builds; every occurrence after the first renders as a new item. Without `:key`, rendering stays non-keyed as described above.
 
 ### c-tp
 

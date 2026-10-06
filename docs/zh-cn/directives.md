@@ -116,13 +116,23 @@
 - 增加元素时：创建新的DocumentFragment并绑定
 - 减少元素时：移除多余的DOM节点，并通过`requestIdleCallback`在空闲时清理未连接的绑定
 
+**keyed 模式：**
+
+在模板上添加带表达式的`:key`属性，循环即切换为keyed渲染：每个条目的DOM节点按key跟踪，并随条目一起更新，而不是把数据重新分配给该位置上的节点
+
 ```html
 <ul>
-    <template c-for="item, index; list">
+    <template c-for="item, index; list" :key="item.id">
         <li>${index}: ${item.name}</li>
     </template>
 </ul>
 ```
+
+key表达式按条目求值，可读取条目本身、索引以及外层作用域数据
+
+数组变化时，Cydon在一次批量处理（微任务）中按key对账：仍然存在的条目保留其DOM节点——乱序时通过最长递增子序列计算最小移动，每个节点至多移动一次——首次出现的key创建节点，消失的key移除节点。由于对账是批量的，同一轮内的多次写入（例如交换两行）只会产生一次基于移动的diff，而不会处理中间状态
+
+因此重排不会在DOM节点之间拷贝数据，焦点、选中态、事件监听器等节点状态得以保留。开发构建下重复key会警告，同一key第二次及之后的出现按新条目渲染。不写`:key`时保持上述非keyed渲染
 
 ### c-tp
 
