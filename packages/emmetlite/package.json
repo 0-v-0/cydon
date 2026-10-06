@@ -15,6 +15,9 @@
 		"index.js",
 		"index.d.ts"
 	],
+	"scripts": {
+		"test": "vitest run"
+	},
 	"type": "module",
 	"main": "index.js",
 	"types": "index.d.ts"
