@@ -11,11 +11,18 @@ type D = Directive | void
  * State of one c-for loop instance: its own scopes, capacity and DOM.
  * Everything array-related (the backing array and its proxy) lives on the
  * shared state below — loops over the same array field only own their scopes.
+ *
+ * Keyed loops (a `:key` expression on the template) implement the same two
+ * entry points as no-ops that delegate to the shared batched flush, and add
+ * reconcile(), which diffs their scopes against `shared.arr` by key.
  */
 export interface ForLoop {
 	ctxs: Context[]
 	render(i: number): void
 	setCapacity(n: number): void
+	/** keyed loop: reconciles items by key instead of updating in place */
+	keyed?: boolean
+	reconcile?(): void
 }
 
 /**
@@ -32,6 +39,10 @@ export interface ForLoops {
 	items: any[]
 	loops: ForLoop[]
 	setArray(v: unknown[]): void
+	/** whether a batched reconcile of the keyed loops is already scheduled */
+	dirty?: boolean
+	/** schedule one reconcile of every keyed loop on this field in a microtask */
+	markDirty?(): void
 }
 
 /** Symbol key of the per-instance c-for state table, declared as a Mixin
@@ -39,6 +50,43 @@ export interface ForLoops {
  * enumerable, so Object.keys/spread/assign on a Cydon instance can't pick it
  * up or clobber it. */
 export const forSharedKey = Symbol(import.meta.env.DEV ? 'cydon:forShared' : '')
+
+/**
+ * Indices of the longest strictly increasing subsequence of `arr`, via
+ * patience sorting with predecessor links, O(n log n). `arr` must not
+ * contain duplicate values (old scope indices are matched at most once).
+ */
+function getSequence(arr: number[]): number[] {
+	const len = arr.length
+	if (!len) return []
+	const p: number[] = new Array(len)
+	const result = [0]
+	for (let i = 1; i < len; i++) {
+		const v = arr[i],
+			last = result[result.length - 1]
+		if (arr[last] < v) {
+			p[i] = last
+			result.push(i)
+			continue
+		}
+		let u = 0, w = result.length - 1
+		while (u < w) {
+			const m = (u + w) >> 1
+			if (arr[result[m]] < v) u = m + 1
+			else w = m
+		}
+		if (v < arr[result[u]]) {
+			if (u > 0) p[i] = result[u - 1]
+			result[u] = i
+		}
+	}
+	let v = result[result.length - 1]
+	for (let i = result.length - 1; i >= 0; i--) {
+		result[i] = v
+		v = p[v]!
+	}
+	return result
+}
 
 export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & { e?: string[] }) {
 	if (import.meta.env.DEV && el.tagName != 'TEMPLATE') {
@@ -55,6 +103,18 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 	}
 	const parent = el.parentNode!
 	const content = el.content
+	// A `:key` expression on the template switches the loop to keyed mode.
+	// The template keeps the attribute until removal: compile() returns
+	// before scanning a c-for element's own attributes, so no directive
+	// ever strips it.
+	const keyExpr = el.getAttribute(':key')
+	if (import.meta.env.DEV && keyExpr != null && !keyExpr)
+		console.warn('c-for: empty :key expression; rendering non-keyed instead', el)
+	// The node following the template, resolving the insert anchor for keyed
+	// reconciliations; null when the template is the last child. The template
+	// itself is never a valid anchor (it leaves the DOM), and neither is a
+	// node a later template removed — revalidated before every use.
+	const endAnchor = el.nextSibling
 	// Defer removing the template until after bind: sibling indices recorded by
 	// compile() must stay valid for the rest of the bind walk, so the template
 	// must not leave the DOM while bind is still walking its siblings.
@@ -91,14 +151,30 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 			arr: initial,
 			items: new Proxy(initial, handler),
 			loops: [],
+			dirty: false,
+			markDirty() {
+				if (this.dirty) return
+				this.dirty = true
+				// Keyed reconciliation is batched: a swap is two index writes,
+				// and diffing the intermediate state would destroy and recreate
+				// the swapped items instead of moving them.
+				queueMicrotask(() => {
+					this.dirty = false
+					for (const l of this.loops)
+						if (l.keyed) l.reconcile!()
+				})
+			},
 			setArray(v) {
 				if (v != this.items) {
 					const len = Math.min(this.arr.length, v.length)
 					this.arr = v
 					for (const l of this.loops)
-						for (let i = 0; i < len; i++)
-							if (l.ctxs[i]?.$data[key] != v[i])
-								l.render(i)
+						if (l.keyed)
+							this.markDirty!()
+						else
+							for (let i = 0; i < len; i++)
+								if (l.ctxs[i]?.$data[key] != v[i])
+									l.render(i)
 					this.items = new Proxy(v, handler)
 					this.items.length = v.length
 				}
@@ -111,7 +187,7 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 		})
 	}
 
-	// ---- this loop's private state: scopes, capacity, own-node marks ----
+	// ---- shared per-loop state: item proxy handler and ownership mark ----
 	const ph: DataHandler = {
 		set: (obj, p: string, val) => {
 			obj[p] = val
@@ -120,12 +196,13 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 			return true
 		}
 	}
-	const ctxs: Context[] = []
 	const own = Symbol(import.meta.env.DEV ? 'cydon:forOwn' : '')
-	let capacity = 0
-	const render = (i: number) => {
-		const c = ctxs[i],
-			item = shared.arr[i]
+
+	/**
+	 * Write the item's data into a scope: objects get a proxied copy that is
+	 * updated in place on re-render, primitives are assigned directly.
+	 */
+	const updateScope = (c: Context, item: any) => {
 		if (typeof item == 'object') {
 			if (c.$data[key])
 				Object.assign(c.$data[key], item) // update data
@@ -137,6 +214,211 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 			cydon.updateValue(value)
 		}
 	}
+
+	if (keyExpr) {
+		// ---- keyed mode: scopes track items by key and the DOM follows ----
+		// key expressions evaluate against the item scope, without the node
+		// argument binding functions receive
+		const keyFn = toFunction('return ' + keyExpr) as (this: Data) => any
+		const ctxs: Context[] = []
+		const markers: Comment[] = []
+		const keys: any[] = []
+		// the item object each scope was last rendered from, to skip no-op updates
+		const rendered: unknown[] = []
+		// top-level node count of one item. A leading comment marker per item
+		// makes the range walkable by count, which survives a c-if inside the
+		// template swapping its element for an anchor comment 1:1.
+		const width = content.childNodes.length
+
+		const keyOf = (item: any, i: number) => {
+			// evaluate in a throwaway scope proto-linked to the parent data, so
+			// key expressions can read the item, the index and outer data alike
+			const s: Data = Object.create(data)
+			s[key] = item
+			if (index) s[index] = i
+			return keyFn.call(s)
+		}
+
+		/** create the scope and DOM of a new item, inserted before anchor */
+		const createItem = (i: number, item: any, k: any, anchor: Node | null) => {
+			const marker = document.createComment(import.meta.env.DEV ? 'c-for' : '')
+			marker[own] = true
+			// importNode, not cloneNode: the clone is created in the main
+			// document, where already-defined custom elements upgrade
+			// synchronously — before bind. Cloning in the template content's
+			// document (no custom element registry) defers the upgrade to
+			// insertion, after bind, so property bindings written by bind
+			// would land before the accessors exist and shadow them.
+			const target = document.importNode(content, true)
+			const c: Context = ctxs[i] = Object.create(cydon)
+			// the item's data object proto-links to the parent data: the
+			// scope chain (item -> outer items -> root data) is then carried
+			// by ordinary prototype lookup, in reads and in `with` has checks
+			setData(c, Object.create(data), data)
+			if (index)
+				c.$data[index] = i
+			updateScope(c, item)
+			c.bind(results, target)
+			for (let node = target.firstChild; node; node = node.nextSibling)
+				node[own] = true
+			parent.insertBefore(marker, anchor)
+			parent.insertBefore(target, anchor)
+			markers[i] = marker
+			keys[i] = k
+			rendered[i] = item
+		}
+
+		/** remove the marker and the `width` nodes of one item */
+		const removeItem = (marker: Comment) => {
+			let node: ChildNode | null = marker
+			for (let j = 0; j <= width && node; j++) {
+				const next: ChildNode | null = node.nextSibling
+				node.remove()
+				node = next
+			}
+		}
+
+		const reconcile = () => {
+			const arr = shared.arr, n = arr.length, oldN = ctxs.length
+			if (!n && !oldN) return
+			const oCtxs = ctxs.slice(), oMarkers = markers.slice(),
+				oKeys = keys.slice(), oRendered = rendered.slice()
+
+			// match old scopes to new items by key; an old scope feeds at most
+			// one new position, surplus occurrences of a key render as new items
+			const oldByKey = new Map<any, number>()
+			for (let i = 0; i < oldN; i++) {
+				const k = oKeys[i]
+				if (!oldByKey.has(k)) oldByKey.set(k, i)
+			}
+			const match: number[] = new Array(n).fill(-1)
+			const consumed = new Uint8Array(oldN)
+			const newKeys: any[] = new Array(n)
+			const warned = import.meta.env.DEV && new Set<any>()
+			for (let i = 0; i < n; i++) {
+				const k = newKeys[i] = keyOf(arr[i], i)
+				if (warned) {
+					if (warned.has(k))
+						console.warn(`c-for: duplicate key ${String(k)} in '${value}'; every item after the first renders as a new item`, el)
+					else
+						warned.add(k)
+				}
+				const oi = oldByKey.get(k)
+				if (oi != null && !consumed[oi]) {
+					match[i] = oi
+					consumed[oi] = 1
+				}
+			}
+
+			// scopes whose old indices form the longest increasing subsequence
+			// of the matched order are already in DOM order and stay put; the
+			// remaining matched scopes are moved exactly once
+			const pos: number[] = [], oldIdx: number[] = []
+			for (let i = 0; i < n; i++)
+				if (match[i] >= 0) {
+					pos.push(i)
+					oldIdx.push(match[i])
+				}
+			const noMove = new Uint8Array(n)
+			for (const j of getSequence(oldIdx))
+				noMove[pos[j]] = 1
+
+			// the node following the loop's region, captured before removals
+			// shift it: the last old item's nodes plus its marker
+			let tail: ChildNode | null = null
+			if (oldN) {
+				tail = oMarkers[oldN - 1]
+				for (let j = 0; j <= width && tail; j++)
+					tail = tail.nextSibling
+			} else if (endAnchor && endAnchor.parentNode == parent)
+				tail = endAnchor
+
+			// removals first, so moves never step over stale nodes
+			let removed = 0
+			for (let i = 0; i < oldN; i++)
+				if (!consumed[i]) {
+					removed++
+					removeItem(oMarkers[i])
+				}
+			if (removed) {
+				requestIdleCallback(() => cydon.unmount(null))
+				if (removed == oldN) {
+					// destructive fast path: every old item is gone and nothing
+					// but this loop's nodes (and whitespace) remains, so drop
+					// them all at once instead of per item
+					let onlyOwn = true
+					for (let node = parent.firstChild; node; node = node.nextSibling) {
+						if (!node[own] && !(node.nodeType == 3 && !(<Text>node).data.trim())) {
+							onlyOwn = false
+							break
+						}
+					}
+					if (onlyOwn)
+						parent.textContent = ''
+				}
+			}
+
+			// walk the new order backwards, anchoring each item before the
+			// already-placed successor; scopes on the LIS keep their nodes
+			let anchor = tail && tail.parentNode == parent ? tail : null
+			ctxs.length = markers.length = keys.length = rendered.length = n
+			for (let i = n - 1; i >= 0; i--) {
+				const item = arr[i], oi = match[i]
+				if (oi < 0) {
+					createItem(i, item, newKeys[i], anchor)
+					anchor = markers[i]
+				} else {
+					const marker = oMarkers[oi]
+					if (!noMove[i]) {
+						let node: ChildNode | null = marker
+						for (let j = 0; j <= width && node; j++) {
+							const next: ChildNode | null = node.nextSibling
+							parent.insertBefore(node, anchor)
+							node = next
+						}
+					}
+					anchor = marker
+					ctxs[i] = oCtxs[oi]
+					markers[i] = marker
+					keys[i] = oKeys[oi]
+					rendered[i] = item
+					if (oRendered[oi] !== item)
+						updateScope(oCtxs[oi], item)
+				}
+			}
+
+			// positions shifted: refresh the index variable of every scope
+			if (index) {
+				let changed = false
+				for (let i = 0; i < n; i++)
+					if (ctxs[i].$data[index] != i) {
+						ctxs[i].$data[index] = i
+						changed = true
+					}
+				if (changed)
+					cydon.updateValue(index)
+			}
+		}
+
+		const markDirty = () => shared.markDirty!()
+		shared.loops.push({
+			ctxs, keyed: true,
+			render: markDirty, setCapacity: markDirty,
+			reconcile,
+		})
+		// initial render appends: inserting before the template would shift
+		// the sibling indices the running bind walk still has to consume
+		const arr = shared.arr
+		for (let i = 0; i < arr.length; i++)
+			createItem(i, arr[i], keyOf(arr[i], i), null)
+		return
+	}
+
+	// ---- non-keyed mode (default): scopes follow positions, tail capacity ----
+	const ctxs: Context[] = []
+	let capacity = 0
+	const render = (i: number) =>
+		updateScope(ctxs[i], shared.arr[i])
 	/**
 	 * Sets the capacity of the parent element to display the given number of items.
 	 * If capacity > the current number of items, new elements are created and added to the parent.
