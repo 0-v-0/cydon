@@ -3,6 +3,18 @@
 All notable functional changes to the `cydon` package are documented here.
 Releases before 0.2.0 are not covered.
 
+## 0.2.1
+
+### Fixed
+
+- `c-if` kept one anchor comment per compiled part, so inside a `c-for`
+  loop every item's instance replaced the same anchor; the anchor is now
+  stored per element. c-if also works as a direct child of a `c-for`
+  template (bind runs while the item is still a DocumentFragment child,
+  where `parentElement` is null), and toggling no longer drops the c-if
+  binding itself via its own `unmount` call, which froze the directive
+  after its first toggle on instances whose data is the element itself.
+
 ## 0.2.0
 
 ### Changed
