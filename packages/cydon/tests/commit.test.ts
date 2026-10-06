@@ -18,7 +18,7 @@ describe('commit side-effect guard', () => {
 		app.mount(container)
 		expect(container.querySelector('p')!.textContent).toBe('2')
 		expect(app.data.count).toBe(2)
-		expect((app as any).$queue.size).toBe(0)
+		expect(app.$queue.size).toBe(0)
 		expect(warn).not.toHaveBeenCalled()
 
 		// an external write schedules the commit; re-evaluating the
