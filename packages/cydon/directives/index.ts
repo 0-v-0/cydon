@@ -180,11 +180,23 @@ export function for_(cydon: Cydon, el: HTMLTemplateElement, results: Results & {
 				}
 			},
 		})
-		Object.defineProperty(cydon, value, {
-			get: () => shared!.items,
-			set: (v) => shared!.setArray(v),
-			configurable: true,
-		})
+		// The accessor lives on the raw data object: it is what direct $data
+		// access hits, and the data proxy reaches it through Reflect.set.
+		// Data that cannot hold it (a frozen/sealed literal, or a manually
+		// non-configurable field) keeps the 0.2.1 behavior — the loop
+		// renders once: replacement through the data proxy throws (the
+		// target refuses the write) and mutations of the retrieved raw
+		// array are invisible to the loop.
+		try {
+			Object.defineProperty(data, value, {
+				get: () => shared!.items,
+				set: (v) => shared!.setArray(v),
+				configurable: true,
+			})
+		} catch {
+			if (import.meta.env.DEV)
+				console.warn(`[cydon] c-for: '${value}' lives on frozen data — the list renders once and cannot update`, el)
+		}
 	}
 
 	// ---- shared per-loop state: item proxy handler and ownership mark ----

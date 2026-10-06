@@ -254,3 +254,100 @@ describe('c-for over frozen literal data', () => {
 		expect(texts()).toEqual(['1', '2'])
 	})
 })
+describe('c-for over constructor-literal data', () => {
+	let container: HTMLElement
+	beforeEach(() => {
+		container = document.createElement('div')
+		document.body.appendChild(container)
+	})
+	const texts = () => [...container.querySelectorAll('i')].map(i => i.textContent)
+
+	test('data-proxy reassignment reconciles the structure', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>({ items: [1, 2] })
+		app.mount(container)
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+
+		// the accessor mirrored onto the raw data lets the proxy write
+		// reach setArray — previously this was a dead write
+		app.data.items = [3, 4, 5]
+		await tick()
+		expect(texts()).toEqual(['3', '4', '5'])
+	})
+
+	test('item mutations through the data proxy stay reactive', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>({ items: [1, 2] })
+		app.mount(container)
+		await tick()
+
+		// app.data.items resolves to the shared proxy, so pushes and splices
+		// render — previously it resolved to the raw array and did nothing
+		app.data.items.push(3)
+		await tick()
+		expect(texts()).toEqual(['1', '2', '3'])
+
+		app.data.items.splice(0, 1)
+		await tick()
+		expect(texts()).toEqual(['2', '3'])
+	})
+
+	test('direct $data writes hit the same shared state', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>({ items: [1] })
+		app.mount(container)
+		await tick()
+
+		app.$data.items = [8, 9]
+		await tick()
+		expect(texts()).toEqual(['8', '9'])
+	})
+
+	test('frozen literal: renders initially, updates fail or stay invisible', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>(Object.freeze({ items: [1, 2] }))
+		// the accessor cannot be defined on frozen data — must not throw,
+		// and development builds say so up front
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		app.mount(container)
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('frozen data'), expect.anything())
+		warn.mockRestore()
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+
+		// replacement through the data proxy throws: the frozen target
+		// refuses the write (engine TypeError, as in 0.2.1)
+		expect(() => { app.data.items = [3] }).toThrow(TypeError)
+		expect(() => { app.$data.items = [3] }).toThrow(TypeError)
+		// mutating the retrieved raw array is invisible to the loop:
+		// no throw, no re-render — the documented 0.2.1 limitation
+		app.data.items.push(9)
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+	})
+
+	test('a manually non-configurable field degrades like frozen data', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const data: { items: number[] } = { items: [1, 2] }
+		Object.defineProperty(data, 'items', { value: data.items, writable: true, configurable: false })
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const app = new Cydon<{ items: number[] }>(data)
+		// extensible data with a non-configurable field used to crash here
+		app.mount(container)
+		expect(warn).toHaveBeenCalled()
+		warn.mockRestore()
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+	})
+
+	test('literal-mode instances expose no field accessors; the data surface is the API', () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>({ items: [1, 2] })
+		app.mount(container)
+		// the accessor is deliberately placed on $data only: reading the
+		// untyped instance surface must not pretend to be the live array
+		expect((app as unknown as Record<string, unknown>).items).toBeUndefined()
+		expect(app.$data.items).not.toBeUndefined()
+	})
+})
