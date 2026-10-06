@@ -19,16 +19,17 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 | `{}` | 内容 | `div{text}` or `div>{text}` | `<div>text</div>` |
 | `*` | 数量 | `ol>li*3` | `<ol><li></li><li></li><li></li></ol>` |
 | `()` | 分组 | `table>(tr>td)*3` | `<table><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr></table>` |
-| `$` | 数量语法糖 | `div#t_$$*3` | `<div id="t_01"></div><div id="t_02"></div><div id="t_03"></div>` |
+| `$` | 数量语法糖（必须配合`@`使用） | `div#t_$$@*3` | `<div id="t_00"></div><div id="t_01"></div><div id="t_02"></div>` |
 | `@` | 数量起始位置和递减选项 | `span{$@-5}*3` | `<span>5</span><span>4</span><span>3</span>` |
 推荐顺序：元素名+id+类+属性+内容+数量，如：`tag-name#id.class[attr=value]{content}*2`
 
 与Emmet官方语法区别：
-1. 多个属性以空格分隔，不支持一个标签带多个[]
-	- `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]`→`<tag class="classes separated by dots and" id="id" attributes="sepearated by" spaces></tag>`
-	- `a[href=#][data-b=b]`→`<a href="#][data-b=b"></a>`
+1. 多个属性以空格分隔，一个标签只支持一个`[]`，多余的`[]`会被丢弃
+	- `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]`→`<tag class="classes separated by dots and" attributes="sepearated by" spaces id="id"></tag>`
+	- `a[href=# data-b=b]`→`<a href="#" data-b="b"></a>`
+	- `a[href=#][data-b=b]`→`<a href="#"></a>`（不合法，应写成上面那样）
 2. 不支持HTML标签： `<h1>1</h1>`→`<h1><h1></h1></h1>`
-3. 没有`*`操作时会保留`$`： `(ul>.t${$})(ul>.t${$})*1`→`<ul><li class="t$">$</li></ul><ul><li class="t0">0</li></ul>`
+3. `$`必须配合`@`才会被替换，只有`$`没有`@`时原样保留： `(ul>.t${$})(ul>.t${$})*1`→`<ul><li class="t${$}"></li></ul><ul><li class="t${$}"></li></ul>`
 4. `*` 可放在末尾作为注释使用：`a*`→``
 5. !DOCTYPE 缩写：`!`→`<!DOCTYPE html>`
 6. `.`可用于代替不在`{`前的隐式标签名：
@@ -36,10 +37,10 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 	- `ul>.{a}`→`<ul>a</ul>`
 7. 行尾的`}`和`)`和同级标签间的`+`可省略（不推荐），但`]`和`[`之间的`+`不可省略
 8. 支持多行注释(`{ ... }*`)
-9. 不包含空格的属性值可省略引号，会自动添加双引号，单引号会被保留 ex: `A comment img[src='1.avif' alt="foo bar" width=300](hr`→`<img src='1.avif' alt="foo bar" width="300"><hr>`
-10. 支持属性中包含`[`和`]`（若属性值包含空白字符或不成对的括号，需要加上双引号），如:
-	- `a[data-a=[[] data-b=[]]]{foo{1}}b[data-a=[] data-b=[]]{bar{2}`→`<a data-a="[[]" data-b="[]]">foo{1}</a><b data-a="[]" data-b="[]">bar{2</b>`
-	- `a[data-a=[ data-b=]]+b[data-a=] data-b=[]`→`<a data-a="[" data-b="]"></a><b data-a="]" data-b="["></b>`
+9. 不包含空格的属性值可省略引号，会自动添加双引号，单引号会被保留 ex: `img[src='1.avif' alt="foo bar" width=300]`→`<img src='1.avif' alt="foo bar" width="300">`
+10. 支持属性中包含`[`和`]`（属性值包含方括号时需要加上双引号），如:
+	- `img[alt="[a] alt text" src=x.png]`→`<img alt="[a] alt text" src="x.png">`
+	- `a[data-a="[[]" data-b="[]]"]{foo}b[data-a="[]" data-b="[]"]{bar}`→`<a data-a="[[]" data-b="[]]">foo</a><b data-a="[]" data-b="[]">bar</b>`
 11. 支持自定义默认元素、自定义标签名缩写、自定义属性缩写、自定义扩展属性
 
 ## 基本语法（缩进格式）
@@ -47,7 +48,7 @@ Cydon使用EMT来替代常规的HTML，EMT是一个基于Emmet语法的标记语
 
 **示例：**
 
-非缩进格式：`!+html>.>table>.>th{$@3}*3^(#l_$>td{$@-5}*3)*2`
+非缩进格式：`!+html>.>table>.>th{$@3}*3^(#l_$@>td{$@-5}*3)*2`
 
 缩进格式
 ```
@@ -57,7 +58,7 @@ html
 		table
 			.
 				th{$@3}*3
-			(#l_$
+			(#l_$@
 				td{$@-5}*3)*2
 ```
 HTML:

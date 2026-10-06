@@ -19,17 +19,18 @@ Reference: https://docs.emmet.io/abbreviations/syntax
 | `{}` | Content | `div{text}` or `div>{text}` | `<div>text</div>` |
 | `*` | Count | `ol>li*3` | `<ol><li></li><li></li><li></li></ol>` |
 | `()` | Grouping | `table>(tr>td)*3` | `<table><tr><td></td></tr><tr><td></td></tr><tr><td></td></tr></table>` |
-| `$` | Count placeholder | `div#t_$$*3` | `<div id="t_01"></div><div id="t_02"></div><div id="t_03"></div>` |
+| `$` | Count placeholder (requires `@`) | `div#t_$$@*3` | `<div id="t_00"></div><div id="t_01"></div><div id="t_02"></div>` |
 | `@` | Count start position and decrement | `span{$@-5}*3` | `<span>5</span><span>4</span><span>3</span>` |
 
 Recommended order: element name + id + class + attributes + content + count, e.g.: `tag-name#id.class[attr=value]{content}*2`
 
 Differences from official Emmet syntax:
-1. Multiple attributes are separated by spaces; a single tag with multiple `[]` is not supported.
-   - `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]` → `<tag class="classes separated by dots and" id="id" attributes="sepearated by" spaces></tag>`
-   - `a[href=#][data-b=b]` → `<a href="#][data-b=b"></a>`
+1. Multiple attributes are separated by spaces. A tag supports only one `[]`; any further `[]` is dropped.
+   - `tag#id.classes.separated.by.dots.and[attributes="sepearated by" spaces]` → `<tag class="classes separated by dots and" attributes="sepearated by" spaces id="id"></tag>`
+   - `a[href=# data-b=b]` → `<a href="#" data-b="b"></a>`
+   - `a[href=#][data-b=b]` → `<a href="#"></a>` (invalid — write it as above instead)
 2. HTML tags are not supported: `<h1>1</h1>` → `<h1><h1></h1></h1>`
-3. Without the `*` operator, `$` is preserved: `(ul>.t${$})(ul>.t${$})*1` → `<ul><li class="t$">$</li></ul><ul><li class="t0">0</li></ul>`
+3. `$` is only substituted when paired with `@`; on its own it is left in place: `(ul>.t${$})(ul>.t${$})*1` → `<ul><li class="t${$}"></li></ul><ul><li class="t${$}"></li></ul>`
 4. `*` at the end can be used as a comment: `a*` → ``
 5. DOCTYPE abbreviation: `!` → `<!DOCTYPE html>`
 6. `.` can be used in place of the implicit tag name when not before `{`:
@@ -37,10 +38,10 @@ Differences from official Emmet syntax:
    - `ul>.{a}` → `<ul>a</ul>`
 7. Trailing `}` and `)` and `+` between sibling tags at the end of a line can be omitted (not recommended), but `+` between `]` and `[` cannot be omitted.
 8. Supports multi-line comments (`{ ... }*`)
-9. Attribute values without spaces can omit quotes; double quotes will be added automatically. Single quotes are preserved. e.g.: `A comment img[src='1.avif' alt="foo bar" width=300](hr` → `<img src='1.avif' alt="foo bar" width="300"><hr>`
-10. Supports `[` and `]` within attributes (if the attribute value contains whitespace or unbalanced brackets, quotes must be added), e.g.:
-    - `a[data-a=[[] data-b=[]]]{foo{1}}b[data-a=[] data-b=[]]{bar{2}` → `<a data-a="[[]" data-b="[]]">foo{1}</a><b data-a="[]" data-b="[]">bar{2</b>`
-    - `a[data-a=[ data-b=]]+b[data-a=] data-b=[]` → `<a data-a="[" data-b="]"></a><b data-a="]" data-b="["></b>`
+9. Attribute values without spaces can omit quotes; double quotes will be added automatically. Single quotes are preserved. e.g.: `img[src='1.avif' alt="foo bar" width=300]` → `<img src='1.avif' alt="foo bar" width="300">`
+10. Supports `[` and `]` within attributes (values containing brackets must be double-quoted), e.g.:
+    - `img[alt="[a] alt text" src=x.png]` → `<img alt="[a] alt text" src="x.png">`
+    - `a[data-a="[[]" data-b="[]]"]{foo}b[data-a="[]" data-b="[]"]{bar}` → `<a data-a="[[]" data-b="[]]">foo</a><b data-a="[]" data-b="[]">bar</b>`
 11. Supports custom default elements, custom tag name abbreviations, custom attribute abbreviations, and custom extended attributes.
 
 ## Basic Syntax (Indented Format)
@@ -48,7 +49,7 @@ The raw format lacks readability, so the indented format is recommended instead.
 
 **Example:**
 
-Non-indented format: `!+html>.>table>.>th{$@3}*3^(#l_$>td{$@-5}*3)*2`
+Non-indented format: `!+html>.>table>.>th{$@3}*3^(#l_$@>td{$@-5}*3)*2`
 
 Indented format:
 ```
@@ -58,7 +59,7 @@ html
 		table
 			.
 				th{$@3}*3
-			(#l_$
+			(#l_$@
 				td{$@-5}*3)*2
 ```
 HTML:
