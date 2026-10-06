@@ -225,3 +225,32 @@ describe('c-for scope chain', () => {
 		expect(selected()).toEqual(['50'])
 	})
 })
+
+describe('c-for over frozen literal data', () => {
+	let container: HTMLElement
+	beforeEach(() => {
+		container = document.createElement('div')
+		document.body.appendChild(container)
+	})
+	const texts = () => [...container.querySelectorAll('i')].map(i => i.textContent)
+
+	// pins the 0.2.1 semantics: a frozen literal cannot hold the loop's
+	// accessor, so updates fail or stay invisible
+	test('renders initially, updates fail or stay invisible', async () => {
+		container.innerHTML = '<template c-for="item; items"><i>$item</i></template>'
+		const app = new Cydon<{ items: number[] }>(Object.freeze({ items: [1, 2] }))
+		app.mount(container)
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+
+		// replacement through the data proxy or $data throws: the frozen
+		// target refuses the write (engine TypeError)
+		expect(() => { app.data.items = [3] }).toThrow(TypeError)
+		expect(() => { app.$data.items = [3] }).toThrow(TypeError)
+		// mutating the retrieved raw array is invisible to the loop:
+		// no throw, no re-render
+		app.data.items.push(9)
+		await tick()
+		expect(texts()).toEqual(['1', '2'])
+	})
+})
