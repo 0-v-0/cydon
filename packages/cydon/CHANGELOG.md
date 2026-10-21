@@ -3,6 +3,38 @@
 All notable functional changes to the `cydon` package are documented here.
 Releases before 0.2.0 are not covered.
 
+## 0.3.0
+
+### Added
+
+- Keyed `c-for`: a `:key="expr"` attribute on the template tracks each
+  item's DOM nodes by key. Array updates reconcile by key in one batched
+  microtask pass — surviving items keep their nodes (moved once when out of
+  order, minimal moves via a longest increasing subsequence), new keys
+  create nodes, vanished keys remove them. Reordering no longer copies data
+  between DOM nodes, preserving per-node state such as focus, selection and
+  event listeners; duplicate keys warn in development builds. Without
+  `:key`, rendering is unchanged (non-keyed, position-based).
+
+### Fixed
+
+- c-for over constructor-literal data (`new Cydon({ items })`): the loop's
+  accessor is now defined on the raw data object instead of the instance,
+  so reassigning `data.items = [...]` reconciles the structure and item
+  mutations through the data proxy (`push`/`splice`/per-item writes) stay
+  reactive — both previously were silent dead writes. The data object is
+  what the proxy wraps and bindings read, so this one location serves
+  component style (where it coincides with the instance), literal data and
+  item scopes alike — nested loops in particular gain reactive array
+  access from event handlers. Reading a loop field off the instance of a
+  literal-data app now returns undefined: the data surface (`data`/`$data`)
+  is the API. A frozen literal renders initially; its fields cannot be
+  updated — replacement through the data proxy throws (the frozen target
+  refuses the write) and mutations of the retrieved raw array are not
+  reactive, matching the 0.2.1 behavior, now locked by tests;
+  development builds warn at mount when the data cannot hold the
+  accessor (frozen literals and manually non-configurable fields).
+
 ## 0.2.1
 
 ### Fixed
