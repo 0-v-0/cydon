@@ -461,8 +461,40 @@ describe('unbalanced parentheses (known bug)', () => {
 	// A `)` with no matching `(` makes zencode destructure `undefined` at
 	// index.js:297 and throw. Asserting the crash keeps it visible: if these
 	// start passing, zencode was fixed and the expectations need updating.
-	test.fails.each([')', 'div)', 'a>b)', 'ul>li)'])('%j throws', input => {
+	test.fails.each([')', 'div)', 'a>b)', 'ul>li)', '^)', 'div[])]'])('%j throws', input => {
 		expect(() => raw(input)).not.toThrow()
+	})
+
+	test('other unbalanced closing delimiters do not throw, they produce malformed tags', () => {
+		// Only an unmatched `)` reaches the groups[] destructure. Everything
+		// else is swallowed or emitted verbatim as a tag name. The inputs are
+		// spelled as code points because the bracket literals are unreadable
+		// inline; the character form is noted on each line.
+		const delims = (codes: number[]) => codes.map(c => String.fromCharCode(c)).join('')
+		expect(raw(delims([125]))).toBe('<}></}>') // }
+		expect(raw(delims([93]))).toBe('<]></]>') // ]
+		expect(raw(delims([125, 93]))).toBe('<}]></}]>') // }]
+		expect(raw(delims([40, 93]))).toBe('<]></]>') // (]
+		expect(raw(delims([91, 93, 93]))).toBe('<div ]></div>') // ][
+		expect(raw(delims([123, 93]))).toBe('<div></div>') // {]
+		expect(raw(delims([91, 125]))).toBe('<div></div>') // [}
+		expect(raw(delims([91, 41]))).toBe('<div></div>') // [)
+	})
+})
+
+describe('malformed output that is not reported as an error', () => {
+	// These inputs are invalid emmet but the parser returns a string rather
+	// than throwing. Each is a candidate for validation.
+	test.each([
+		['A comment img[src=1.webp]', '<A></A>'],
+		['div > span', '<div><div></div></div>'],
+		['div*2*3', '<div></div><div></div></div></div>'],
+		['div{a}*', ''],
+		['(div)*', ''],
+		['div#t_$@0.5*3', '<div class="5" id="t_0"></div><div class="5" id="t_1"></div><div class="5" id="t_2"></div>'],
+		['<h1>1</h1>', '<<h1><1</h1></1</h1></<h1>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
 	})
 })
 
@@ -554,5 +586,403 @@ describe('extension API', () => {
 		expect(seen!.attr).toEqual([' class="a"', 'x="1"', 'id="i"'])
 		expect(Array.isArray(seen!.result)).toBe(true)
 		expect(Array.isArray(seen!.tags)).toBe(true)
+	})
+
+	test('a tagProcs entry can force a void element', () => {
+		tagProcs.unshift(prop => {
+			prop.tag = 'br'
+			return true
+		})
+		try {
+			expect(raw('div.a')).toBe('<br class="a">')
+		} finally {
+			tagProcs.shift()
+		}
+	})
+
+	test('a tagProcs entry may clear the tag entirely', () => {
+		tagProcs.unshift(prop => {
+			prop.tag = ''
+			return true
+		})
+		try {
+			expect(raw('div')).toBe('')
+		} finally {
+			tagProcs.shift()
+		}
+	})
+
+	test('the builtin proc drops an unknown :ext from the tag name', () => {
+		// `div:x` has no eabbr entry for `x`, and the builtin proc discards
+		// everything after the colon rather than keeping it in the tag name.
+		tagProcs.unshift(prop => {
+			prop.tag = 'div:x'
+		})
+		try {
+			expect(raw('div')).toBe('<div></div>')
+		} finally {
+			tagProcs.shift()
+		}
+	})
+})
+
+describe('exhaustive extension table coverage', () => {
+	// Driven off the exported maps so a typo in any single entry fails here.
+
+	test.each(Object.entries(itags))('%s infers <%s> as its child', (tag, child) => {
+		expect(raw(`${tag}>.a`)).toContain(`<${child} class="a"`)
+	})
+
+	test.each(Object.entries(aabbr))('%s expands to %s', (abbr, name) => {
+		expect(raw(`div[${abbr}=v]`)).toBe(`<div ${name}="v"></div>`)
+	})
+
+	test.each(Object.entries(eabbr))('div:%s appends %s', (ext, attrs) => {
+		expect(raw(`div:${ext}`)).toBe(`<div${attrs}></div>`)
+	})
+})
+
+describe('operator adjacency', () => {
+	// A space anywhere inside a token clears the operator flag, so the rest of
+	// the token is never split. Whitespace before an operator is harmless.
+	test.each([
+		['div\t>span', '<div><span></span></div>'],
+		['div\n>span', '<div><span></span></div>'],
+		['div>span\r+br', '<div><span></span><br></div>'],
+		['div\nspan', '<div></div>'],
+		['div\rspan', '<div></div>'],
+		[' div', '<div></div>'],
+		['div ', '<div></div>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('a space after an operator silently rewrites the semantics', () => {
+		// The tag after the space is dropped as a non-match at index 0, so the
+		// implicit fallback element is emitted instead of the one intended.
+		expect(raw('div > span')).toBe('<div><div></div></div>')
+		expect(raw('div> span')).toBe('<div><div></div></div>')
+		expect(raw('div>span> p')).toBe('<div><span><div></div></span></div>')
+		expect(raw('div > span > p')).toBe('<div><div><div></div></div></div>')
+		expect(raw('div> span\t')).toBe('<div><div></div></div>')
+		expect(raw('div>span + span')).toBe('<div><span></span><div></div></div>')
+		expect(raw('div + span')).toBe('<div></div><div></div>')
+	})
+})
+
+describe('whitespace inside a token truncates the abbreviation', () => {
+	// Only the leading prefix of a token is parsed; everything after the first
+	// whitespace is discarded. None of these report an error.
+	test.each([
+		['comment div', '<comment></comment>'],
+		['foo bar', '<foo></foo>'],
+		['div a', '<div></div>'],
+		['A comment img[src=1.webp]', '<A></A>'],
+		['div.a b', '<div class="a"></div>'],
+		['a+b c', '<a></a><b></b>'],
+		['div{ x }', '<div> x </div>'],
+		['div[ x=1]', '<div  x="1"></div>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('CR and vertical tab split a token like a space does', () => {
+		expect(raw('div>\r\nspan')).toBe('<div><div></div></div>')
+		expect(raw('div>\rspan')).toBe('<div><div></div></div>')
+		expect(raw('div>\vspan')).toBe('<div><div></div></div>')
+	})
+})
+
+describe('count, repeat and group mechanics', () => {
+	test.each([
+		['div{a}*2{b}', '<div>a</div><div>a</div>'],
+		['{a}*3{b}', 'aaa'],
+		['a*2+b', '<a></a><a></a><b></b>'],
+		['a+b*2', '<a></a><b></b><b></b>'],
+		['div*2+', '<div></div><div></div>'],
+		['div*2>span', '<div></div><div></div><span></span>'],
+		['div>span*2', '<div><span></span><span></span></div>'],
+		['(div>span)*2', '<div><span></span></div><div><span></span></div>'],
+		['(div{a})*3', '<div>a</div><div>a</div><div>a</div>'],
+		['(div)*+span', '<span></span>'],
+		['(div)+span', '<div></div><span></span>'],
+		['(p>c)*2', '<p><c></c></p><p><c></c></p>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('nested groups multiply', () => {
+		expect(raw('((a)*2)*3')).toBe('<a></a>'.repeat(6))
+		expect(raw('((a+b)*2)*2')).toBe('<a></a><b></b>'.repeat(4))
+		expect(raw('a>((b)*2)*3')).toBe('<a>' + '<b></b>'.repeat(6) + '</a>')
+		expect(raw('(a(b)*2)*2')).toBe('<a><b></b><b></b></a>'.repeat(2))
+		expect(raw('((a)*2)')).toBe('<a></a><a></a>')
+		expect(raw('((a)*2)*1')).toBe('<a></a><a></a>')
+		expect(raw('div>(a*2)*3')).toBe('<div>' + '<a></a>'.repeat(6) + '</div>')
+	})
+
+	test('a count after a repeated group repeats the group, not the tag', () => {
+		expect(raw('(div>*3)*2')).toBe('<div></div>'.repeat(6))
+	})
+
+	test('repeated groups number their $ tags', () => {
+		expect(raw('(#t_$@>b)*3')).toBe(
+			'<div id="t_0"><b></b></div><div id="t_1"><b></b></div><div id="t_2"><b></b></div>',
+		)
+		expect(raw('(#t_$@)*3')).toBe(
+			'<div id="t_0"></div><div id="t_1"></div><div id="t_2"></div>',
+		)
+		expect(raw('(a#t_$@+b)*2')).toBe('<a id="t_0"></a><b></b><a id="t_1"></a><b></b>')
+	})
+
+	test('$ arithmetic: @0 is a no-op start, negatives decrement, non-numeric tails stay literal', () => {
+		expect(raw('div#t_$@0*3')).toBe(
+			'<div id="t_0"></div><div id="t_1"></div><div id="t_2"></div>',
+		)
+		expect(raw('div#t_$@x*3')).toBe(
+			'<div id="t_0x"></div><div id="t_1x"></div><div id="t_2x"></div>',
+		)
+		expect(raw('div#t_$@0.5*3')).toBe(
+			'<div class="5" id="t_0"></div><div class="5" id="t_1"></div><div class="5" id="t_2"></div>',
+		)
+		expect(raw('div#t_$@@3*3')).toBe(
+			'<div id="t_0@3"></div><div id="t_1@3"></div><div id="t_2@3"></div>',
+		)
+		expect(raw('div#t_$$@-1*3')).toBe(
+			'<div id="t_01"></div><div id="t_00"></div><div id="t_-1"></div>',
+		)
+		expect(raw('div#t_$@-3*1')).toBe('<div id="t_3"></div>')
+		expect(raw('li{$@3}*12')).toBe(
+			'<li>' + Array.from({ length: 12 }, (_, i) => 3 + i).join('</li><li>') + '</li>',
+		)
+	})
+
+	test('$ in content only counts when @ follows it', () => {
+		expect(raw('div{a$b@c}*3')).toBe('<div>a$b@c</div>'.repeat(3))
+		expect(raw('div{$@}*10')).toBe(
+			'<div>' + Array.from({ length: 10 }, (_, i) => i).join('</div><div>') + '</div>',
+		)
+	})
+
+	test('an unparseable count expands to nothing', () => {
+		// `*` with no numeric suffix, a garbage suffix, or a count too large to
+		// parse as an integer all expand the previous tag zero times.
+		expect(raw('*3')).toBe('')
+		expect(raw('*3 div')).toBe('')
+		expect(raw('(*3)')).toBe('')
+		expect(raw('(a)*')).toBe('')
+		expect(raw('(div)*')).toBe('')
+		expect(raw('div*abc')).toBe('')
+		expect(raw('div*999999999999')).toBe('')
+		expect(raw('div*2147483648')).toBe('')
+		expect(raw('div**2')).toBe('')
+		expect(raw('li*')).toBe('')
+		expect(raw('div#t_$@*0')).toBe('')
+	})
+
+	test('a trailing * after a count emits stray close tags', () => {
+		expect(raw('div*2*3')).toBe('<div></div><div></div></div></div>')
+	})
+})
+
+describe('caret operator', () => {
+	test.each([
+		['^div', '<div></div>'],
+		['^+div', '<div></div>'],
+		['^^div', '<div></div>'],
+		['a>b>c^^^d', '<a><b><c></c></b></a><d></d>'],
+		['a>b>c>d^^e^^f', '<a><b><c><d></d></c></b><e></e></a><f></f>'],
+		['a>b^^c>d', '<a><b></b></a><c><d></d></c>'],
+		['(a>b*c^d)*2', '<a></a><d></d><a></a><d></d>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+})
+
+describe('doctype', () => {
+	test.each([
+		['!', '<!DOCTYPE html>'],
+		['!+div', '<!DOCTYPE html><div></div>'],
+		['!+!', '<!DOCTYPE html><!DOCTYPE html>'],
+		['!+!+div', '<!DOCTYPE html><!DOCTYPE html><div></div>'],
+		['(!)*2', '<!DOCTYPE html><!DOCTYPE html>'],
+		['(!)+div', '<!DOCTYPE html><div></div>'],
+		['h1+!', '<h1></h1><!DOCTYPE html>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('a doctype never opens a nesting level and never closes', () => {
+		// closeTag skips any tag starting with `!`, so a doctype cannot be a
+		// parent and is emitted in place instead.
+		expect(raw('!>div')).toBe('<!DOCTYPE html><div></div>')
+		expect(raw('(!>div)')).toBe('<!DOCTYPE html><div></div>')
+		expect(raw('div>!')).toBe('<div><!DOCTYPE html></div>')
+		expect(raw('div>!+span')).toBe('<div><!DOCTYPE html><span></span></div>')
+		expect(raw('a>b>!')).toBe('<a><b><!DOCTYPE html></b></a>')
+	})
+})
+
+describe('tag and class names keep their case', () => {
+	test.each([
+		['DIV', '<DIV></DIV>'],
+		['Br', '<Br>'],
+		['ImG', '<ImG>'],
+		['InPuT', '<InPuT>'],
+		['TAbLe', '<TAbLe></TAbLe>'],
+		['Div.A', '<Div class="A"></Div>'],
+		['a#i.A', '<a class="A" id="i"></a>'],
+		['ul>.A', '<ul><li class="A"></li></ul>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+})
+
+describe('attribute values', () => {
+	test('operators inside [] do not split the token', () => {
+		expect(raw('div[x=a>b]')).toBe('<div x="a>b"></div>')
+		expect(raw('div[x=a+b]')).toBe('<div x="a+b"></div>')
+		expect(raw('div[x=a^b]')).toBe('<div x="a^b"></div>')
+		expect(raw('div[x="a]{b"]')).toBe('<div x="a]{b"></div>')
+		expect(raw('div[a="1=b"]')).toBe('<div alt="1=b"></div>')
+		expect(raw('div[x="a>b c"]')).toBe('<div x="a>b c"></div>')
+	})
+
+	test.each([
+		["div[a='']", "<div alt=''></div>"],
+		['div[a=""]', '<div alt=""></div>'],
+		['div[a="1" 2]', '<div alt="1" 2></div>'],
+		['div[=a]', '<div =alt></div>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('a double-quoted value may contain a closing bracket', () => {
+		expect(raw('div[x="a]b"]')).toBe('<div x="a]b"></div>')
+	})
+
+	test('a single-quoted value containing ] mangles the tag', () => {
+		// Only the double-quoted form survives: with single quotes the value
+		// stops at the quote and the rest is re-read as an attribute name.
+		expect(raw("div[x='a]b']")).toBe(`<div x=""'a></div>`)
+	})
+
+	test('an unterminated quote drops the whole attribute block', () => {
+		expect(raw('div[a="')).toBe('<div></div>')
+	})
+})
+
+describe('degenerate input falls back to the implicit element', () => {
+	test.each([
+		['.', '<div></div>'],
+		['#', '<div></div>'],
+		['[', '<div></div>'],
+		['{', '<div></div>'],
+		['[]', '<div></div>'],
+		['{}', '<div></div>'],
+		['div#', '<div></div>'],
+		['div.', '<div></div>'],
+		['( )', '<div></div>'],
+		['\r', '<div></div>'],
+		['\v', '<div></div>'],
+		['a{b', '<a></a>'],
+		['{a', '<div></div>'],
+	])('%s', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+
+	test('unbalanced brackets and braces are swallowed without complaint', () => {
+		expect(raw('div{a')).toBe('<div></div>')
+		expect(raw('div[a=')).toBe('<div></div>')
+		expect(raw('div[a')).toBe('<div></div>')
+		expect(raw('div[a=b')).toBe('<div></div>')
+		expect(raw('div[x=a}b')).toBe('<div></div>')
+		expect(raw('div{a]')).toBe('<div></div>')
+		expect(raw('div[]a')).toBe('<div></div>')
+	})
+
+	test.each([
+		['div#1#2', '<div id="1"></div>'],
+		['div.a.b#1#2', '<div class="a b#1#2"></div>'],
+	])('%s keeps only the first occurrence', (input, expected) => {
+		expect(raw(input)).toBe(expected)
+	})
+})
+
+describe('indented format, edge cases', () => {
+	test.each([
+		// Blank and indentation-only lines contribute nothing.
+		[['div\n\n\tspan', '\t'], '<div><span></span></div>'],
+		[['\t', '\t'], ''],
+		[['\n\tdiv', '\t'], '<div></div>'],
+		[['\tdiv', '\t'], '<div></div>'],
+		[['div\n\t', '\t'], '<div></div>'],
+	])('%o', ([input, indent], expected) => {
+		expect(indented(input, indent)).toBe(expected)
+	})
+
+	test('indentation deeper than one level still nests only one level', () => {
+		expect(indented('div\n\t\tspan')).toBe('<div><span></span></div>')
+	})
+
+	test('indentation must start the line or the level resets', () => {
+		expect(indented('div\n \tspan')).toBe('<div></div><span></span>')
+		expect(indented('a\n\tb\t\nc')).toBe('<a><b></b></a><c></c>')
+		expect(indented('a\n\tb\nc\nd')).toBe('<a><b></b></a><c></c><d></d>')
+	})
+
+	test('a line starting with * repeats the previous tag, wherever it sits', () => {
+		expect(indented('div\n\t*3')).toBe('<div></div>'.repeat(3))
+		expect(indented('div\n\t\t*2')).toBe('<div></div><div></div>')
+		expect(indented('ul\n\tli\n\t\t*2')).toBe('<ul><li></li><li></li></ul>')
+	})
+
+	test('a line starting with / * / repeats instead of being a comment', () => {
+		// The extractor cannot tell a comment from a repeat marker, so a
+		// `/* ... */` line discards the whole document.
+		expect(indented('div\n\t/*comment*/')).toBe('')
+		expect(indented('div\n\t*')).toBe('')
+	})
+
+	test('indentation may be any repeated run of the same unit', () => {
+		expect(indented('a', '   ')).toBe('<a></a>')
+		expect(indented('a\n   b', '   ')).toBe('<a><b></b></a>')
+		expect(indented('  a', '  ')).toBe('<a></a>')
+	})
+})
+
+describe('the indent unit is interpolated into a RegExp unescaped', () => {
+	// getTabLevel() builds RegExp(indent, 'g') from the raw unit. With a unit
+	// made of regex metacharacters the level measurement is nonsense and the
+	// line ends up parsed as a completely different abbreviation.
+	test.each([
+		[['a\n.b', '.'], '<a><div class="b"></div></a>'],
+		[['a\n(x)b', '(x)'], '<a></a><x></x><b></b>'],
+		[['a\n[ab]b', '[ab]'], '<a></a><div ab></div>'],
+	])('%o', ([input, indent], expected) => {
+		expect(indented(input, indent)).toBe(expected)
+	})
+
+	test('the prefix still nests as long as the unit matches it', () => {
+		// `-` is literal, and `-*` still consumes the leading `-`, so both
+		// land at level 1 even though the regex is loose.
+		expect(indented('a\n-b', '-')).toBe('<a><-b></-b></a>')
+		expect(indented('a\n-b', '-*')).toBe('<a><-b></-b></a>')
+	})
+})
+
+describe('stress', () => {
+	test('deep nesting does not overflow the stack', () => {
+		expect(raw('d>'.repeat(10000))).toContain('<d>')
+		expect(raw('d>'.repeat(10000)).endsWith('</d>')).toBe(true)
+	})
+
+	test('a large count renders every repetition', () => {
+		const out = raw('li*1000')
+		expect(out.split('<li></li>').length - 1).toBe(1000)
+	})
+
+	test('a long abbreviation round-trips', () => {
+		expect(raw('div>.x'.repeat(200))).toContain('<div class="x">')
 	})
 })
